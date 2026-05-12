@@ -47,16 +47,12 @@ export default function UploadPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
-          Upload Your Plate
-        </h1>
-        <p className="text-gray-500">
-          Share your creation and get rated by AI and the community
-        </p>
+        <h1 className="text-3xl font-black text-white mb-2">Upload Your Plate</h1>
+        <p className="text-white/40">Share your creation and get brutally honest AI ratings</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-6">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-6">
           {error}
         </div>
       )}
@@ -64,9 +60,7 @@ export default function UploadPage() {
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
         {/* Image upload */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Plate Photo *
-          </label>
+          <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Plate Photo *</label>
           {preview ? (
             <div className="relative rounded-2xl overflow-hidden bg-gray-100 aspect-square max-w-sm mx-auto">
               <Image
@@ -81,7 +75,7 @@ export default function UploadPage() {
                   setPreview(null);
                   if (fileRef.current) fileRef.current.value = "";
                 }}
-                className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-1.5 hover:bg-white transition-colors shadow-md"
+                className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-1.5 hover:bg-black/70 transition-colors"
               >
                 <X className="w-4 h-4 text-gray-700" />
               </button>
@@ -90,14 +84,14 @@ export default function UploadPage() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="w-full aspect-square max-w-sm mx-auto flex flex-col items-center justify-center gap-3 border-2 border-dashed border-orange-200 rounded-2xl bg-orange-50 hover:bg-orange-100 hover:border-orange-400 transition-colors cursor-pointer"
+              className="w-full aspect-square max-w-sm mx-auto flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02] hover:bg-orange-500/5 hover:border-orange-500/40 transition-colors cursor-pointer"
             >
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md">
+              <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center">
                 <ImagePlus className="w-8 h-8 text-orange-400" />
               </div>
               <div className="text-center">
-                <p className="font-semibold text-gray-700">Click to upload</p>
-                <p className="text-sm text-gray-400 mt-0.5">
+                <p className="font-semibold text-white/70">Click to upload</p>
+                <p className="text-sm text-white/30 mt-0.5">
                   JPG, PNG, WEBP up to 10MB
                 </p>
               </div>
@@ -115,12 +109,10 @@ export default function UploadPage() {
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Category
-          </label>
+          <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Category</label>
           <select
             name="category"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-white capitalize"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm text-white capitalize"
             defaultValue="other"
           >
             {CATEGORIES.map((c) => (
@@ -133,42 +125,37 @@ export default function UploadPage() {
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Dish Name *
-          </label>
+          <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Dish Name *</label>
           <input
             name="title"
             type="text"
             required
             maxLength={100}
             placeholder="e.g. Spaghetti Carbonara"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-white placeholder-white/20"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Description{" "}
-            <span className="font-normal text-gray-400">(optional)</span>
-          </label>
+          <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Description <span className="font-normal normal-case tracking-normal text-white/20">(optional)</span></label>
           <textarea
             name="description"
             rows={3}
             maxLength={500}
             placeholder="Tell us about this dish — ingredients, how you made it, any special touches..."
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm resize-none"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-white placeholder-white/20 resize-none"
           />
         </div>
 
         {/* AI notice */}
-        <div className="flex items-start gap-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-4">
-          <Sparkles className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
+          <Sparkles className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-purple-700">
+            <p className="text-sm font-semibold text-orange-300">
               AI Rating Included
             </p>
-            <p className="text-xs text-purple-500 mt-0.5">
+            <p className="text-xs text-orange-400/70 mt-0.5">
               Your plate will be instantly reviewed by our AI food critic. Get
               a score out of 10 and a written critique!
             </p>

@@ -56,7 +56,7 @@ export default async function ProfilePage({
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Profile header */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 mb-8">
+      <div className="bg-white/[0.03] rounded-3xl border border-white/8 p-8 mb-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative w-24 h-24 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0 shadow-lg">
             {profile.avatar_url ? (
@@ -68,13 +68,13 @@ export default async function ProfilePage({
             )}
           </div>
           <div className="flex-1 text-center sm:text-left">
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1">
+            <h1 className="text-3xl font-extrabold text-white mb-1">
               @{profile.username}
             </h1>
             {profile.bio && (
-              <p className="text-gray-500 dark:text-gray-400 mb-2">{profile.bio}</p>
+              <p className="text-white/50 mb-2">{profile.bio}</p>
             )}
-            <div className="flex flex-wrap justify-center sm:justify-start gap-6 text-sm text-gray-500">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-6 text-sm text-white/40">
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
                 Joined {formatDate(profile.created_at)}
@@ -121,7 +121,7 @@ export default async function ProfilePage({
               </Link>
               <Link
                 href="/profile/edit"
-                className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-xl font-medium hover:border-orange-300 hover:text-orange-500 transition-all text-sm"
+                className="flex items-center gap-2 border border-white/10 text-white/50 px-5 py-2.5 rounded-xl font-medium hover:border-orange-500/40 hover:text-orange-400 transition-all text-sm"
               >
                 <Pencil className="w-4 h-4" />
                 Edit Profile
@@ -132,7 +132,7 @@ export default async function ProfilePage({
       </div>
 
       {/* Plates grid */}
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+      <h2 className="text-xl font-bold text-white mb-6">
         {isOwnProfile ? "Your Plates" : `${profile.username}'s Plates`}
       </h2>
 
@@ -143,7 +143,7 @@ export default async function ProfilePage({
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-white/30">
           <User className="w-16 h-16 mx-auto mb-4 opacity-30" />
           <p className="text-lg font-medium">No plates yet</p>
           {isOwnProfile && (

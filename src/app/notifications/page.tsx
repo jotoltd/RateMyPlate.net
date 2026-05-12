@@ -51,15 +51,15 @@ export default async function NotificationsPage() {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
-            <p className="text-sm text-gray-500">{unread > 0 ? `${unread} unread` : "All caught up!"}</p>
+            <h1 className="text-2xl font-bold text-white">Notifications</h1>
+            <p className="text-sm text-white/40">{unread > 0 ? `${unread} unread` : "All caught up!"}</p>
           </div>
         </div>
         {unread > 0 && (
           <form action={markAllRead}>
             <button
               type="submit"
-              className="flex items-center gap-1.5 text-sm text-orange-500 hover:text-orange-600 font-semibold px-3 py-1.5 rounded-xl hover:bg-orange-50 transition-colors"
+              className="flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-semibold px-3 py-1.5 rounded-xl hover:bg-orange-500/10 transition-colors"
             >
               <CheckCheck className="w-4 h-4" />
               Mark all read
@@ -69,7 +69,7 @@ export default async function NotificationsPage() {
       </div>
 
       {notifs.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-white/30">
           <Bell className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">No notifications yet</p>
           <p className="text-sm mt-1">When someone likes, rates or comments — it shows up here</p>
@@ -83,10 +83,10 @@ export default async function NotificationsPage() {
               <Link
                 key={n.id}
                 href={plate ? `/plate/${plate.id}` : actor ? `/profile/${actor.id}` : "/"}
-                className={`flex items-start gap-4 p-4 rounded-3xl border transition-all hover:border-orange-200 dark:hover:border-orange-700 hover:shadow-md ${
+                className={`flex items-start gap-4 p-4 rounded-3xl border transition-all hover:border-orange-500/30 ${
                   !n.read
-                    ? "bg-orange-50/80 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900"
-                    : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+                    ? "bg-orange-500/5 border-orange-500/20 border-l-2 border-l-orange-500"
+                    : "bg-white/[0.02] border-white/5"
                 }`}
               >
                 {/* Avatar */}
@@ -100,26 +100,26 @@ export default async function NotificationsPage() {
                       </span>
                     </div>
                   )}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-sm">
+                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#141414] rounded-full flex items-center justify-center">
                     {icons[n.type] ?? <Bell className="w-3 h-3 text-gray-400" />}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 dark:text-gray-200">
+                  <p className="text-sm text-white/80">
                     <span className="font-bold">{actor?.username ?? "Someone"}</span>{" "}
                     {messages[n.type] ?? "interacted with you"}
                     {plate && (
                       <span className="font-semibold text-orange-500"> "{plate.title}"</span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">{formatDate(n.created_at)}</p>
+                  <p className="text-xs text-white/30 mt-0.5">{formatDate(n.created_at)}</p>
                 </div>
 
                 {/* Plate thumbnail */}
                 {plate && (
-                  <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
+                  <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-white/5">
                     <img src={plate.image_url} alt={plate.title} className="w-full h-full object-cover" />
                   </div>
                 )}
