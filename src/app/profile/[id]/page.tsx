@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { User, Calendar, Star, Upload } from "lucide-react";
+import { User, Calendar, Star, Upload, Heart, Pencil } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import PlateCard from "@/components/PlateCard";
 import { Plate } from "@/lib/types";
@@ -34,6 +35,8 @@ export default async function ProfilePage({
 
   const totalRatings =
     plates?.reduce((sum, p) => sum + (p.rating_count ?? 0), 0) ?? 0;
+  const totalLikes =
+    plates?.reduce((sum, p) => sum + (p.like_count ?? 0), 0) ?? 0;
   const avgRating =
     plates && plates.length > 0
       ? plates
@@ -50,10 +53,14 @@ export default async function ProfilePage({
       {/* Profile header */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-rose-500 rounded-3xl flex items-center justify-center shadow-lg flex-shrink-0">
-            <span className="text-white text-4xl font-extrabold">
-              {profile.username[0].toUpperCase()}
-            </span>
+          <div className="relative w-24 h-24 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0 shadow-lg">
+            {profile.avatar_url ? (
+              <Image src={profile.avatar_url} alt={profile.username} fill className="object-cover" sizes="96px" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-white text-4xl font-extrabold">{profile.username[0].toUpperCase()}</span>
+              </div>
+            )}
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
@@ -81,16 +88,29 @@ export default async function ProfilePage({
                   Avg {avgRating.toFixed(1)}/10
                 </div>
               )}
+              <div className="flex items-center gap-1.5">
+                <Heart className="w-4 h-4 text-rose-400 fill-rose-400" />
+                {totalLikes} likes
+              </div>
             </div>
           </div>
           {isOwnProfile && (
-            <Link
-              href="/upload"
-              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-md"
-            >
-              <Upload className="w-4 h-4" />
-              Upload Plate
-            </Link>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/upload"
+                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-md"
+              >
+                <Upload className="w-4 h-4" />
+                Upload Plate
+              </Link>
+              <Link
+                href="/profile/edit"
+                className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-xl font-medium hover:border-orange-300 hover:text-orange-500 transition-all text-sm"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit Profile
+              </Link>
+            </div>
           )}
         </div>
       </div>

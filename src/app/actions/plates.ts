@@ -164,6 +164,72 @@ export async function submitRating(
       .eq("id", plateId);
   }
 
+  // Notify plate owner (not self-rating)
+  const { data: plate } = await supabase
+    .from("plates")
+    .select("user_id")
+    .eq("id", plateId)
+    .single();
+  if (plate && plate.user_id !== user.id) {
+    await supabase.from("notifications").insert({
+      user_id: plate.user_id,
+      actor_id: user.id,
+      type: "rating",
+      plate_id: plateId,
+    });
+  }
+
   revalidatePath(`/plate/${plateId}`);
+  return { success: true };
+}
+
+export async function deletePlate(plateId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { data: plate } = await supabase
+    .from("plates")
+    .select("image_url, user_id")
+    .eq("id", plateId)
+    .single();
+
+  if (!plate) return { error: "Plate not found" };
+  if (plate.user_id !== user.id) return { error: "Not your plate" };
+
+  // Remove image from storage
+  const path = plate.image_url.split("/plates/")[1];
+  if (path) await supabase.storage.from("plates").remove([path]);
+
+  await supabase.from("plates").delete().eq("id", plateId);
+
+  revalidatePath("/");
+  revalidatePath(`/profile/${user.id}`);
+  return { success: true };
+}
+
+export async function updatePlate(
+  plateId: string,
+  title: string,
+  description: string
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("plates")
+    .update({ title, description: description || null })
+    .eq("id", plateId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/plate/${plateId}`);
+  revalidatePath(`/profile/${user.id}`);
   return { success: true };
 }

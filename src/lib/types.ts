@@ -30,6 +30,19 @@ export type Rating = {
   profiles?: Profile;
 };
 
+export type Notification = {
+  id: string;
+  user_id: string;
+  actor_id: string;
+  type: "like" | "comment" | "rating" | "reply";
+  plate_id: string | null;
+  comment_id: string | null;
+  read: boolean;
+  created_at: string;
+  actor?: Profile;
+  plate?: Pick<Plate, "id" | "title" | "image_url">;
+};
+
 export type Comment = {
   id: string;
   plate_id: string;

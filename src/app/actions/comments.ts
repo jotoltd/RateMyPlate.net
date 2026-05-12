@@ -16,14 +16,53 @@ export async function addComment(
   if (!user) return { error: "Not authenticated" };
   if (!body.trim()) return { error: "Comment cannot be empty" };
 
-  const { error } = await supabase.from("comments").insert({
-    plate_id: plateId,
-    user_id: user.id,
-    parent_id: parentId ?? null,
-    body: body.trim(),
-  });
+  const { data: newComment, error } = await supabase
+    .from("comments")
+    .insert({
+      plate_id: plateId,
+      user_id: user.id,
+      parent_id: parentId ?? null,
+      body: body.trim(),
+    })
+    .select()
+    .single();
 
   if (error) return { error: error.message };
+
+  // Notify plate owner on comment (not self)
+  const { data: plate } = await supabase
+    .from("plates")
+    .select("user_id")
+    .eq("id", plateId)
+    .single();
+
+  if (plate && plate.user_id !== user.id) {
+    await supabase.from("notifications").insert({
+      user_id: plate.user_id,
+      actor_id: user.id,
+      type: "comment",
+      plate_id: plateId,
+      comment_id: newComment.id,
+    });
+  }
+
+  // Notify parent comment author on reply (not self)
+  if (parentId) {
+    const { data: parent } = await supabase
+      .from("comments")
+      .select("user_id")
+      .eq("id", parentId)
+      .single();
+    if (parent && parent.user_id !== user.id) {
+      await supabase.from("notifications").insert({
+        user_id: parent.user_id,
+        actor_id: user.id,
+        type: "reply",
+        plate_id: plateId,
+        comment_id: newComment.id,
+      });
+    }
+  }
 
   revalidatePath(`/plate/${plateId}`);
   return { success: true };

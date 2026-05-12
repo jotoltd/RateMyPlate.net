@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import NotificationBell from "@/components/NotificationBell";
+import { Notification } from "@/lib/types";
 
 type NavbarProps = {
   user: { id: string; email?: string } | null;
   username?: string | null;
+  notifications?: Notification[];
 };
 
-export default function Navbar({ user, username }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [] }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -36,8 +39,21 @@ export default function Navbar({ user, username }: NavbarProps) {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-3">
+          <Link
+            href="/search"
+            className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors"
+          >
+            <Trophy className="w-4 h-4" />
+          </Link>
           {user ? (
             <>
+              {notifications && <NotificationBell notifications={notifications} />}
               <Link
                 href="/upload"
                 className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-xl font-medium hover:opacity-90 transition-opacity shadow-md"
@@ -91,8 +107,15 @@ export default function Navbar({ user, username }: NavbarProps) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-orange-100 bg-white px-4 py-3 flex flex-col gap-2">
+          <Link href="/search" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+            <Search className="w-4 h-4" /> Search
+          </Link>
+          <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+            <Trophy className="w-4 h-4" /> Leaderboard
+          </Link>
           {user ? (
             <>
+              {notifications && <NotificationBell notifications={notifications} />}
               <Link
                 href="/upload"
                 onClick={() => setMenuOpen(false)}

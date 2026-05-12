@@ -13,6 +13,10 @@ import { createClient } from "@/lib/supabase/server";
 import RatingForm from "@/components/RatingForm";
 import StarRating from "@/components/StarRating";
 import CommentSection from "@/components/CommentSection";
+import LikeButton from "@/components/LikeButton";
+import ShareButton from "@/components/ShareButton";
+import EditPlateModal from "@/components/EditPlateModal";
+import DeletePlateButton from "@/components/DeletePlateButton";
 import { formatDate, getStarLabel } from "@/lib/utils";
 import { Comment } from "@/lib/types";
 
@@ -47,6 +51,15 @@ export default async function PlatePage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const userLike = user
+    ? await supabase
+        .from("likes")
+        .select("id")
+        .eq("plate_id", id)
+        .eq("user_id", user.id)
+        .single()
+    : null;
 
   const existingRating = user
     ? ratings?.find((r) => r.user_id === user.id) ?? null
@@ -99,7 +112,19 @@ export default async function PlatePage({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+          {/* Owner actions */}
+          {user && user.id === plate.user_id && (
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <EditPlateModal
+                plateId={plate.id}
+                initialTitle={plate.title}
+                initialDescription={plate.description ?? ""}
+              />
+              <DeletePlateButton plateId={plate.id} />
+            </div>
+          )}
+
+        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-1.5">
               <User className="w-4 h-4" />
               <Link
@@ -180,6 +205,17 @@ export default async function PlatePage({
               />
             </div>
           )}
+
+          {/* Like + Share */}
+          <div className="flex items-center gap-2 pt-1">
+            <LikeButton
+              plateId={plate.id}
+              ownerId={plate.user_id}
+              initialCount={plate.like_count ?? 0}
+              initialLiked={userLike?.data != null}
+            />
+            <ShareButton title={plate.title} />
+          </div>
 
           {!user && (
             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 text-center">
