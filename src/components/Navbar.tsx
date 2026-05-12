@@ -14,9 +14,10 @@ type NavbarProps = {
   notifications?: Notification[];
   themeToggle?: React.ReactNode;
   avatarUrl?: string | null;
+  userId?: string;
 };
 
-export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl, userId }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -65,7 +66,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               <Link href="/saved" className="p-2 text-white/40 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Saved">
                 <Bookmark className="w-4 h-4" />
               </Link>
-              <NotificationBell notifications={notifications} />
+              <NotificationBell notifications={notifications} userId={userId} />
               <Link
                 href="/upload"
                 className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-orange-200/50 dark:shadow-none ml-1"
@@ -102,7 +103,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
           <Link href="/search" className="p-1.5 text-white/40 hover:text-orange-400 rounded-lg transition-colors">
             <Search className="w-5 h-5" />
           </Link>
-          {user && <NotificationBell notifications={notifications} />}
+          {user && <NotificationBell notifications={notifications} userId={userId} />}
           <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 text-white/50 hover:text-orange-400 rounded-lg transition-colors">
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>

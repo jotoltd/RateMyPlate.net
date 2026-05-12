@@ -4,7 +4,6 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
-import RealtimeNotifications from "@/components/RealtimeNotifications";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,7 +54,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white transition-colors">
-        <Navbar user={user} username={username} avatarUrl={avatarUrl} notifications={notifications as never} themeToggle={<ThemeToggle />} />
+        <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} />
         <main className="flex-1">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
@@ -63,7 +62,6 @@ export default async function RootLayout({
           {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
         <MobileNav userId={user?.id} />
-        {user && <RealtimeNotifications userId={user.id} />}
       </body>
     </html>
   );
