@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -20,6 +19,7 @@ import EditPlateModal from "@/components/EditPlateModal";
 import DeletePlateButton from "@/components/DeletePlateButton";
 import { formatDate, getStarLabel } from "@/lib/utils";
 import { Comment } from "@/lib/types";
+import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
 
 export async function generateMetadata({
   params,
@@ -118,18 +118,10 @@ export default async function PlatePage({
       </Link>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Image */}
-        <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-100 shadow-xl">
-          <Image
-            src={plate.image_url}
-            alt={plate.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
+        {/* Image with lightbox */}
+        <PlateImageWithLightbox src={plate.image_url} alt={plate.title}>
           {displayRating && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-lg">
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-lg pointer-events-none">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
               <span className="text-base font-bold text-gray-900">
                 {Number(displayRating).toFixed(1)}
@@ -137,7 +129,7 @@ export default async function PlatePage({
               <span className="text-xs text-gray-500">/ 10</span>
             </div>
           )}
-        </div>
+        </PlateImageWithLightbox>
 
         {/* Info */}
         <div className="flex flex-col gap-5">

@@ -10,12 +10,32 @@ const PAGE_SIZE = 12;
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; tab?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, tab } = await searchParams;
+  const activeTab = tab === "following" ? "following" : "all";
   const activeCategory = category && CATEGORIES.includes(category as never) ? category : "all";
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let followingPlates: Plate[] = [];
+  if (activeTab === "following" && user) {
+    const { data: follows } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", user.id);
+    if (follows && follows.length > 0) {
+      const ids = follows.map((f) => f.following_id);
+      const { data } = await supabase
+        .from("plates")
+        .select("*, profiles(id, username, avatar_url)")
+        .in("user_id", ids)
+        .order("created_at", { ascending: false })
+        .limit(PAGE_SIZE);
+      followingPlates = (data ?? []) as Plate[];
+    }
+  }
 
   let feedQuery = supabase
     .from("plates")
@@ -27,7 +47,7 @@ export default async function Home({
     feedQuery = feedQuery.eq("category", activeCategory);
   }
 
-  const [{ data: plates }, { data: topPlates }, { data: { user } }] = await Promise.all([
+  const [{ data: plates }, { data: topPlates }] = await Promise.all([
     feedQuery,
     supabase
       .from("plates")
@@ -35,7 +55,6 @@ export default async function Home({
       .not("avg_user_rating", "is", null)
       .order("avg_user_rating", { ascending: false })
       .limit(3),
-    supabase.auth.getUser(),
   ]);
 
   return (
@@ -121,34 +140,83 @@ export default async function Home({
             )}
           </div>
 
-          {/* Category filter tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
-            <Link
-              href="/"
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
-                activeCategory === "all"
-                  ? "bg-orange-500 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-50"
-              }`}
-            >
-              All
-            </Link>
-            {CATEGORIES.map((cat) => (
+          {/* All / Following tabs */}
+          {user && (
+            <div className="flex gap-1 mb-5 bg-gray-100 dark:bg-gray-800 rounded-2xl p-1 w-fit">
               <Link
-                key={cat}
-                href={`/?category=${cat}`}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
-                  activeCategory === cat
+                href="/"
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  activeTab === "all"
+                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                For You
+              </Link>
+              <Link
+                href="/?tab=following"
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  activeTab === "following"
+                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Following
+              </Link>
+            </div>
+          )}
+
+          {/* Category filter tabs (only in For You tab) */}
+          {activeTab === "all" && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
+              <Link
+                href="/"
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+                  activeCategory === "all"
                     ? "bg-orange-500 text-white"
                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-50"
                 }`}
               >
-                {cat}
+                All
               </Link>
-            ))}
-          </div>
+              {CATEGORIES.map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/?category=${cat}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
+                    activeCategory === cat
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-50"
+                  }`}
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          )}
 
-          {plates && plates.length > 0 ? (
+          {activeTab === "following" ? (
+            followingPlates.length > 0 ? (
+              <InfiniteFeed
+                initialPlates={followingPlates}
+                mode="following"
+              />
+            ) : (
+              <div className="text-center py-20 text-gray-400">
+                <Users className="w-14 h-14 mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-medium">No plates from people you follow yet</p>
+                <p className="text-sm mt-1 mb-6">Follow chefs to see their plates here</p>
+                {topPlates && topPlates.length > 0 && (
+                  <>
+                    <p className="text-sm font-semibold text-gray-500 mb-4">Suggested plates</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                      {topPlates.map((p) => <PlateCard key={p.id} plate={p as Plate} />)}
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          ) : plates && plates.length > 0 ? (
             <InfiniteFeed
               initialPlates={plates as Plate[]}
               category={activeCategory !== "all" ? activeCategory : undefined}

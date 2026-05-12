@@ -15,6 +15,16 @@ export async function addComment(
 
   if (!user) return { error: "Not authenticated" };
   if (!body.trim()) return { error: "Comment cannot be empty" };
+  if (body.length > 1000) return { error: "Comment is too long (max 1000 characters)" };
+
+  // Rate limit: max 30 comments per hour
+  const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count } = await supabase
+    .from("comments")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", since);
+  if ((count ?? 0) >= 30) return { error: "You're commenting too fast. Slow down a bit!" };
 
   const { data: newComment, error } = await supabase
     .from("comments")
@@ -61,6 +71,28 @@ export async function addComment(
         plate_id: plateId,
         comment_id: newComment.id,
       });
+    }
+  }
+
+  // Notify @mentioned users
+  const mentions = [...body.matchAll(/@([a-zA-Z0-9_]+)/g)].map((m) => m[1]);
+  if (mentions.length > 0) {
+    const uniqueMentions = [...new Set(mentions)].slice(0, 5); // max 5 mentions per comment
+    const { data: mentionedProfiles } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .in("username", uniqueMentions);
+
+    for (const profile of mentionedProfiles ?? []) {
+      if (profile.id !== user.id) {
+        await supabase.from("notifications").insert({
+          user_id: profile.id,
+          actor_id: user.id,
+          type: "comment",
+          plate_id: plateId,
+          comment_id: newComment.id,
+        });
+      }
     }
   }
 

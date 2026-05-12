@@ -41,6 +41,7 @@ function CommentInput({
   const [body, setBody] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const MAX = 1000;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,6 +66,7 @@ function CommentInput({
           onChange={(e) => setBody(e.target.value)}
           placeholder={placeholder}
           rows={2}
+          maxLength={MAX}
           autoFocus={autoFocus}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -74,7 +76,12 @@ function CommentInput({
           }}
           className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none bg-gray-50 placeholder-gray-400"
         />
-        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        <div className="flex items-center justify-between mt-1">
+          {error ? <p className="text-red-500 text-xs">{error}</p> : <span />}
+          <span className={`text-xs ${body.length > MAX * 0.9 ? "text-orange-500" : "text-gray-400"}`}>
+            {body.length}/{MAX}
+          </span>
+        </div>
       </div>
       <button
         type="submit"
@@ -127,7 +134,19 @@ function CommentItem({
               {username}
             </Link>
             <p className="text-sm text-gray-700 mt-0.5 break-words whitespace-pre-wrap">
-              {comment.body}
+              {comment.body.split(/(@[a-zA-Z0-9_]+)/g).map((part, i) =>
+                /^@[a-zA-Z0-9_]+$/.test(part) ? (
+                  <Link
+                    key={i}
+                    href={`/search?q=${part.slice(1)}`}
+                    className="text-orange-500 font-semibold hover:underline"
+                  >
+                    {part}
+                  </Link>
+                ) : (
+                  part
+                )
+              )}
             </p>
           </div>
 

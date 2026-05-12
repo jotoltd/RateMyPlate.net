@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import RealtimeNotifications from "@/components/RealtimeNotifications";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { createClient } from "@/lib/supabase/server";
 
 const geistSans = Geist({
@@ -13,9 +14,14 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ratemyplate.net"),
   title: "Rate My Plate – Share & Rate Food",
   description:
     "Upload your plates, get rated by AI and the community. The ultimate food rating platform.",
+  openGraph: {
+    siteName: "Rate My Plate",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({
@@ -48,7 +54,9 @@ export default async function RootLayout({
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-100 transition-colors">
         <Navbar user={user} username={username} notifications={notifications as never} themeToggle={<ThemeToggle />} />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </main>
         <footer className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 py-6 text-center text-sm text-gray-400 hidden md:block">
           © {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>

@@ -13,12 +13,23 @@ export async function uploadPlate(formData: FormData) {
 
   if (!user) return { error: "Not authenticated" };
 
+  // Rate limit: max 5 uploads per user per day
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await supabase
+    .from("plates")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", since);
+  if ((count ?? 0) >= 5) return { error: "You can only upload 5 plates per day. Try again tomorrow!" };
+
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const category = (formData.get("category") as string) || "other";
   const file = formData.get("image") as File;
 
   if (!file || file.size === 0) return { error: "No image provided" };
+  if (file.size > 10 * 1024 * 1024) return { error: "Image must be under 10MB" };
+  if (!file.type.startsWith("image/")) return { error: "File must be an image" };
 
   const ext = file.name.split(".").pop();
   const fileName = `${user.id}/${Date.now()}.${ext}`;
@@ -139,6 +150,15 @@ export async function submitRating(
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Not authenticated" };
+
+  // Rate limit: max 20 ratings per hour
+  const sinceRating = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count: ratingCount } = await supabase
+    .from("ratings")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", sinceRating);
+  if ((ratingCount ?? 0) >= 20) return { error: "You're rating too fast. Slow down a bit!" };
 
   const { error } = await supabase.from("ratings").upsert(
     {

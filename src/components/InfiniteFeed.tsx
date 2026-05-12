@@ -1,33 +1,54 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useEffect, useRef } from "react";
 import PlateCard from "@/components/PlateCard";
 import { PlateCardSkeleton } from "@/components/Skeleton";
 import { Plate } from "@/lib/types";
-import { loadMorePlates } from "@/app/actions/feed";
+import { loadMorePlates, loadFollowingFeed } from "@/app/actions/feed";
 
 const PAGE_SIZE = 12;
 
 export default function InfiniteFeed({
   initialPlates,
   category,
+  mode = "all",
 }: {
   initialPlates: Plate[];
   category?: string;
+  mode?: "all" | "following";
 }) {
   const [plates, setPlates] = useState<Plate[]>(initialPlates);
   const [offset, setOffset] = useState(initialPlates.length);
   const [hasMore, setHasMore] = useState(initialPlates.length === PAGE_SIZE);
   const [isPending, startTransition] = useTransition();
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadMore = useCallback(() => {
+    if (isPending || !hasMore) return;
     startTransition(async () => {
-      const more = await loadMorePlates(offset, PAGE_SIZE, category);
+      const more =
+        mode === "following"
+          ? await loadFollowingFeed(offset, PAGE_SIZE)
+          : await loadMorePlates(offset, PAGE_SIZE, category);
       if (more.length < PAGE_SIZE) setHasMore(false);
       setPlates((prev) => [...prev, ...more]);
       setOffset((prev) => prev + more.length);
     });
-  }, [offset, category]);
+  }, [offset, category, mode, isPending, hasMore]);
+
+  // Auto-trigger when sentinel enters viewport
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   return (
     <div>
@@ -39,18 +60,10 @@ export default function InfiniteFeed({
           Array.from({ length: 4 }).map((_, i) => <PlateCardSkeleton key={`sk-${i}`} />)}
       </div>
 
-      {hasMore && !isPending && (
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={loadMore}
-            className="px-8 py-3 rounded-2xl border-2 border-orange-200 text-orange-500 font-semibold hover:bg-orange-50 hover:border-orange-400 transition-all"
-          >
-            Load more plates
-          </button>
-        </div>
-      )}
+      {/* Invisible sentinel for auto-loading */}
+      {hasMore && <div ref={sentinelRef} className="h-4 mt-8" />}
 
-      {!hasMore && plates.length > PAGE_SIZE && (
+      {!hasMore && plates.length > 0 && (
         <p className="text-center text-sm text-gray-400 mt-10">You&apos;ve seen all the plates!</p>
       )}
     </div>
