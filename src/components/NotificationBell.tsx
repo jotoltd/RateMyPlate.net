@@ -41,22 +41,24 @@ export default function NotificationBell({
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
-    const channel = supabase
-      .channel(`notif-bell-${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
-        async (payload) => {
-          // Fetch full notification with actor + plate joins
-          const { data } = await supabase
-            .from("notifications")
-            .select("*, actor:actor_id(id, username), plate:plate_id(id, title, image_url)")
-            .eq("id", payload.new.id)
-            .single();
-          if (data) setNotifications((prev) => [data as Notification, ...prev]);
-        }
-      )
-      .subscribe();
+
+    async function handleInsert(payload: { new: { id: string } }) {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*, actor:actor_id(id, username), plate:plate_id(id, title, image_url)")
+        .eq("id", payload.new.id)
+        .single();
+      if (data) setNotifications((prev) => [data as Notification, ...prev]);
+    }
+
+    const channel = supabase.channel(`notif-bell-${userId}`);
+    channel.on(
+      "postgres_changes" as never,
+      { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+      handleInsert
+    );
+    channel.subscribe();
+
     return () => { supabase.removeChannel(channel); };
   }, [userId]);
 
