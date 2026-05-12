@@ -20,7 +20,7 @@ export default function DeletePlateButton({ plateId }: { plateId: string }) {
   if (confirm) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-600">Delete?</span>
+        <span className="text-sm text-white/40">Delete?</span>
         <button
           onClick={handleDelete}
           disabled={isPending}
@@ -30,7 +30,7 @@ export default function DeletePlateButton({ plateId }: { plateId: string }) {
         </button>
         <button
           onClick={() => setConfirm(false)}
-          className="px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          className="px-3 py-1.5 rounded-xl border border-white/10 text-sm font-medium text-white/40 hover:bg-white/5 transition-colors bg-white/5"
         >
           Cancel
         </button>
@@ -41,7 +41,7 @@ export default function DeletePlateButton({ plateId }: { plateId: string }) {
   return (
     <button
       onClick={() => setConfirm(true)}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-red-500 hover:border-red-300 hover:bg-red-50 transition-all"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 text-sm font-medium text-red-400 bg-white/5 hover:border-red-500/40 hover:bg-red-500/10 transition-all"
     >
       <Trash2 className="w-4 h-4" />
       Delete

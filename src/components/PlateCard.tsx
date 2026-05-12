@@ -16,7 +16,7 @@ export default function PlateCard({ plate }: PlateCardProps) {
 
   return (
     <Link href={`/plate/${plate.id}`} className="group block">
-      <div className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gray-100 dark:bg-gray-800" style={{ aspectRatio: "3/4" }}>
+      <div className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white/5" style={{ aspectRatio: "3/4" }}>
         {/* Full-bleed image */}
         <Image
           src={imgUrl(plate.image_url, { width: 400, quality: 80 })}

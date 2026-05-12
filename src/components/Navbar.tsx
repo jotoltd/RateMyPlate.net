@@ -127,7 +127,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               </div>
               <div>
                 <p className="font-bold text-white text-sm">{username}</p>
-                <p className="text-xs text-gray-400">View profile</p>
+                <p className="text-xs text-white/30">View profile</p>
               </div>
             </Link>
           )}

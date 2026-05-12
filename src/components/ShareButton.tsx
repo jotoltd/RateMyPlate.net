@@ -22,7 +22,7 @@ export default function ShareButton({ title }: { title: string }) {
   return (
     <button
       onClick={handleShare}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-orange-300 hover:text-orange-500 transition-all"
+      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-sm font-medium text-white/40 hover:border-orange-500/40 hover:text-orange-400 transition-all bg-white/5"
     >
       {copied ? (
         <>
