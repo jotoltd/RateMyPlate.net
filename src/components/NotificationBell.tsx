@@ -42,6 +42,8 @@ export default function NotificationBell({
     if (!userId) return;
     const supabase = createClient();
     let active = true;
+    // Unique name per mount so a stale channel from StrictMode teardown never collides
+    const channelName = `notif-bell-${userId}-${Math.random().toString(36).slice(2)}`;
 
     async function handleInsert(payload: { new: { id: string } }) {
       if (!active) return;
@@ -53,9 +55,8 @@ export default function NotificationBell({
       if (active && data) setNotifications((prev) => [data as Notification, ...prev]);
     }
 
-    // Build and subscribe in one chain — .on() must come before .subscribe()
     const channel = supabase
-      .channel(`notif-bell-${userId}`)
+      .channel(channelName)
       .on(
         "postgres_changes" as never,
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
@@ -65,6 +66,7 @@ export default function NotificationBell({
 
     return () => {
       active = false;
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [userId]);
