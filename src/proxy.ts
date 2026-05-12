@@ -31,16 +31,16 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const protectedRoutes = ["/upload", "/profile"];
-  const authRoutes = ["/auth/login", "/auth/signup"];
+  const publicRoutes = ["/auth/login", "/auth/signup"];
+  const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
 
-  if (!user && protectedRoutes.some((r) => pathname.startsWith(r))) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
-  if (user && authRoutes.includes(pathname)) {
+  if (user && publicRoutes.includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
