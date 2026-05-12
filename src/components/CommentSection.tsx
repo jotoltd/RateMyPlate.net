@@ -80,7 +80,7 @@ function CommentInput({
               handleSubmit(e as unknown as React.FormEvent);
             }
           }}
-          className="w-full border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none bg-gray-50 placeholder-gray-400"
+          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none bg-gray-50 placeholder-gray-400"
         />
         <div className="flex items-center justify-between mt-1">
           {error ? <p className="text-red-500 text-xs">{error}</p> : <span />}
@@ -147,14 +147,14 @@ function CommentItem({
           <Avatar username={username} avatarUrl={avatarUrl} />
         </Link>
         <div className="flex-1 min-w-0">
-          <div className="bg-gray-100 rounded-2xl px-4 py-2.5 inline-block max-w-full">
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2.5 inline-block max-w-full">
             <Link
               href={`/profile/${comment.user_id}`}
               className="text-sm font-semibold text-gray-900 hover:text-orange-500 transition-colors"
             >
               {username}
             </Link>
-            <p className="text-sm text-gray-700 mt-0.5 break-words whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 dark:text-gray-200 mt-0.5 break-words whitespace-pre-wrap">
               {comment.body.split(/(@[a-zA-Z0-9_]+)/g).map((part, i) =>
                 /^@[a-zA-Z0-9_]+$/.test(part) ? (
                   <Link

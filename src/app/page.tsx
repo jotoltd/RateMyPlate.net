@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { Upload, Star, Users, Sparkles, TrendingUp, ChefHat, Flame } from "lucide-react";
+import Image from "next/image";
+import { Upload, Star, Users, Sparkles, TrendingUp, ChefHat, Flame, Crown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import PlateCard from "@/components/PlateCard";
 import InfiniteFeed from "@/components/InfiniteFeed";
 import { Plate, CATEGORIES } from "@/lib/types";
+import { scoreToStars } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
 
@@ -47,7 +49,7 @@ export default async function Home({
     feedQuery = feedQuery.eq("category", activeCategory);
   }
 
-  const [{ data: plates }, { data: topPlates }] = await Promise.all([
+  const [{ data: plates }, { data: topPlates }, { data: spotlightChefData }] = await Promise.all([
     feedQuery,
     supabase
       .from("plates")
@@ -55,7 +57,26 @@ export default async function Home({
       .not("avg_user_rating", "is", null)
       .order("avg_user_rating", { ascending: false })
       .limit(3),
+    supabase
+      .from("profiles")
+      .select("id, username, bio, avatar_url, follower_count")
+      .order("follower_count", { ascending: false })
+      .limit(1)
+      .single(),
   ]);
+
+  // Get spotlight chef's best plate
+  const spotlightChef = spotlightChefData ?? null;
+  const { data: spotlightPlateData } = spotlightChef
+    ? await supabase
+        .from("plates")
+        .select("id, title, image_url, avg_user_rating, ai_rating, like_count")
+        .eq("user_id", spotlightChef.id)
+        .order("like_count", { ascending: false })
+        .limit(1)
+        .single()
+    : { data: null };
+  const spotlightPlate = spotlightPlateData ?? null;
 
   return (
     <div>
@@ -93,7 +114,7 @@ export default async function Home({
             </div>
             <div className="mt-10 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
               <div className="flex items-center gap-2"><Star className="w-4 h-4 text-amber-400 fill-amber-400" /> AI Ratings</div>
-              <div className="flex items-center gap-2"><Users className="w-4 h-4 text-blue-400" /> Community Reviews</div>
+              <div className="flex items-center gap-2"><Users className="w-4 h-4 text-blue-400" /> Social Feed</div>
               <div className="flex items-center gap-2"><ChefHat className="w-4 h-4 text-green-400" /> Food Critiques</div>
             </div>
           </div>
@@ -109,7 +130,64 @@ export default async function Home({
           <Link href="/leaderboard" className="flex items-center gap-1.5 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-sm font-semibold hover:bg-amber-100 transition-colors whitespace-nowrap flex-shrink-0">
             <Star className="w-4 h-4 fill-amber-400" /> Top Rated
           </Link>
+          <Link href="/chefs" className="flex items-center gap-1.5 px-4 py-2 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-xl text-sm font-semibold hover:bg-violet-100 transition-colors whitespace-nowrap flex-shrink-0">
+            <Users className="w-4 h-4" /> Chefs
+          </Link>
+          {user && (
+            <Link href="/saved" className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition-colors whitespace-nowrap flex-shrink-0">
+              <Sparkles className="w-4 h-4" /> Saved
+            </Link>
+          )}
         </div>
+
+        {/* Chef Spotlight */}
+        {spotlightChef && activeCategory === "all" && activeTab === "all" && (
+          <section className="mb-10">
+            <div className="flex items-center gap-2 mb-5">
+              <Crown className="w-5 h-5 text-amber-500" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Chef Spotlight</h2>
+            </div>
+            <div className="bg-gradient-to-br from-orange-50 to-rose-50 dark:from-orange-900/10 dark:to-rose-900/10 border border-orange-100 dark:border-orange-900/30 rounded-3xl p-6 flex flex-col sm:flex-row items-center gap-6">
+              <Link href={`/profile/${spotlightChef.id}`} className="flex-shrink-0 group">
+                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-lg group-hover:scale-105 transition-transform">
+                  {spotlightChef.avatar_url ? (
+                    <Image src={spotlightChef.avatar_url} alt={spotlightChef.username} fill className="object-cover" sizes="80px" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-white text-3xl font-black">{spotlightChef.username[0].toUpperCase()}</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <Link href={`/profile/${spotlightChef.id}`} className="text-xl font-black text-gray-900 dark:text-white hover:text-orange-500 transition-colors">
+                    @{spotlightChef.username}
+                  </Link>
+                  <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-full">
+                    ⭐ Top Chef
+                  </span>
+                </div>
+                {spotlightChef.bio && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">{spotlightChef.bio}</p>
+                )}
+                <p className="text-xs text-gray-400">{spotlightChef.follower_count ?? 0} followers</p>
+              </div>
+              {spotlightPlate && (
+                <Link href={`/plate/${spotlightPlate.id}`} className="flex-shrink-0 group">
+                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform">
+                    <Image src={spotlightPlate.image_url} alt={spotlightPlate.title} fill className="object-cover" sizes="96px" />
+                    {(spotlightPlate.avg_user_rating ?? spotlightPlate.ai_rating) && (
+                      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 whitespace-nowrap">
+                        ⭐ {scoreToStars(spotlightPlate.avg_user_rating ?? spotlightPlate.ai_rating!).toFixed(1)}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Top Rated strip */}
         {topPlates && topPlates.length > 0 && activeCategory === "all" && (

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import PlateCard from "@/components/PlateCard";
 import FollowButton from "@/components/FollowButton";
 import { Plate } from "@/lib/types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, scoreToStars } from "@/lib/utils";
 
 export default async function ProfilePage({
   params,
@@ -56,7 +56,7 @@ export default async function ProfilePage({
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Profile header */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 mb-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative w-24 h-24 rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0 shadow-lg">
             {profile.avatar_url ? (
@@ -68,11 +68,11 @@ export default async function ProfilePage({
             )}
           </div>
           <div className="flex-1 text-center sm:text-left">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1">
               @{profile.username}
             </h1>
             {profile.bio && (
-              <p className="text-gray-500 mb-3">{profile.bio}</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-2">{profile.bio}</p>
             )}
             <div className="flex flex-wrap justify-center sm:justify-start gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-1.5">
@@ -90,7 +90,7 @@ export default async function ProfilePage({
               {avgRating !== null && avgRating > 0 && (
                 <div className="flex items-center gap-1.5">
                   <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
-                  Avg {avgRating.toFixed(1)}/10
+                  Avg {scoreToStars(avgRating).toFixed(1)}/5
                 </div>
               )}
               <div className="flex items-center gap-1.5">
@@ -132,7 +132,7 @@ export default async function ProfilePage({
       </div>
 
       {/* Plates grid */}
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
         {isOwnProfile ? "Your Plates" : `${profile.username}'s Plates`}
       </h2>
 
