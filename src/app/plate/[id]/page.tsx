@@ -17,7 +17,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import EditPlateModal from "@/components/EditPlateModal";
 import DeletePlateButton from "@/components/DeletePlateButton";
-import { formatDate, getStarLabel } from "@/lib/utils";
+import { formatDate, getStarLabel, scoreToStars } from "@/lib/utils";
 import { Comment } from "@/lib/types";
 import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
 
@@ -106,6 +106,7 @@ export default async function PlatePage({
     : null;
 
   const displayRating = plate.avg_user_rating ?? plate.ai_rating;
+  const displayStars = displayRating ? scoreToStars(displayRating) : null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -120,13 +121,13 @@ export default async function PlatePage({
       <div className="grid md:grid-cols-2 gap-8">
         {/* Image with lightbox */}
         <PlateImageWithLightbox src={plate.image_url} alt={plate.title}>
-          {displayRating && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-lg pointer-events-none">
+          {displayStars !== null && (
+            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-xl pointer-events-none">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
               <span className="text-base font-bold text-gray-900">
-                {Number(displayRating).toFixed(1)}
+                {displayStars.toFixed(1)}
               </span>
-              <span className="text-xs text-gray-500">/ 10</span>
+              <span className="text-xs text-gray-400">/5</span>
             </div>
           )}
         </PlateImageWithLightbox>
@@ -181,21 +182,23 @@ export default async function PlatePage({
 
           {/* AI Rating */}
           {plate.ai_rating !== null && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-5">
+            <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-5 h-5 text-purple-500" />
-                <span className="font-bold text-purple-700">AI Rating</span>
-                <span className="ml-auto text-2xl font-extrabold text-purple-600">
-                  {plate.ai_rating}/10
-                </span>
+                <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-violet-800 dark:text-violet-300 text-sm">AI Critic</p>
+                  <p className="text-xs text-violet-500">Gemini Vision</p>
+                </div>
+                <div className="ml-auto flex items-baseline gap-0.5">
+                  <span className="text-3xl font-black text-violet-700 dark:text-violet-300">{scoreToStars(plate.ai_rating).toFixed(1)}</span>
+                  <span className="text-sm text-violet-400">/5</span>
+                </div>
               </div>
-              <StarRating
-                value={plate.ai_rating}
-                readonly
-                size="sm"
-              />
+              <StarRating value={scoreToStars(plate.ai_rating)} readonly size="sm" />
               {plate.ai_comment && (
-                <p className="text-sm text-purple-600 mt-3 leading-relaxed italic">
+                <p className="text-sm text-violet-700 dark:text-violet-300 mt-3 leading-relaxed italic border-l-2 border-violet-200 pl-3">
                   &quot;{plate.ai_comment}&quot;
                 </p>
               )}
@@ -204,22 +207,24 @@ export default async function PlatePage({
 
           {/* Community Rating */}
           {plate.avg_user_rating !== null && (
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-100 dark:border-amber-800 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                <span className="font-bold text-amber-700">Community Rating</span>
-                <span className="ml-auto text-2xl font-extrabold text-amber-600">
-                  {Number(plate.avg_user_rating).toFixed(1)}/10
-                </span>
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
+                  <Star className="w-4 h-4 text-white fill-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-amber-800 dark:text-amber-300 text-sm">Community</p>
+                  <p className="text-xs text-amber-500">{plate.rating_count ?? 0} review{(plate.rating_count ?? 0) !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="ml-auto flex items-baseline gap-0.5">
+                  <span className="text-3xl font-black text-amber-700 dark:text-amber-300">{scoreToStars(plate.avg_user_rating).toFixed(1)}</span>
+                  <span className="text-sm text-amber-400">/5</span>
+                </div>
               </div>
               <div className="flex items-center gap-3">
-                <StarRating
-                  value={Math.round(plate.avg_user_rating)}
-                  readonly
-                  size="sm"
-                />
-                <span className="text-sm font-medium text-amber-600">
-                  {getStarLabel(plate.avg_user_rating)}
+                <StarRating value={scoreToStars(plate.avg_user_rating)} readonly size="sm" />
+                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                  {getStarLabel(scoreToStars(plate.avg_user_rating))}
                 </span>
               </div>
             </div>
@@ -227,10 +232,11 @@ export default async function PlatePage({
 
           {/* Rate it */}
           {user && user.id !== plate.user_id && (
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-900 dark:text-white mb-1">
                 {existingRating ? "Update Your Rating" : "Rate This Plate"}
               </h3>
+              <p className="text-xs text-gray-400 mb-4">Your opinion matters</p>
               <RatingForm
                 plateId={plate.id}
                 existingRating={existingRating}
@@ -296,11 +302,12 @@ export default async function PlatePage({
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
+                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1.5 rounded-xl">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="text-sm font-bold text-amber-700">
-                      {rating.score}/10
+                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                      {scoreToStars(rating.score).toFixed(1)}
                     </span>
+                    <span className="text-xs text-amber-400">/5</span>
                   </div>
                 </div>
                 {rating.comment && (

@@ -27,31 +27,30 @@ export default function Navbar({ user, username, notifications = [], themeToggle
     router.push("/");
   }
 
+  const navLink = "flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 px-3 py-2 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all text-sm font-medium";
+
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-orange-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-rose-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+    <nav className="sticky top-0 z-50 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+          <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200/50 dark:shadow-none group-hover:scale-105 transition-transform">
             <ChefHat className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent">
+          <span className="font-black text-lg bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent tracking-tight">
             Rate My Plate
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-1">
           {themeToggle}
-          <Link
-            href="/search"
-            className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors"
-          >
+          <Link href="/search" className={navLink}>
             <Search className="w-4 h-4" />
           </Link>
-          <Link
-            href="/leaderboard"
-            className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors"
-          >
+          <Link href="/trending" className={navLink}>
+            <Flame className="w-4 h-4" />
+          </Link>
+          <Link href="/leaderboard" className={navLink}>
             <Trophy className="w-4 h-4" />
           </Link>
           {user ? (
@@ -59,38 +58,36 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               {notifications && <NotificationBell notifications={notifications} />}
               <Link
                 href="/upload"
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-xl font-medium hover:opacity-90 transition-opacity shadow-md"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-2xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-200/50 dark:shadow-none active:scale-95 ml-1"
               >
                 <Upload className="w-4 h-4" />
-                Upload Plate
+                Upload
               </Link>
               <Link
                 href={`/profile/${user.id}`}
-                className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors font-medium"
+                className={navLink + " ml-0.5"}
               >
-                <User className="w-4 h-4" />
-                {username || "Profile"}
+                <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span>{username || "Me"}</span>
               </Link>
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 text-gray-500 hover:text-red-500 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors"
+                className={navLink}
               >
                 <LogOut className="w-4 h-4" />
-                Sign out
               </button>
             </>
           ) : (
             <>
-              <Link
-                href="/auth/login"
-                className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-4 py-2 rounded-xl hover:bg-orange-50 transition-colors font-medium"
-              >
+              <Link href="/auth/login" className={navLink + " ml-1"}>
                 <LogIn className="w-4 h-4" />
                 Sign in
               </Link>
               <Link
                 href="/auth/signup"
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-xl font-medium hover:opacity-90 transition-opacity shadow-md"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-2xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-200/50 dark:shadow-none ml-1"
               >
                 Get Started
               </Link>

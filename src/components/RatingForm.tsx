@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, CheckCircle2 } from "lucide-react";
 import StarRating from "./StarRating";
 import { submitRating } from "@/app/actions/plates";
+import { scoreToStars, starsToScore } from "@/lib/utils";
 
 type RatingFormProps = {
   plateId: string;
@@ -11,7 +12,9 @@ type RatingFormProps = {
 };
 
 export default function RatingForm({ plateId, existingRating }: RatingFormProps) {
-  const [score, setScore] = useState(existingRating?.score ?? 0);
+  const [stars, setStars] = useState(
+    existingRating?.score ? scoreToStars(existingRating.score) : 0
+  );
   const [comment, setComment] = useState(existingRating?.comment ?? "");
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
@@ -19,13 +22,13 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (score === 0) {
-      setError("Please select a rating");
+    if (stars === 0) {
+      setError("Please select a star rating");
       return;
     }
     setError("");
     startTransition(async () => {
-      const result = await submitRating(plateId, score, comment);
+      const result = await submitRating(plateId, starsToScore(stars), comment);
       if (result?.error) {
         setError(result.error);
       } else {
@@ -36,42 +39,46 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Your Rating
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          Tap to rate
         </label>
-        <StarRating value={score} onChange={setScore} size="md" />
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        <StarRating value={stars} onChange={setStars} size="lg" />
+        {error && (
+          <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>
+        )}
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-          <MessageSquare className="w-4 h-4" />
-          Comment (optional)
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+          <MessageSquare className="w-4 h-4 text-orange-400" />
+          Leave a comment <span className="text-gray-400 font-normal">(optional)</span>
         </label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="What do you think of this plate?"
+          placeholder="What did you think? Presentation, taste, vibes…"
           rows={3}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
+          maxLength={500}
+          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none placeholder-gray-400"
         />
       </div>
 
       <button
         type="submit"
-        disabled={isPending || score === 0}
-        className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 shadow-md"
+        disabled={isPending || stars === 0}
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-2xl font-semibold hover:opacity-90 transition-all disabled:opacity-40 shadow-lg shadow-orange-200 dark:shadow-none active:scale-95"
       >
         <Send className="w-4 h-4" />
-        {isPending ? "Submitting..." : existingRating ? "Update Rating" : "Submit Rating"}
+        {isPending ? "Submitting…" : existingRating ? "Update Rating" : "Submit Rating"}
       </button>
 
       {success && (
-        <p className="text-green-600 text-sm font-medium">
+        <div className="flex items-center gap-2 text-emerald-600 font-semibold text-sm bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+          <CheckCircle2 className="w-4 h-4" />
           Rating submitted! 🎉
-        </p>
+        </div>
       )}
     </form>
   );
