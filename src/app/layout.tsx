@@ -35,10 +35,11 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   let username: string | null = null;
+  let avatarUrl: string | null = null;
   let notifications: unknown[] = [];
   if (user) {
     const [profileRes, notifRes] = await Promise.all([
-      supabase.from("profiles").select("username").eq("id", user.id).single(),
+      supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
       supabase
         .from("notifications")
         .select("*, actor:actor_id(id, username), plate:plate_id(id, title, image_url)")
@@ -48,12 +49,13 @@ export default async function RootLayout({
     ]);
     username = profileRes.data?.username ?? null;
     notifications = notifRes.data ?? [];
+    avatarUrl = profileRes.data?.avatar_url ?? null;
   }
 
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-100 transition-colors">
-        <Navbar user={user} username={username} notifications={notifications as never} themeToggle={<ThemeToggle />} />
+        <Navbar user={user} username={username} avatarUrl={avatarUrl} notifications={notifications as never} themeToggle={<ThemeToggle />} />
         <main className="flex-1">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>

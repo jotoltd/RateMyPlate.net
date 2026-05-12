@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy, Flame, Users, Bookmark } from "lucide-react";
-import { useState } from "react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import { Notification } from "@/lib/types";
@@ -14,9 +13,10 @@ type NavbarProps = {
   username?: string | null;
   notifications?: Notification[];
   themeToggle?: React.ReactNode;
+  avatarUrl?: string | null;
 };
 
-export default function Navbar({ user, username, notifications = [], themeToggle }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -27,153 +27,146 @@ export default function Navbar({ user, username, notifications = [], themeToggle
     router.push("/");
   }
 
-  const navLink = "flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 px-3 py-2 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all text-sm font-medium";
+  const initial = (username ?? "?")[0].toUpperCase();
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-          <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200/50 dark:shadow-none group-hover:scale-105 transition-transform">
-            <ChefHat className="w-5 h-5 text-white" />
+    <nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-2xl border-b border-gray-100 dark:border-gray-800/60">
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
+          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-200/60 dark:shadow-none group-hover:scale-105 transition-transform">
+            <ChefHat className="w-4 h-4 text-white" />
           </div>
-          <span className="font-black text-lg bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent tracking-tight">
+          <span className="font-black text-base bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent hidden sm:block">
             Rate My Plate
           </span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop: centre search */}
+        <div className="hidden md:flex flex-1 max-w-xs mx-4">
+          <Link
+            href="/search"
+            className="flex items-center gap-2 w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 rounded-xl px-3 py-1.5 text-sm transition-colors"
+          >
+            <Search className="w-4 h-4 flex-shrink-0" />
+            <span>Search plates &amp; chefs…</span>
+          </Link>
+        </div>
+
+        {/* Desktop right */}
         <div className="hidden md:flex items-center gap-1">
           {themeToggle}
-          <Link href="/search" className={navLink}>
-            <Search className="w-4 h-4" />
-          </Link>
-          <Link href="/trending" className={navLink}>
+          <Link href="/trending" className="p-2 text-gray-500 dark:text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-xl transition-colors" title="Trending">
             <Flame className="w-4 h-4" />
-          </Link>
-          <Link href="/leaderboard" className={navLink}>
-            <Trophy className="w-4 h-4" />
-          </Link>
-          <Link href="/chefs" className={navLink}>
-            <Users className="w-4 h-4" />
           </Link>
           {user ? (
             <>
-              {notifications && <NotificationBell notifications={notifications} />}
+              <Link href="/saved" className="p-2 text-gray-500 dark:text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-xl transition-colors" title="Saved">
+                <Bookmark className="w-4 h-4" />
+              </Link>
+              <NotificationBell notifications={notifications} />
               <Link
                 href="/upload"
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-2xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-200/50 dark:shadow-none active:scale-95 ml-1"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-orange-200/50 dark:shadow-none ml-1"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-3.5 h-3.5" />
                 Upload
               </Link>
-              <Link
-                href={`/profile/${user.id}`}
-                className={navLink + " ml-0.5"}
-              >
-                <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-white" />
+              <Link href={`/profile/${user.id}`} className="ml-1 flex-shrink-0" title={username ?? "Profile"}>
+                <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-sm hover:scale-105 transition-transform">
+                  {avatarUrl
+                    ? <img src={avatarUrl} alt={initial} className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center"><span className="text-white text-xs font-black">{initial}</span></div>
+                  }
                 </div>
-                <span>{username || "Me"}</span>
               </Link>
-              <button
-                onClick={handleSignOut}
-                className={navLink}
-              >
+              <button onClick={handleSignOut} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Sign out">
                 <LogOut className="w-4 h-4" />
               </button>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className={navLink + " ml-1"}>
-                <LogIn className="w-4 h-4" />
+              <Link href="/auth/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-orange-500 px-3 py-1.5 rounded-xl hover:bg-orange-50 transition-colors ml-1">
                 Sign in
               </Link>
-              <Link
-                href="/auth/signup"
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-2xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-orange-200/50 dark:shadow-none ml-1"
-              >
+              <Link href="/auth/signup" className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md shadow-orange-200/50 dark:shadow-none">
                 Get Started
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg hover:bg-orange-50 transition-colors"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        {/* Mobile right */}
+        <div className="flex md:hidden items-center gap-2">
+          <Link href="/search" className="p-1.5 text-gray-500 hover:text-orange-500 rounded-lg transition-colors">
+            <Search className="w-5 h-5" />
+          </Link>
+          {user && <NotificationBell notifications={notifications} />}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 text-gray-600 hover:text-orange-500 rounded-lg transition-colors">
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-orange-100 bg-white px-4 py-3 flex flex-col gap-2">
-          <Link href="/search" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-            <Search className="w-4 h-4" /> Search
-          </Link>
-          <Link href="/trending" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-            <Flame className="w-4 h-4" /> Trending
-          </Link>
-          <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-            <Trophy className="w-4 h-4" /> Leaderboard
-          </Link>
-          <Link href="/chefs" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-            <Users className="w-4 h-4" /> Discover Chefs
-          </Link>
-          {user ? (
-            <>
-              {notifications && <NotificationBell notifications={notifications} />}
-              <Link
-                href="/upload"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-xl font-medium"
-              >
-                <Upload className="w-4 h-4" />
-                Upload Plate
-              </Link>
-              <Link href="/saved" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-                <Bookmark className="w-4 h-4" /> Saved Plates
-              </Link>
-              <Link href="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
-                <User className="w-4 h-4" /> Notifications
-              </Link>
-              <Link
-                href={`/profile/${user.id}`}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50"
-              >
-                <User className="w-4 h-4" />
-                {username || "Profile"}
-              </Link>
-              <button
-                onClick={() => { setMenuOpen(false); handleSignOut(); }}
-                className="flex items-center gap-2 text-gray-500 px-4 py-3 rounded-xl hover:bg-red-50 text-left"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/auth/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50"
-              >
-                <LogIn className="w-4 h-4" />
-                Sign in
-              </Link>
-              <Link
-                href="/auth/signup"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-xl font-medium"
-              >
-                Get Started
-              </Link>
-            </>
+        <div className="md:hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 px-4 py-4 flex flex-col gap-1">
+          {user && (
+            <Link
+              href={`/profile/${user.id}`}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-2xl hover:bg-orange-50 dark:hover:bg-orange-900/10 mb-1"
+            >
+              <div className="w-10 h-10 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt={initial} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center"><span className="text-white font-black">{initial}</span></div>
+                }
+              </div>
+              <div>
+                <p className="font-bold text-gray-900 dark:text-white text-sm">{username}</p>
+                <p className="text-xs text-gray-400">View profile</p>
+              </div>
+            </Link>
           )}
+
+          {user && (
+            <Link href="/upload" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold mb-2">
+              <Upload className="w-4 h-4" /> Upload Plate
+            </Link>
+          )}
+
+          {[
+            { href: "/trending", icon: <Flame className="w-4 h-4" />, label: "Trending" },
+            { href: "/leaderboard", icon: <span className="text-base">🏆</span>, label: "Leaderboard" },
+            { href: "/chefs", icon: <User className="w-4 h-4" />, label: "Discover Chefs" },
+            ...(user ? [
+              { href: "/saved", icon: <Bookmark className="w-4 h-4" />, label: "Saved Plates" },
+              { href: "/notifications", icon: <Bell className="w-4 h-4" />, label: "Notifications" },
+            ] : []),
+          ].map(({ href, icon, label }) => (
+            <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-sm font-medium">
+              {icon} {label}
+            </Link>
+          ))}
+
+          <div className="border-t border-gray-100 dark:border-gray-800 mt-2 pt-2">
+            {user ? (
+              <button onClick={() => { setMenuOpen(false); handleSignOut(); }} className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-50 text-sm font-medium">
+                <LogOut className="w-4 h-4" /> Sign out
+              </button>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Link href="/auth/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-700 hover:bg-orange-50 text-sm font-medium">
+                  <LogIn className="w-4 h-4" /> Sign in
+                </Link>
+                <Link href="/auth/signup" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold">
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>
