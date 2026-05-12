@@ -80,42 +80,65 @@ export default async function Home({
 
   return (
     <div>
-      {/* Hero */}
+      {/* HERO */}
       {!user && (
-        <section className="bg-gradient-to-br from-orange-50 via-white to-rose-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 border-b border-orange-100 dark:border-gray-800">
-          <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-            <div className="inline-flex items-center gap-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              AI-powered food ratings
+        <section className="relative overflow-hidden bg-[#0a0a0a] border-b border-white/5">
+          {/* Fire radial glow background */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-b from-orange-600/30 via-rose-600/10 to-transparent blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-orange-700/10 blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-rose-700/10 blur-3xl" />
+          </div>
+
+          <div className="relative max-w-5xl mx-auto px-4 py-24 md:py-32 text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-8">
+              <Sparkles className="w-3.5 h-3.5" />
+              AI-Powered Food Critic
             </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-              Show off your{" "}
-              <span className="bg-gradient-to-r from-orange-500 to-rose-500 bg-clip-text text-transparent">
-                best plates
-              </span>
+
+            {/* Main headline */}
+            <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tight mb-6">
+              Dare to be
+              <br />
+              <span className="text-fire">Rated?</span>
             </h1>
-            <p className="text-xl text-gray-500 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Upload your meals, get instant AI critiques, and see how the community rates your cooking.
+
+            <p className="text-lg md:text-xl text-white/50 mb-10 max-w-xl mx-auto leading-relaxed">
+              Upload your plate. Get brutally honest AI critiques.
+              <br className="hidden sm:block" /> Find out if your cooking is actually good.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/auth/signup"
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg"
+                className="group flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-lg hover:from-orange-400 hover:to-rose-400 transition-all glow-fire active:scale-95"
               >
-                <Upload className="w-5 h-5" />
-                Start Rating
+                <Flame className="w-5 h-5 group-hover:animate-bounce" />
+                Submit Your Plate
               </Link>
               <Link
                 href="#feed"
-                className="flex items-center justify-center gap-2 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-orange-300 hover:text-orange-500 transition-colors"
+                className="flex items-center gap-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
               >
-                Browse Plates
+                See the Feed
               </Link>
             </div>
-            <div className="mt-10 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-              <div className="flex items-center gap-2"><Star className="w-4 h-4 text-amber-400 fill-amber-400" /> AI Ratings</div>
-              <div className="flex items-center gap-2"><Users className="w-4 h-4 text-blue-400" /> Social Feed</div>
-              <div className="flex items-center gap-2"><ChefHat className="w-4 h-4 text-green-400" /> Food Critiques</div>
+
+            {/* Stats row */}
+            <div className="mt-14 flex flex-wrap justify-center gap-10">
+              {[
+                { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "AI Ratings" },
+                { icon: <Flame className="w-5 h-5 text-orange-400" />, label: "Trending Feed" },
+                { icon: <ChefHat className="w-5 h-5 text-rose-400" />, label: "Chef Profiles" },
+                { icon: <Users className="w-5 h-5 text-violet-400" />, label: "Community" },
+              ].map(({ icon, label }) => (
+                <div key={label} className="flex flex-col items-center gap-1.5">
+                  {icon}
+                  <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -123,21 +146,17 @@ export default async function Home({
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Quick links */}
-        <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-1">
-          <Link href="/trending" className="flex items-center gap-1.5 px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-semibold hover:bg-rose-100 transition-colors whitespace-nowrap flex-shrink-0">
-            <Flame className="w-4 h-4" /> Trending
-          </Link>
-          <Link href="/leaderboard" className="flex items-center gap-1.5 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-sm font-semibold hover:bg-amber-100 transition-colors whitespace-nowrap flex-shrink-0">
-            <Star className="w-4 h-4 fill-amber-400" /> Top Rated
-          </Link>
-          <Link href="/chefs" className="flex items-center gap-1.5 px-4 py-2 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-xl text-sm font-semibold hover:bg-violet-100 transition-colors whitespace-nowrap flex-shrink-0">
-            <Users className="w-4 h-4" /> Chefs
-          </Link>
-          {user && (
-            <Link href="/saved" className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition-colors whitespace-nowrap flex-shrink-0">
-              <Sparkles className="w-4 h-4" /> Saved
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1 no-scrollbar">
+          {[
+            { href: "/trending", icon: <Flame className="w-3.5 h-3.5" />, label: "Trending" },
+            { href: "/leaderboard", icon: <Star className="w-3.5 h-3.5" />, label: "Top Rated" },
+            { href: "/chefs", icon: <Users className="w-3.5 h-3.5" />, label: "Chefs" },
+            ...(user ? [{ href: "/saved", icon: <Sparkles className="w-3.5 h-3.5" />, label: "Saved" }] : []),
+          ].map(({ href, icon, label }) => (
+            <Link key={href} href={href} className="flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 dark:bg-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-500 dark:hover:text-orange-400 text-gray-600 dark:text-gray-400 rounded-xl text-xs font-bold uppercase tracking-wide whitespace-nowrap flex-shrink-0 transition-colors border border-transparent hover:border-orange-200 dark:hover:border-orange-500/20">
+              {icon}{label}
             </Link>
-          )}
+          ))}
         </div>
 
         {/* Chef Spotlight */}

@@ -54,13 +54,13 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-100 transition-colors">
+      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white transition-colors">
         <Navbar user={user} username={username} avatarUrl={avatarUrl} notifications={notifications as never} themeToggle={<ThemeToggle />} />
         <main className="flex-1">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
-        <footer className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 py-6 text-center text-sm text-gray-400 hidden md:block">
-          © {new Date().getFullYear()} Rate My Plate — Share the love of food
+        <footer className="border-t border-white/5 bg-[#0a0a0a] py-6 text-center text-sm text-white/20 hidden md:block">
+          {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
         <MobileNav userId={user?.id} />
         {user && <RealtimeNotifications userId={user.id} />}
