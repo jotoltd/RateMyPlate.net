@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, Star, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatDate } from "@/lib/utils";
+import { formatDate, scoreToStars } from "@/lib/utils";
 
 export default async function SearchPage({
   searchParams,
@@ -62,8 +62,10 @@ export default async function SearchPage({
                     href={`/profile/${u.id}`}
                     className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-orange-200 hover:shadow-md transition-all"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                      {u.username[0].toUpperCase()}
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
+                      {u.avatar_url
+                        ? <img src={u.avatar_url} alt={u.username} className="w-full h-full object-cover" />
+                        : u.username[0].toUpperCase()}
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">@{u.username}</p>
@@ -104,7 +106,8 @@ export default async function SearchPage({
                       {rating && (
                         <div className="flex items-center gap-1 flex-shrink-0 bg-amber-50 px-2.5 py-1 rounded-lg">
                           <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                          <span className="text-sm font-bold text-amber-700">{Number(rating).toFixed(1)}</span>
+                          <span className="text-sm font-bold text-amber-700">{scoreToStars(Number(rating)).toFixed(1)}</span>
+                          <span className="text-xs text-amber-400">/5</span>
                         </div>
                       )}
                     </Link>

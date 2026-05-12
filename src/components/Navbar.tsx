@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy, Flame } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy, Flame, Users, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
@@ -52,6 +52,9 @@ export default function Navbar({ user, username, notifications = [], themeToggle
           </Link>
           <Link href="/leaderboard" className={navLink}>
             <Trophy className="w-4 h-4" />
+          </Link>
+          <Link href="/chefs" className={navLink}>
+            <Users className="w-4 h-4" />
           </Link>
           {user ? (
             <>
@@ -116,6 +119,9 @@ export default function Navbar({ user, username, notifications = [], themeToggle
           <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
             <Trophy className="w-4 h-4" /> Leaderboard
           </Link>
+          <Link href="/chefs" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+            <Users className="w-4 h-4" /> Discover Chefs
+          </Link>
           {user ? (
             <>
               {notifications && <NotificationBell notifications={notifications} />}
@@ -126,6 +132,12 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               >
                 <Upload className="w-4 h-4" />
                 Upload Plate
+              </Link>
+              <Link href="/saved" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+                <Bookmark className="w-4 h-4" /> Saved Plates
+              </Link>
+              <Link href="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+                <User className="w-4 h-4" /> Notifications
               </Link>
               <Link
                 href={`/profile/${user.id}`}

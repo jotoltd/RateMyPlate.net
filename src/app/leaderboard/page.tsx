@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trophy, Star, Heart, Medal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { scoreToStars } from "@/lib/utils";
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
@@ -90,8 +91,9 @@ export default async function LeaderboardPage() {
                   <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                     <span className="text-sm font-bold text-amber-700">
-                      {Number(plate.avg_user_rating).toFixed(1)}
+                      {scoreToStars(Number(plate.avg_user_rating)).toFixed(1)}
                     </span>
+                    <span className="text-xs text-amber-400">/5</span>
                   </div>
                 }
               />

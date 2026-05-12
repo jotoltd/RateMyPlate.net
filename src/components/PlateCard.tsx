@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Star, Heart } from "lucide-react";
 import { Plate } from "@/lib/types";
 import { scoreToStars } from "@/lib/utils";
+import { imgUrl } from "@/lib/imageUrl";
 
 type PlateCardProps = {
   plate: Plate;
@@ -18,7 +19,7 @@ export default function PlateCard({ plate }: PlateCardProps) {
         {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
           <Image
-            src={plate.image_url}
+            src={imgUrl(plate.image_url, { width: 400, quality: 75 })}
             alt={plate.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

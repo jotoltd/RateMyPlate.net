@@ -7,18 +7,20 @@ import { markAllRead } from "@/app/actions/notifications";
 import { Notification } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
-const icons = {
+const icons: Record<string, React.ReactNode> = {
   like: <Heart className="w-4 h-4 text-rose-500" />,
   comment: <MessageSquare className="w-4 h-4 text-blue-500" />,
   rating: <Star className="w-4 h-4 text-amber-400 fill-amber-400" />,
   reply: <CornerDownRight className="w-4 h-4 text-orange-500" />,
+  follow: <Bell className="w-4 h-4 text-violet-500" />,
 };
 
-const messages = {
+const messages: Record<string, string> = {
   like: "liked your plate",
   comment: "commented on your plate",
   rating: "rated your plate",
   reply: "replied to your comment",
+  follow: "started following you",
 };
 
 export default function NotificationBell({

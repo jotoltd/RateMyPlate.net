@@ -18,8 +18,10 @@ import ShareButton from "@/components/ShareButton";
 import EditPlateModal from "@/components/EditPlateModal";
 import DeletePlateButton from "@/components/DeletePlateButton";
 import { formatDate, getStarLabel, scoreToStars } from "@/lib/utils";
-import { Comment } from "@/lib/types";
+import { Comment, Plate } from "@/lib/types";
 import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
+import SaveButton from "@/components/SaveButton";
+import PlateCard from "@/components/PlateCard";
 
 export async function generateMetadata({
   params,
@@ -104,6 +106,21 @@ export default async function PlatePage({
   const existingRating = user
     ? ratings?.find((r) => r.user_id === user.id) ?? null
     : null;
+
+  const savedCheck = user
+    ? await supabase.from("saved_plates").select("id").eq("user_id", user.id).eq("plate_id", id).single()
+    : null;
+  const initialSaved = !!savedCheck?.data;
+
+  // Related plates: same category, exclude current
+  const { data: relatedRaw } = await supabase
+    .from("plates")
+    .select("*, profiles(id, username, avatar_url)")
+    .eq("category", plate.category)
+    .neq("id", id)
+    .order("like_count", { ascending: false })
+    .limit(4);
+  const relatedPlates = (relatedRaw ?? []) as Plate[];
 
   const displayRating = plate.avg_user_rating ?? plate.ai_rating;
   const displayStars = displayRating ? scoreToStars(displayRating) : null;
@@ -244,14 +261,17 @@ export default async function PlatePage({
             </div>
           )}
 
-          {/* Like + Share */}
-          <div className="flex items-center gap-2 pt-1">
+          {/* Like + Save + Share */}
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
             <LikeButton
               plateId={plate.id}
               ownerId={plate.user_id}
               initialCount={plate.like_count ?? 0}
               initialLiked={userLike?.data != null}
             />
+            {user && (
+              <SaveButton plateId={plate.id} initialSaved={initialSaved} />
+            )}
             <ShareButton title={plate.title} />
           </div>
 
@@ -321,8 +341,20 @@ export default async function PlatePage({
         </section>
       )}
 
+      {/* Related plates */}
+      {relatedPlates.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">
+            More {plate.category} plates
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {relatedPlates.map((p) => <PlateCard key={p.id} plate={p} />)}
+          </div>
+        </section>
+      )}
+
       {/* Comments */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mt-10">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 mt-10">
         <CommentSection
           plateId={plate.id}
           comments={(comments ?? []) as Comment[]}

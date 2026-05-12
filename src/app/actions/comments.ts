@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sanitise } from "@/lib/sanitise";
 
 export async function addComment(
   plateId: string,
@@ -14,6 +15,7 @@ export async function addComment(
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Not authenticated" };
+  body = sanitise(body);
   if (!body.trim()) return { error: "Comment cannot be empty" };
   if (body.length > 1000) return { error: "Comment is too long (max 1000 characters)" };
 

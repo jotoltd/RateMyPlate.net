@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, Star, Heart, Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatDate } from "@/lib/utils";
+import { formatDate, scoreToStars } from "@/lib/utils";
 
 export default async function TrendingPage() {
   const supabase = await createClient();
@@ -78,7 +78,8 @@ export default async function TrendingPage() {
                 {rating && (
                   <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg flex-shrink-0">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="text-sm font-bold text-amber-700">{Number(rating).toFixed(1)}</span>
+                    <span className="text-sm font-bold text-amber-700">{scoreToStars(Number(rating)).toFixed(1)}</span>
+                    <span className="text-xs text-amber-400">/5</span>
                   </div>
                 )}
               </Link>

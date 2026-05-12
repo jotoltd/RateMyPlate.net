@@ -2,8 +2,10 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { MessageSquare, Send, Trash2, CornerDownRight } from "lucide-react";
+import Image from "next/image";
+import { MessageSquare, Send, Trash2, CornerDownRight, Heart } from "lucide-react";
 import { addComment, deleteComment } from "@/app/actions/comments";
+import { toggleCommentLike } from "@/app/actions/commentLikes";
 import { Comment } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -13,12 +15,16 @@ type CommentSectionProps = {
   currentUserId: string | null;
 };
 
-function Avatar({ username }: { username: string }) {
+function Avatar({ username, avatarUrl }: { username: string; avatarUrl?: string | null }) {
   return (
-    <div className="w-8 h-8 flex-shrink-0 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center shadow-sm">
-      <span className="text-white text-xs font-bold">
-        {username[0].toUpperCase()}
-      </span>
+    <div className="w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-sm">
+      {avatarUrl ? (
+        <Image src={avatarUrl} alt={username} width={32} height={32} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <span className="text-white text-xs font-bold">{username[0].toUpperCase()}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -109,9 +115,12 @@ function CommentItem({
 }: CommentItemProps) {
   const [showReply, setShowReply] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(comment.like_count ?? 0);
 
   const isOwn = currentUserId === comment.user_id;
   const username = comment.profiles?.username ?? "User";
+  const avatarUrl = comment.profiles?.avatar_url ?? null;
 
   function handleDelete() {
     startTransition(async () => {
@@ -119,11 +128,23 @@ function CommentItem({
     });
   }
 
+  function handleLike() {
+    if (!currentUserId) return;
+    startTransition(async () => {
+      const result = await toggleCommentLike(comment.id, plateId);
+      if (!result?.error && result.liked !== undefined) {
+        const isLiked = result.liked;
+        setLiked(isLiked);
+        setLikeCount((c: number) => isLiked ? c + 1 : Math.max(0, c - 1));
+      }
+    });
+  }
+
   return (
     <div className={depth > 0 ? "ml-10 mt-3" : "mt-4"}>
       <div className="flex gap-3 group">
         <Link href={`/profile/${comment.user_id}`}>
-          <Avatar username={username} />
+          <Avatar username={username} avatarUrl={avatarUrl} />
         </Link>
         <div className="flex-1 min-w-0">
           <div className="bg-gray-100 rounded-2xl px-4 py-2.5 inline-block max-w-full">
@@ -155,6 +176,18 @@ function CommentItem({
             <span className="text-xs text-gray-400">
               {formatDate(comment.created_at)}
             </span>
+            {currentUserId && (
+              <button
+                onClick={handleLike}
+                disabled={isPending}
+                className={`text-xs font-semibold flex items-center gap-1 transition-colors ${
+                  liked ? "text-rose-500" : "text-gray-400 hover:text-rose-500"
+                }`}
+              >
+                <Heart className={`w-3 h-3 ${liked ? "fill-rose-500" : ""}`} />
+                {likeCount > 0 && likeCount}
+              </button>
+            )}
             {currentUserId && depth < 2 && (
               <button
                 onClick={() => setShowReply(!showReply)}

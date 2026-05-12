@@ -53,7 +53,7 @@ export type Notification = {
   id: string;
   user_id: string;
   actor_id: string;
-  type: "like" | "comment" | "rating" | "reply";
+  type: "like" | "comment" | "rating" | "reply" | "follow";
   plate_id: string | null;
   comment_id: string | null;
   read: boolean;
@@ -68,6 +68,7 @@ export type Comment = {
   user_id: string;
   parent_id: string | null;
   body: string;
+  like_count?: number;
   created_at: string;
   profiles?: Profile;
   replies?: Comment[];

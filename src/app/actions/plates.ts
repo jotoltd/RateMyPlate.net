@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { sanitise } from "@/lib/sanitise";
 
 export async function uploadPlate(formData: FormData) {
   const supabase = await createClient();
@@ -22,9 +23,9 @@ export async function uploadPlate(formData: FormData) {
     .gte("created_at", since);
   if ((count ?? 0) >= 5) return { error: "You can only upload 5 plates per day. Try again tomorrow!" };
 
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const category = (formData.get("category") as string) || "other";
+  const title = sanitise(formData.get("title") as string);
+  const description = sanitise((formData.get("description") as string) || "");
+  const category = sanitise((formData.get("category") as string) || "other");
   const file = formData.get("image") as File;
 
   if (!file || file.size === 0) return { error: "No image provided" };
