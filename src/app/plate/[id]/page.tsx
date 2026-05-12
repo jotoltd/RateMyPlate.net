@@ -78,21 +78,24 @@ export default async function PlatePage({
 
   if (!plate) notFound();
 
-  const { data: ratings } = await supabase
-    .from("ratings")
-    .select("*, profiles(id, username)")
-    .eq("plate_id", id)
-    .order("created_at", { ascending: false });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: myRatingRow } = user
+    ? await supabase
+        .from("ratings")
+        .select("id, score, comment, created_at, user_id")
+        .eq("plate_id", id)
+        .eq("user_id", user.id)
+        .single()
+    : { data: null };
 
   const { data: comments } = await supabase
     .from("comments")
     .select("*, profiles(id, username)")
     .eq("plate_id", id)
     .order("created_at", { ascending: true });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const userLike = user
     ? await supabase
@@ -103,9 +106,7 @@ export default async function PlatePage({
         .single()
     : null;
 
-  const existingRating = user
-    ? ratings?.find((r) => r.user_id === user.id) ?? null
-    : null;
+  const existingRating = myRatingRow ?? null;
 
   const savedCheck = user
     ? await supabase.from("saved_plates").select("id").eq("user_id", user.id).eq("plate_id", id).single()
@@ -222,28 +223,33 @@ export default async function PlatePage({
             </div>
           )}
 
-          {/* Community Rating */}
-          {plate.avg_user_rating !== null && (
+          {/* Your private rating (only visible to you) */}
+          {existingRating && user && (
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-100 dark:border-amber-800 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
                   <Star className="w-4 h-4 text-white fill-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-amber-800 dark:text-amber-300 text-sm">Community</p>
-                  <p className="text-xs text-amber-500">{plate.rating_count ?? 0} review{(plate.rating_count ?? 0) !== 1 ? "s" : ""}</p>
+                  <p className="font-bold text-amber-800 dark:text-amber-300 text-sm">Your Rating</p>
+                  <p className="text-xs text-amber-500">Only visible to you</p>
                 </div>
                 <div className="ml-auto flex items-baseline gap-0.5">
-                  <span className="text-3xl font-black text-amber-700 dark:text-amber-300">{scoreToStars(plate.avg_user_rating).toFixed(1)}</span>
+                  <span className="text-3xl font-black text-amber-700 dark:text-amber-300">{scoreToStars(existingRating.score).toFixed(1)}</span>
                   <span className="text-sm text-amber-400">/5</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <StarRating value={scoreToStars(plate.avg_user_rating)} readonly size="sm" />
+                <StarRating value={scoreToStars(existingRating.score)} readonly size="sm" />
                 <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                  {getStarLabel(scoreToStars(plate.avg_user_rating))}
+                  {getStarLabel(scoreToStars(existingRating.score))}
                 </span>
               </div>
+              {existingRating.comment && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-3 italic border-l-2 border-amber-200 pl-3">
+                  &quot;{existingRating.comment}&quot;
+                </p>
+              )}
             </div>
           )}
 
@@ -290,56 +296,6 @@ export default async function PlatePage({
           )}
         </div>
       </div>
-
-      {/* Reviews */}
-      {ratings && ratings.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Community Reviews ({ratings.length})
-          </h2>
-          <div className="space-y-4">
-            {ratings.map((rating) => (
-              <div
-                key={rating.id}
-                className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">
-                        {(rating.profiles?.username ?? "U")[0].toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <Link
-                        href={`/profile/${rating.user_id}`}
-                        className="font-semibold text-gray-800 text-sm hover:text-orange-500"
-                      >
-                        {rating.profiles?.username ?? "User"}
-                      </Link>
-                      <p className="text-xs text-gray-400">
-                        {formatDate(rating.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1.5 rounded-xl">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                      {scoreToStars(rating.score).toFixed(1)}
-                    </span>
-                    <span className="text-xs text-amber-400">/5</span>
-                  </div>
-                </div>
-                {rating.comment && (
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {rating.comment}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Related plates */}
       {relatedPlates.length > 0 && (
