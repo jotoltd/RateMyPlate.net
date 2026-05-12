@@ -1,0 +1,126 @@
+import { notFound } from "next/navigation";
+import { User, Calendar, Star, Upload } from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import PlateCard from "@/components/PlateCard";
+import { Plate } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
+
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!profile) notFound();
+
+  const { data: plates } = await supabase
+    .from("plates")
+    .select("*, profiles(id, username, avatar_url)")
+    .eq("user_id", id)
+    .order("created_at", { ascending: false });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const totalRatings =
+    plates?.reduce((sum, p) => sum + (p.rating_count ?? 0), 0) ?? 0;
+  const avgRating =
+    plates && plates.length > 0
+      ? plates
+          .filter((p) => p.avg_user_rating !== null)
+          .reduce((sum, p, _, arr) =>
+            arr.length === 0 ? sum : sum + p.avg_user_rating / arr.length
+          , 0)
+      : null;
+
+  const isOwnProfile = user?.id === id;
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-10">
+      {/* Profile header */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-rose-500 rounded-3xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <span className="text-white text-4xl font-extrabold">
+              {profile.username[0].toUpperCase()}
+            </span>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
+              @{profile.username}
+            </h1>
+            {profile.bio && (
+              <p className="text-gray-500 mb-3">{profile.bio}</p>
+            )}
+            <div className="flex flex-wrap justify-center sm:justify-start gap-6 text-sm text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
+                Joined {formatDate(profile.created_at)}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Upload className="w-4 h-4" />
+                {plates?.length ?? 0} plates
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                {totalRatings} ratings received
+              </div>
+              {avgRating !== null && avgRating > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
+                  Avg {avgRating.toFixed(1)}/10
+                </div>
+              )}
+            </div>
+          </div>
+          {isOwnProfile && (
+            <Link
+              href="/upload"
+              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-md"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Plate
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Plates grid */}
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
+        {isOwnProfile ? "Your Plates" : `${profile.username}'s Plates`}
+      </h2>
+
+      {plates && plates.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {plates.map((plate) => (
+            <PlateCard key={plate.id} plate={plate as Plate} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20 text-gray-400">
+          <User className="w-16 h-16 mx-auto mb-4 opacity-30" />
+          <p className="text-lg font-medium">No plates yet</p>
+          {isOwnProfile && (
+            <Link
+              href="/upload"
+              className="inline-flex items-center gap-2 mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Your First Plate
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
