@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import MobileNav from "@/components/MobileNav";
+import ThemeToggle from "@/components/ThemeToggle";
+import RealtimeNotifications from "@/components/RealtimeNotifications";
 import { createClient } from "@/lib/supabase/server";
 
 const geistSans = Geist({
@@ -42,13 +45,15 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50">
-        <Navbar user={user} username={username} notifications={notifications as never} />
+    <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-950 dark:text-gray-100 transition-colors">
+        <Navbar user={user} username={username} notifications={notifications as never} themeToggle={<ThemeToggle />} />
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-gray-100 bg-white py-6 text-center text-sm text-gray-400">
+        <footer className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 py-6 text-center text-sm text-gray-400 hidden md:block">
           © {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
+        <MobileNav userId={user?.id} />
+        {user && <RealtimeNotifications userId={user.id} />}
       </body>
     </html>
   );

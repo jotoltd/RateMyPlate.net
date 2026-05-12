@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star, User } from "lucide-react";
+import { Star, User, Heart } from "lucide-react";
 import { Plate } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -52,10 +52,23 @@ export default function PlateCard({ plate }: PlateCardProps) {
               {formatDate(plate.created_at)}
             </span>
           </div>
-          {plate.rating_count > 0 && (
-            <div className="mt-2 text-xs text-gray-400">
-              {plate.rating_count} rating{plate.rating_count !== 1 ? "s" : ""}
-            </div>
+          <div className="flex items-center justify-between mt-2">
+            {plate.rating_count > 0 && (
+              <span className="text-xs text-gray-400">
+                {plate.rating_count} rating{plate.rating_count !== 1 ? "s" : ""}
+              </span>
+            )}
+            {(plate.like_count ?? 0) > 0 && (
+              <span className="flex items-center gap-1 text-xs text-rose-400">
+                <Heart className="w-3 h-3 fill-rose-400" />
+                {plate.like_count}
+              </span>
+            )}
+          </div>
+          {plate.category && plate.category !== "other" && (
+            <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 text-[10px] font-semibold capitalize">
+              {plate.category}
+            </span>
           )}
         </div>
       </div>

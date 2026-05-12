@@ -1,8 +1,9 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Trophy, Flame } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
@@ -12,9 +13,10 @@ type NavbarProps = {
   user: { id: string; email?: string } | null;
   username?: string | null;
   notifications?: Notification[];
+  themeToggle?: React.ReactNode;
 };
 
-export default function Navbar({ user, username, notifications = [] }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [], themeToggle }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,6 +41,7 @@ export default function Navbar({ user, username, notifications = [] }: NavbarPro
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-3">
+          {themeToggle}
           <Link
             href="/search"
             className="flex items-center gap-2 text-gray-600 hover:text-orange-500 px-3 py-2 rounded-xl hover:bg-orange-50 transition-colors"
@@ -109,6 +112,9 @@ export default function Navbar({ user, username, notifications = [] }: NavbarPro
         <div className="md:hidden border-t border-orange-100 bg-white px-4 py-3 flex flex-col gap-2">
           <Link href="/search" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
             <Search className="w-4 h-4" /> Search
+          </Link>
+          <Link href="/trending" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
+            <Flame className="w-4 h-4" /> Trending
           </Link>
           <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-700 px-4 py-3 rounded-xl hover:bg-orange-50">
             <Trophy className="w-4 h-4" /> Leaderboard

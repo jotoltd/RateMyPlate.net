@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,6 +20,45 @@ import EditPlateModal from "@/components/EditPlateModal";
 import DeletePlateButton from "@/components/DeletePlateButton";
 import { formatDate, getStarLabel } from "@/lib/utils";
 import { Comment } from "@/lib/types";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: plate } = await supabase
+    .from("plates")
+    .select("title, description, image_url, ai_rating, avg_user_rating, profiles(username)")
+    .eq("id", id)
+    .single();
+
+  if (!plate) return { title: "Plate Not Found" };
+
+  const rating = plate.avg_user_rating ?? plate.ai_rating;
+  const prof = plate.profiles as unknown as { username: string } | null;
+  const description = plate.description
+    ? plate.description
+    : `Rated ${rating ? `${Number(rating).toFixed(1)}/10` : "on"} Rate My Plate by @${prof?.username ?? "a chef"}`;
+
+  return {
+    title: `${plate.title} – Rate My Plate`,
+    description,
+    openGraph: {
+      title: plate.title,
+      description,
+      images: [{ url: plate.image_url, width: 1200, height: 630, alt: plate.title }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: plate.title,
+      description,
+      images: [plate.image_url],
+    },
+  };
+}
 
 export default async function PlatePage({
   params,

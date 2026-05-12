@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from "react";
 import Image from "next/image";
 import { Upload, ImagePlus, Sparkles, X } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
+import { CATEGORIES } from "@/lib/types";
 
 export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -110,6 +111,24 @@ export default function UploadPage() {
             className="hidden"
             onChange={handleFileChange}
           />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Category
+          </label>
+          <select
+            name="category"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-white capitalize"
+            defaultValue="other"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c} className="capitalize">
+                {c.charAt(0).toUpperCase() + c.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Title */}

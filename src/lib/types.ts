@@ -1,9 +1,26 @@
+export const CATEGORIES = [
+  "breakfast",
+  "lunch",
+  "dinner",
+  "dessert",
+  "snack",
+  "drink",
+  "italian",
+  "asian",
+  "mexican",
+  "other",
+] as const;
+
+export type Category = (typeof CATEGORIES)[number];
+
 export type Profile = {
   id: string;
   username: string;
   avatar_url: string | null;
   bio: string | null;
   created_at: string;
+  follower_count?: number;
+  following_count?: number;
 };
 
 export type Plate = {
@@ -12,10 +29,12 @@ export type Plate = {
   title: string;
   description: string | null;
   image_url: string;
+  category: Category;
   ai_rating: number | null;
   ai_comment: string | null;
   avg_user_rating: number | null;
   rating_count: number;
+  like_count: number;
   created_at: string;
   profiles?: Profile;
 };

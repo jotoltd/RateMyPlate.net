@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
-import { User, Calendar, Star, Upload, Heart, Pencil } from "lucide-react";
+import { User, Calendar, Star, Upload, Heart, Pencil, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import PlateCard from "@/components/PlateCard";
+import FollowButton from "@/components/FollowButton";
 import { Plate } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -47,6 +48,10 @@ export default async function ProfilePage({
       : null;
 
   const isOwnProfile = user?.id === id;
+
+  const isFollowing = user && !isOwnProfile
+    ? !!(await supabase.from("follows").select("id").eq("follower_id", user.id).eq("following_id", id).single()).data
+    : false;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -92,8 +97,19 @@ export default async function ProfilePage({
                 <Heart className="w-4 h-4 text-rose-400 fill-rose-400" />
                 {totalLikes} likes
               </div>
+              <div className="flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-blue-400" />
+                {profile.follower_count ?? 0} followers · {profile.following_count ?? 0} following
+              </div>
             </div>
           </div>
+          {!isOwnProfile && user && (
+            <FollowButton
+              targetUserId={id}
+              initialFollowing={isFollowing}
+              initialCount={profile.follower_count ?? 0}
+            />
+          )}
           {isOwnProfile && (
             <div className="flex flex-col gap-2">
               <Link

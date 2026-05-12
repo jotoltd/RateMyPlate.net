@@ -15,6 +15,7 @@ export async function uploadPlate(formData: FormData) {
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
+  const category = (formData.get("category") as string) || "other";
   const file = formData.get("image") as File;
 
   if (!file || file.size === 0) return { error: "No image provided" };
@@ -41,6 +42,7 @@ export async function uploadPlate(formData: FormData) {
       user_id: user.id,
       title,
       description: description || null,
+      category,
       image_url: publicUrl,
       ai_rating: aiResult.rating,
       ai_comment: aiResult.comment,
