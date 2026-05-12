@@ -80,11 +80,11 @@ function CommentInput({
               handleSubmit(e as unknown as React.FormEvent);
             }
           }}
-          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none bg-gray-50 placeholder-gray-400"
+          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-white placeholder-white/20"
         />
         <div className="flex items-center justify-between mt-1">
           {error ? <p className="text-red-500 text-xs">{error}</p> : <span />}
-          <span className={`text-xs ${body.length > MAX * 0.9 ? "text-orange-500" : "text-gray-400"}`}>
+          <span className={`text-xs ${body.length > MAX * 0.9 ? "text-orange-400" : "text-white/20"}`}>
             {body.length}/{MAX}
           </span>
         </div>
@@ -147,14 +147,14 @@ function CommentItem({
           <Avatar username={username} avatarUrl={avatarUrl} />
         </Link>
         <div className="flex-1 min-w-0">
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2.5 inline-block max-w-full">
+          <div className="bg-white/5 rounded-2xl px-4 py-2.5 inline-block max-w-full">
             <Link
               href={`/profile/${comment.user_id}`}
-              className="text-sm font-semibold text-gray-900 hover:text-orange-500 transition-colors"
+              className="text-sm font-semibold text-white hover:text-orange-400 transition-colors"
             >
               {username}
             </Link>
-            <p className="text-sm text-gray-700 dark:text-gray-200 mt-0.5 break-words whitespace-pre-wrap">
+            <p className="text-sm text-white/70 mt-0.5 break-words whitespace-pre-wrap">
               {comment.body.split(/(@[a-zA-Z0-9_]+)/g).map((part, i) =>
                 /^@[a-zA-Z0-9_]+$/.test(part) ? (
                   <Link
@@ -173,7 +173,7 @@ function CommentItem({
 
           {/* Actions */}
           <div className="flex items-center gap-4 mt-1 ml-1">
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-white/20">
               {formatDate(comment.created_at)}
             </span>
             {currentUserId && (
@@ -181,7 +181,7 @@ function CommentItem({
                 onClick={handleLike}
                 disabled={isPending}
                 className={`text-xs font-semibold flex items-center gap-1 transition-colors ${
-                  liked ? "text-rose-500" : "text-gray-400 hover:text-rose-500"
+                  liked ? "text-rose-400" : "text-white/20 hover:text-rose-400"
                 }`}
               >
                 <Heart className={`w-3 h-3 ${liked ? "fill-rose-500" : ""}`} />
@@ -191,7 +191,7 @@ function CommentItem({
             {currentUserId && depth < 2 && (
               <button
                 onClick={() => setShowReply(!showReply)}
-                className="text-xs font-semibold text-gray-500 hover:text-orange-500 transition-colors flex items-center gap-1"
+                className="text-xs font-semibold text-white/20 hover:text-orange-400 transition-colors flex items-center gap-1"
               >
                 <CornerDownRight className="w-3 h-3" />
                 Reply
@@ -201,7 +201,7 @@ function CommentItem({
               <button
                 onClick={handleDelete}
                 disabled={isPending}
-                className="text-xs font-semibold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100"
+                className="text-xs font-semibold text-white/20 hover:text-red-400 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="w-3 h-3" />
                 Delete
@@ -224,7 +224,7 @@ function CommentItem({
 
           {/* Nested replies */}
           {comment.replies && comment.replies.length > 0 && (
-            <div className="border-l-2 border-gray-100 pl-1">
+            <div className="border-l-2 border-white/5 pl-1">
               {comment.replies.map((reply) => (
                 <CommentItem
                   key={reply.id}
@@ -264,8 +264,8 @@ export default function CommentSection({
   return (
     <section className="mt-10">
       <div className="flex items-center gap-2 mb-4">
-        <MessageSquare className="w-5 h-5 text-orange-500" />
-        <h2 className="text-lg font-bold text-gray-900">
+        <MessageSquare className="w-5 h-5 text-orange-400" />
+        <h2 className="text-lg font-bold text-white">
           Comments ({comments.length})
         </h2>
       </div>
@@ -273,17 +273,17 @@ export default function CommentSection({
       {currentUserId ? (
         <CommentInput plateId={plateId} placeholder="Write a comment… (Enter to post)" />
       ) : (
-        <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 text-center text-sm text-gray-500">
-          <Link href="/auth/login" className="font-semibold text-orange-500 hover:underline">
+        <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-4 text-center text-sm text-white/40">
+          <Link href="/auth/login" className="font-semibold text-orange-400 hover:underline">
             Sign in
           </Link>{" "}
           to leave a comment
         </div>
       )}
 
-      <div className="mt-4 divide-y divide-gray-50">
+      <div className="mt-4 divide-y divide-white/[0.04]">
         {tree.length === 0 ? (
-          <p className="text-sm text-gray-400 py-6 text-center">
+          <p className="text-sm text-white/20 py-6 text-center">
             No comments yet. Be the first!
           </p>
         ) : (

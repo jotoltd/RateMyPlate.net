@@ -41,7 +41,7 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-3">
           Tap to rate
         </label>
         <StarRating value={stars} onChange={setStars} size="lg" />
@@ -51,9 +51,9 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
-          <MessageSquare className="w-4 h-4 text-orange-400" />
-          Leave a comment <span className="text-gray-400 font-normal">(optional)</span>
+        <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+          <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
+          Comment <span className="font-normal normal-case tracking-normal text-white/20">(optional)</span>
         </label>
         <textarea
           value={comment}
@@ -61,21 +61,21 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
           placeholder="What did you think? Presentation, taste, vibes…"
           rows={3}
           maxLength={500}
-          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none placeholder-gray-400"
+          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-white placeholder-white/20"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending || stars === 0}
-        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-2xl font-semibold hover:opacity-90 transition-all disabled:opacity-40 shadow-lg shadow-orange-200 dark:shadow-none active:scale-95"
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-2xl font-semibold hover:opacity-90 transition-all disabled:opacity-40 shadow-lg active:scale-95"
       >
         <Send className="w-4 h-4" />
         {isPending ? "Submitting…" : existingRating ? "Update Rating" : "Submit Rating"}
       </button>
 
       {success && (
-        <div className="flex items-center gap-2 text-emerald-600 font-semibold text-sm bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+        <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3">
           <CheckCircle2 className="w-4 h-4" />
           Rating submitted! 🎉
         </div>

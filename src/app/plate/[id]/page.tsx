@@ -130,7 +130,7 @@ export default async function PlatePage({
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors mb-6 text-sm font-medium"
+        className="inline-flex items-center gap-2 text-white/30 hover:text-orange-400 transition-colors mb-6 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to feed
@@ -140,12 +140,12 @@ export default async function PlatePage({
         {/* Image with lightbox */}
         <PlateImageWithLightbox src={plate.image_url} alt={plate.title}>
           {displayStars !== null && (
-            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-xl pointer-events-none">
+            <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-2xl px-3 py-2 flex items-center gap-1.5 shadow-xl pointer-events-none">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span className="text-base font-bold text-gray-900">
+              <span className="text-base font-bold text-white">
                 {displayStars.toFixed(1)}
               </span>
-              <span className="text-xs text-gray-400">/5</span>
+              <span className="text-xs text-white/40">/5</span>
             </div>
           )}
         </PlateImageWithLightbox>
@@ -153,11 +153,11 @@ export default async function PlatePage({
         {/* Info */}
         <div className="flex flex-col gap-5">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2 leading-tight">
+            <h1 className="text-3xl font-extrabold text-white mb-2 leading-tight">
               {plate.title}
             </h1>
             {plate.description && (
-              <p className="text-gray-500 text-base leading-relaxed">
+              <p className="text-white/50 text-base leading-relaxed">
                 {plate.description}
               </p>
             )}
@@ -175,12 +175,12 @@ export default async function PlatePage({
             </div>
           )}
 
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+        <div className="flex flex-wrap gap-4 text-sm text-white/40">
             <div className="flex items-center gap-1.5">
               <User className="w-4 h-4" />
               <Link
                 href={`/profile/${plate.profiles?.id}`}
-                className="font-medium text-gray-700 hover:text-orange-500"
+                className="font-medium text-white/60 hover:text-orange-400"
               >
                 {plate.profiles?.username ?? "Chef"}
               </Link>
@@ -200,23 +200,23 @@ export default async function PlatePage({
 
           {/* AI Rating */}
           {plate.ai_rating !== null && (
-            <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800 rounded-3xl p-5">
+            <div className="bg-violet-500/5 border border-violet-500/20 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md shadow-violet-500/30">
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-violet-800 dark:text-violet-300 text-sm">AI Critic</p>
+                  <p className="font-bold text-violet-300 text-sm">AI Critic</p>
                   <p className="text-xs text-violet-500">Gemini Vision</p>
                 </div>
                 <div className="ml-auto flex items-baseline gap-0.5">
-                  <span className="text-3xl font-black text-violet-700 dark:text-violet-300">{scoreToStars(plate.ai_rating).toFixed(1)}</span>
-                  <span className="text-sm text-violet-400">/5</span>
+                  <span className="text-3xl font-black text-violet-300">{scoreToStars(plate.ai_rating).toFixed(1)}</span>
+                  <span className="text-sm text-violet-500">/5</span>
                 </div>
               </div>
               <StarRating value={scoreToStars(plate.ai_rating)} readonly size="sm" />
               {plate.ai_comment && (
-                <p className="text-sm text-violet-700 dark:text-violet-300 mt-3 leading-relaxed italic border-l-2 border-violet-200 pl-3">
+                <p className="text-sm text-violet-300/80 mt-4 leading-relaxed italic border-l-2 border-violet-500/30 pl-3">
                   &quot;{plate.ai_comment}&quot;
                 </p>
               )}
@@ -225,28 +225,28 @@ export default async function PlatePage({
 
           {/* Your private rating (only visible to you) */}
           {existingRating && user && (
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-100 dark:border-amber-800 rounded-3xl p-5">
+            <div className="bg-amber-500/5 border border-amber-500/20 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/30">
                   <Star className="w-4 h-4 text-white fill-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-amber-800 dark:text-amber-300 text-sm">Your Rating</p>
-                  <p className="text-xs text-amber-500">Only visible to you</p>
+                  <p className="font-bold text-amber-300 text-sm">Your Rating</p>
+                  <p className="text-xs text-amber-500/70">Only visible to you</p>
                 </div>
                 <div className="ml-auto flex items-baseline gap-0.5">
-                  <span className="text-3xl font-black text-amber-700 dark:text-amber-300">{scoreToStars(existingRating.score).toFixed(1)}</span>
-                  <span className="text-sm text-amber-400">/5</span>
+                  <span className="text-3xl font-black text-amber-300">{scoreToStars(existingRating.score).toFixed(1)}</span>
+                  <span className="text-sm text-amber-500">/5</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <StarRating value={scoreToStars(existingRating.score)} readonly size="sm" />
-                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                <span className="text-sm font-bold text-amber-400">
                   {getStarLabel(scoreToStars(existingRating.score))}
                 </span>
               </div>
               {existingRating.comment && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-3 italic border-l-2 border-amber-200 pl-3">
+                <p className="text-xs text-amber-400/70 mt-3 italic border-l-2 border-amber-500/30 pl-3">
                   &quot;{existingRating.comment}&quot;
                 </p>
               )}
@@ -255,11 +255,11 @@ export default async function PlatePage({
 
           {/* Rate it */}
           {user && user.id !== plate.user_id && (
-            <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm">
-              <h3 className="font-bold text-gray-900 dark:text-white mb-1">
+            <div className="bg-white/[0.03] border border-white/8 rounded-3xl p-5">
+              <h3 className="font-bold text-white mb-1">
                 {existingRating ? "Update Your Rating" : "Rate This Plate"}
               </h3>
-              <p className="text-xs text-gray-400 mb-4">Your opinion matters</p>
+              <p className="text-xs text-white/30 mb-4">Your opinion matters</p>
               <RatingForm
                 plateId={plate.id}
                 existingRating={existingRating}
@@ -282,8 +282,8 @@ export default async function PlatePage({
           </div>
 
           {!user && (
-            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 text-center">
-              <p className="text-gray-600 text-sm mb-3">
+            <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-5 text-center">
+              <p className="text-white/50 text-sm mb-3">
                 Sign in to rate this plate
               </p>
               <Link
@@ -300,7 +300,7 @@ export default async function PlatePage({
       {/* Related plates */}
       {relatedPlates.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">
+          <h2 className="text-xl font-bold text-white mb-5">
             More {plate.category} plates
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -310,7 +310,7 @@ export default async function PlatePage({
       )}
 
       {/* Comments */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 mt-10">
+      <div className="bg-white/[0.02] rounded-3xl border border-white/5 p-6 mt-10">
         <CommentSection
           plateId={plate.id}
           comments={(comments ?? []) as Comment[]}

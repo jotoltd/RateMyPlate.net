@@ -52,19 +52,19 @@ export default function StarRating({
                 "transition-all duration-150",
                 star <= active
                   ? "text-amber-400 fill-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]"
-                  : "text-gray-200 fill-gray-200"
+                  : "text-white/10 fill-white/10"
               )}
             />
           </button>
         ))}
       </div>
       {!readonly && active > 0 && (
-        <span className="ml-2 text-sm font-bold text-amber-600 whitespace-nowrap">
+        <span className="ml-2 text-sm font-bold text-amber-400 whitespace-nowrap">
           {LABELS[active]}
         </span>
       )}
       {readonly && value > 0 && (
-        <span className="ml-1 text-xs font-semibold text-gray-500 whitespace-nowrap">
+        <span className="ml-1 text-xs font-semibold text-white/30 whitespace-nowrap">
           {value}/5
         </span>
       )}
