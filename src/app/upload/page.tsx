@@ -8,10 +8,30 @@ import { CATEGORIES } from "@/lib/types";
 
 export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
+  const [compressedBlob, setCompressedBlob] = useState<Blob | null>(null);
+  const [compressedName, setCompressedName] = useState("image.jpg");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  function compressImage(file: File): Promise<Blob> {
+    return new Promise((resolve) => {
+      const MAX = 1200;
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width * ratio);
+        const h = Math.round(img.height * ratio);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => resolve(blob ?? file), "image/jpeg", 0.82);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -25,19 +45,24 @@ export default function UploadPage() {
       return;
     }
     setError("");
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    compressImage(file).then((blob) => {
+      setCompressedBlob(blob);
+      setCompressedName(file.name.replace(/\.[^.]+$/, ".jpg"));
+      const reader = new FileReader();
+      reader.onload = () => setPreview(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!preview) {
+    if (!compressedBlob) {
       setError("Please upload an image");
       return;
     }
     setError("");
     const formData = new FormData(e.currentTarget);
+    formData.set("image", compressedBlob, compressedName);
     startTransition(async () => {
       const result = await uploadPlate(formData);
       if (result?.error) setError(result.error);
@@ -62,7 +87,7 @@ export default function UploadPage() {
         <div>
           <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Plate Photo *</label>
           {preview ? (
-            <div className="relative rounded-2xl overflow-hidden bg-gray-100 aspect-square max-w-sm mx-auto">
+            <div className="relative rounded-2xl overflow-hidden bg-white/5 aspect-square max-w-sm mx-auto">
               <Image
                 src={preview}
                 alt="Preview"
@@ -73,6 +98,7 @@ export default function UploadPage() {
                 type="button"
                 onClick={() => {
                   setPreview(null);
+                  setCompressedBlob(null);
                   if (fileRef.current) fileRef.current.value = "";
                 }}
                 className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-1.5 hover:bg-black/70 transition-colors"

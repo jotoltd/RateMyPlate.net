@@ -21,6 +21,9 @@ create table if not exists public.plates (
   ai_comment text,
   avg_user_rating numeric(4,2),
   rating_count integer default 0 not null,
+  like_count integer default 0 not null,
+  view_count integer default 0 not null,
+  category text default 'other',
   created_at timestamptz default now() not null
 );
 

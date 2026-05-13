@@ -21,6 +21,7 @@ import { formatDate, getStarLabel, scoreToStars } from "@/lib/utils";
 import { Comment, Plate } from "@/lib/types";
 import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
 import SaveButton from "@/components/SaveButton";
+import ViewCounter from "@/components/ViewCounter";
 import PlateCard from "@/components/PlateCard";
 
 export async function generateMetadata({
@@ -196,6 +197,7 @@ export default async function PlatePage({
                 {(plate.rating_count ?? 0) !== 1 ? "s" : ""}
               </span>
             </div>
+            <ViewCounter plateId={plate.id} initialCount={plate.view_count ?? 0} />
           </div>
 
           {/* AI Rating */}

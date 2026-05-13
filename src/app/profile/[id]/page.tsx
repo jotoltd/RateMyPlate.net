@@ -99,7 +99,13 @@ export default async function ProfilePage({
               </div>
               <div className="flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-blue-400" />
-                {profile.follower_count ?? 0} followers · {profile.following_count ?? 0} following
+                <Link href={`/profile/${id}/followers`} className="hover:text-white transition-colors">
+                  {profile.follower_count ?? 0} followers
+                </Link>
+                <span>·</span>
+                <Link href={`/profile/${id}/following`} className="hover:text-white transition-colors">
+                  {profile.following_count ?? 0} following
+                </Link>
               </div>
             </div>
           </div>

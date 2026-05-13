@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ChefHat, Mail, Lock, User, Sparkles } from "lucide-react";
+import { ChefHat, Mail, Lock, User, Sparkles, Eye, EyeOff } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
 
 export default function SignupPage() {
   const [error, setError] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -70,14 +71,17 @@ export default function SignupPage() {
             <label className={labelClass}>Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input name="password" type="password" required placeholder="Min. 6 characters" className={inputClass} />
+              <input name="password" type={showPass ? "text" : "password"} required placeholder="Min. 6 characters" className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-white placeholder-white/20" />
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
           <div>
             <label className={labelClass}>Confirm Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input name="confirm" type="password" required placeholder="Repeat your password" className={inputClass} />
+              <input name="confirm" type={showPass ? "text" : "password"} required placeholder="Repeat your password" className={inputClass} />
             </div>
           </div>
 
