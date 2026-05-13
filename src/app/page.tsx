@@ -56,14 +56,39 @@ export default async function Home({
 
   let initialLikedIds: string[] = [];
   let initialRatingMap: Record<string, number> = {};
+  let initialCommentMap: Record<string, import("@/lib/types").Comment[]> = {};
+  let currentUserAvatar: string | null = null;
+  let currentUsername: string | null = null;
 
-  if (user && initialPlateIds.length > 0) {
-    const [likesRes, ratingsRes] = await Promise.all([
-      supabase.from("likes").select("plate_id").eq("user_id", user.id).in("plate_id", initialPlateIds),
-      supabase.from("ratings").select("plate_id, score").eq("user_id", user.id).in("plate_id", initialPlateIds),
-    ]);
-    initialLikedIds = (likesRes.data ?? []).map((r) => r.plate_id);
-    initialRatingMap = Object.fromEntries((ratingsRes.data ?? []).map((r) => [r.plate_id, r.score]));
+  if (initialPlateIds.length > 0) {
+    // Fetch last 2 comments per plate (for everyone, not just logged-in)
+    const commentsRes = await supabase
+      .from("comments")
+      .select("*, profiles(id, username, avatar_url)")
+      .in("plate_id", initialPlateIds)
+      .is("parent_id", null)
+      .order("created_at", { ascending: false })
+      .limit(initialPlateIds.length * 2);
+
+    const allComments = (commentsRes.data ?? []) as import("@/lib/types").Comment[];
+    for (const plateId of initialPlateIds) {
+      initialCommentMap[plateId] = allComments
+        .filter((c) => c.plate_id === plateId)
+        .slice(0, 2)
+        .reverse();
+    }
+
+    if (user) {
+      const [likesRes, ratingsRes, profileRes] = await Promise.all([
+        supabase.from("likes").select("plate_id").eq("user_id", user.id).in("plate_id", initialPlateIds),
+        supabase.from("ratings").select("plate_id, score").eq("user_id", user.id).in("plate_id", initialPlateIds),
+        supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
+      ]);
+      initialLikedIds = (likesRes.data ?? []).map((r) => r.plate_id);
+      initialRatingMap = Object.fromEntries((ratingsRes.data ?? []).map((r) => [r.plate_id, r.score]));
+      currentUserAvatar = profileRes.data?.avatar_url ?? null;
+      currentUsername = profileRes.data?.username ?? null;
+    }
   }
 
   // Suggested chefs for empty following tab
@@ -226,6 +251,9 @@ export default async function Home({
               userId={user?.id}
               initialLikedIds={initialLikedIds}
               initialRatingMap={initialRatingMap}
+              initialCommentMap={initialCommentMap}
+              currentUserAvatar={currentUserAvatar}
+              currentUsername={currentUsername}
             />
           ) : (
             <div className="max-w-[680px] mx-auto py-10 text-center">
@@ -267,6 +295,9 @@ export default async function Home({
             userId={user?.id}
             initialLikedIds={initialLikedIds}
             initialRatingMap={initialRatingMap}
+            initialCommentMap={initialCommentMap}
+            currentUserAvatar={currentUserAvatar}
+            currentUsername={currentUsername}
           />
         ) : (
           <div className="max-w-[680px] mx-auto text-center py-24 text-faint">

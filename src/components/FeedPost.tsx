@@ -1,25 +1,30 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, MessageSquare, CheckCircle2, Eye } from "lucide-react";
+import { Star, Heart, MessageSquare, CheckCircle2, Eye, Send } from "lucide-react";
 import { Plate } from "@/lib/types";
+import { Comment } from "@/lib/types";
 import { scoreToStars, starsToScore, formatDate } from "@/lib/utils";
 import { imgUrl } from "@/lib/imageUrl";
 import { toggleLike } from "@/app/actions/likes";
 import { submitRating } from "@/app/actions/plates";
+import { addComment } from "@/app/actions/comments";
 
 type FeedPostProps = {
   plate: Plate;
   initialLiked?: boolean;
   initialRating?: number | null; // stored score (1-10)
   userId?: string | null;
+  initialComments?: Comment[];
+  currentUserAvatar?: string | null;
+  currentUsername?: string | null;
 };
 
 const STAR_LABELS = ["", "Poor 😬", "Okay 😐", "Good 👍", "Great 🔥", "Exceptional ✨"];
 
-export default function FeedPost({ plate, initialLiked = false, initialRating = null, userId }: FeedPostProps) {
+export default function FeedPost({ plate, initialLiked = false, initialRating = null, userId, initialComments = [], currentUserAvatar, currentUsername }: FeedPostProps) {
   const rawRating = plate.avg_user_rating ?? plate.ai_rating ?? null;
   const displayStars = rawRating !== null ? scoreToStars(rawRating) : null;
   const initial = (plate.profiles?.username ?? "C")[0].toUpperCase();
@@ -29,6 +34,43 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(plate.like_count ?? 0);
   const [likePending, startLikeTransition] = useTransition();
+
+  // Comments state
+  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [commentBody, setCommentBody] = useState("");
+  const [commentFocused, setCommentFocused] = useState(false);
+  const [commentPending, startCommentTransition] = useTransition();
+  const [commentError, setCommentError] = useState("");
+  const commentInputRef = useRef<HTMLInputElement>(null);
+
+  function handleComment(e: React.FormEvent) {
+    e.preventDefault();
+    const text = commentBody.trim();
+    if (!text || !userId) return;
+    setCommentError("");
+    const optimistic: Comment = {
+      id: `temp-${Date.now()}`,
+      plate_id: plate.id,
+      user_id: userId,
+      parent_id: null,
+      body: text,
+      created_at: new Date().toISOString(),
+      like_count: 0,
+      profiles: { id: userId, username: currentUsername ?? "you", avatar_url: currentUserAvatar ?? null, bio: null, created_at: new Date().toISOString() },
+      replies: [],
+    };
+    setComments((prev) => [...prev, optimistic]);
+    setCommentBody("");
+    setCommentFocused(false);
+    startCommentTransition(async () => {
+      const res = await addComment(plate.id, text, null);
+      if (res?.error) {
+        setCommentError(res.error);
+        setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+        setCommentBody(text);
+      }
+    });
+  }
 
   // Rating state
   const [hoverStar, setHoverStar] = useState(0);
@@ -202,16 +244,105 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
       </div>
 
       {ratingError && (
-        <p className="px-4 pb-3 text-xs text-red-400">{ratingError}</p>
+        <p className="px-4 pb-2 text-xs text-red-400">{ratingError}</p>
       )}
 
       {/* Rating count summary */}
       {(plate.rating_count ?? 0) > 0 && (
-        <p className="px-4 pb-3 text-xs text-faint">
+        <p className="px-4 pb-2 text-xs text-faint">
           {plate.rating_count} {plate.rating_count === 1 ? "rating" : "ratings"}
           {displayStars !== null && <> · avg {displayStars.toFixed(1)}/5</>}
         </p>
       )}
+
+      {/* ── Inline comments (Facebook-style) ── */}
+      <div className="border-t border-app-1 px-4 pt-3 pb-3">
+        {/* Preview: last 2 comments */}
+        {comments.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {comments.length > 2 && (
+              <Link
+                href={`/plate/${plate.id}#comments`}
+                className="text-xs font-semibold text-faint hover:text-orange-400 transition-colors"
+              >
+                View all {comments.length} comments
+              </Link>
+            )}
+            {comments.slice(-2).map((c) => {
+              const uname = c.profiles?.username ?? "user";
+              return (
+                <div key={c.id} className="flex items-start gap-2">
+                  <div className="w-6 h-6 flex-shrink-0 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 overflow-hidden">
+                    {c.profiles?.avatar_url ? (
+                      <Image src={c.profiles.avatar_url} alt={uname} width={24} height={24} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-white text-[9px] font-black">{uname[0].toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-surface-2 rounded-2xl px-3 py-1.5 text-xs text-app flex-1 min-w-0">
+                    <span className="font-semibold text-app">{uname} </span>
+                    <span className="text-muted break-words">{c.body}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Input bar */}
+        {userId ? (
+          <form onSubmit={handleComment} className="flex items-center gap-2">
+            <div className="w-7 h-7 flex-shrink-0 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 overflow-hidden">
+              {currentUserAvatar ? (
+                <Image src={currentUserAvatar} alt="you" width={28} height={28} className="object-cover w-full h-full" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-white text-[10px] font-black">{(currentUsername ?? "?")[0].toUpperCase()}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 relative">
+              <input
+                ref={commentInputRef}
+                type="text"
+                value={commentBody}
+                onChange={(e) => setCommentBody(e.target.value)}
+                onFocus={() => setCommentFocused(true)}
+                onBlur={() => { if (!commentBody.trim()) setCommentFocused(false); }}
+                placeholder="Write a comment…"
+                maxLength={500}
+                className="w-full bg-surface-2 border border-app-1 rounded-full px-4 py-1.5 text-sm text-app placeholder-faint focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all pr-9"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleComment(e as unknown as React.FormEvent);
+                  }
+                }}
+              />
+              {(commentFocused || commentBody.trim()) && (
+                <button
+                  type="submit"
+                  disabled={commentPending || !commentBody.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-orange-400 hover:text-orange-500 disabled:opacity-30 transition-colors"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </form>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="flex items-center gap-2 text-xs text-faint hover:text-orange-400 transition-colors"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            Sign in to comment
+          </Link>
+        )}
+        {commentError && <p className="text-xs text-red-400 mt-1 pl-9">{commentError}</p>}
+      </div>
     </article>
   );
 }

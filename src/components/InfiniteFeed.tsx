@@ -17,6 +17,9 @@ export default function InfiniteFeed({
   userId,
   initialLikedIds = [],
   initialRatingMap = {},
+  initialCommentMap = {},
+  currentUserAvatar,
+  currentUsername,
 }: {
   initialPlates: Plate[];
   category?: string;
@@ -25,6 +28,9 @@ export default function InfiniteFeed({
   userId?: string | null;
   initialLikedIds?: string[];
   initialRatingMap?: Record<string, number>;
+  initialCommentMap?: Record<string, import("@/lib/types").Comment[]>;
+  currentUserAvatar?: string | null;
+  currentUsername?: string | null;
 }) {
   const [plates, setPlates] = useState<Plate[]>(initialPlates);
   const [offset, setOffset] = useState(initialPlates.length);
@@ -80,6 +86,9 @@ export default function InfiniteFeed({
         userId={userId}
         initialLiked={initialLikedIds.includes(plate.id)}
         initialRating={initialRatingMap[plate.id] ?? null}
+        initialComments={initialCommentMap[plate.id] ?? []}
+        currentUserAvatar={currentUserAvatar}
+        currentUsername={currentUsername}
       />
     ))}
       {isPending && (

@@ -302,7 +302,7 @@ export default function CommentSection({
     <section className="mt-10">
       <div className="flex items-center gap-2 mb-4">
         <MessageSquare className="w-5 h-5 text-orange-400" />
-        <h2 className="text-lg font-bold text-white">
+        <h2 className="text-lg font-bold text-app">
           Comments ({comments.length})
         </h2>
       </div>
@@ -310,7 +310,7 @@ export default function CommentSection({
       {currentUserId ? (
         <CommentInput plateId={plateId} placeholder="Write a comment… (Enter to post)" />
       ) : (
-        <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-4 text-center text-sm text-white/40">
+        <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-4 text-center text-sm text-muted">
           <Link href="/auth/login" className="font-semibold text-orange-400 hover:underline">
             Sign in
           </Link>{" "}
