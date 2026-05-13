@@ -14,11 +14,17 @@ export default function InfiniteFeed({
   category,
   mode = "all",
   variant = "feed",
+  userId,
+  initialLikedIds = [],
+  initialRatingMap = {},
 }: {
   initialPlates: Plate[];
   category?: string;
   mode?: "all" | "following";
   variant?: "feed" | "grid";
+  userId?: string | null;
+  initialLikedIds?: string[];
+  initialRatingMap?: Record<string, number>;
 }) {
   const [plates, setPlates] = useState<Plate[]>(initialPlates);
   const [offset, setOffset] = useState(initialPlates.length);
@@ -67,7 +73,15 @@ export default function InfiniteFeed({
 
   return (
     <div className="max-w-[680px] mx-auto space-y-4">
-      {plates.map((plate) => <FeedPost key={plate.id} plate={plate} />)}
+      {plates.map((plate) => (
+      <FeedPost
+        key={plate.id}
+        plate={plate}
+        userId={userId}
+        initialLiked={initialLikedIds.includes(plate.id)}
+        initialRating={initialRatingMap[plate.id] ?? null}
+      />
+    ))}
       {isPending && (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (

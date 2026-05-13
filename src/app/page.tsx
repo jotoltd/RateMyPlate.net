@@ -50,6 +50,22 @@ export default async function Home({
 
   const { data: plates } = await feedQuery;
 
+  // Fetch initial like + rating state for the current user
+  const initialPlatesList = activeTab === "following" ? followingPlates : ((plates ?? []) as Plate[]);
+  const initialPlateIds = initialPlatesList.map((p) => p.id);
+
+  let initialLikedIds: string[] = [];
+  let initialRatingMap: Record<string, number> = {};
+
+  if (user && initialPlateIds.length > 0) {
+    const [likesRes, ratingsRes] = await Promise.all([
+      supabase.from("likes").select("plate_id").eq("user_id", user.id).in("plate_id", initialPlateIds),
+      supabase.from("ratings").select("plate_id, score").eq("user_id", user.id).in("plate_id", initialPlateIds),
+    ]);
+    initialLikedIds = (likesRes.data ?? []).map((r) => r.plate_id);
+    initialRatingMap = Object.fromEntries((ratingsRes.data ?? []).map((r) => [r.plate_id, r.score]));
+  }
+
   // Suggested chefs for empty following tab
   const suggestedChefsRes = (activeTab === "following" && user && followingPlates.length === 0)
     ? await supabase
@@ -204,7 +220,13 @@ export default async function Home({
       <div className="px-4 pb-12" id="feed">
         {activeTab === "following" ? (
           followingPlates.length > 0 ? (
-            <InfiniteFeed initialPlates={followingPlates} mode="following" />
+            <InfiniteFeed
+              initialPlates={followingPlates}
+              mode="following"
+              userId={user?.id}
+              initialLikedIds={initialLikedIds}
+              initialRatingMap={initialRatingMap}
+            />
           ) : (
             <div className="max-w-[680px] mx-auto py-10 text-center">
               <Users className="w-14 h-14 mx-auto mb-4 text-faint opacity-40" />
@@ -242,6 +264,9 @@ export default async function Home({
           <InfiniteFeed
             initialPlates={plates as Plate[]}
             category={activeCategory !== "all" ? activeCategory : undefined}
+            userId={user?.id}
+            initialLikedIds={initialLikedIds}
+            initialRatingMap={initialRatingMap}
           />
         ) : (
           <div className="max-w-[680px] mx-auto text-center py-24 text-faint">

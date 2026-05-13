@@ -324,7 +324,7 @@ export default async function PlatePage({
       )}
 
       {/* Comments */}
-      <div className="bg-surface-1 rounded-3xl border border-app-1 p-6 mt-10">
+      <div id="comments" className="bg-surface-1 rounded-3xl border border-app-1 p-6 mt-10">
         <CommentSection
           plateId={plate.id}
           comments={(comments ?? []) as Comment[]}
