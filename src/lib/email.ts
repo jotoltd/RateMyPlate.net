@@ -165,3 +165,22 @@ export async function sendPlateRatedEmail(opts: {
     `),
   });
 }
+
+export async function sendVerificationEmail(to: string, username: string, code: string) {
+  if (!resend) return;
+  const digits = code.split("");
+  const digitBoxes = digits
+    .map((d) => `<span style="display:inline-block;width:44px;height:56px;line-height:56px;text-align:center;font-size:28px;font-weight:900;color:#fff;background:#1f1f1f;border:2px solid #333;border-radius:10px;margin:0 3px;">${d}</span>`)
+    .join("");
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `${code} is your Rate My Plate verification code`,
+    html: base(`
+      ${h1("Verify your email")}
+      ${p(`Hey <strong style="color:#fff;">@${username}</strong> — enter this 6-digit code to activate your account:`)}
+      <div style="text-align:center;margin:28px 0;">${digitBoxes}</div>
+      ${p("This code expires in <strong style=\"color:#fff;\">15 minutes</strong>. If you didn't create an account, you can safely ignore this email.")}
+    `),
+  });
+}
