@@ -16,13 +16,14 @@ export async function sendNotifEmail(opts: NotifEmailOpts) {
   try {
     const supabase = await createClient();
 
-    const [recipientRes, actorProfileRes] = await Promise.all([
-      supabase.auth.admin.getUserById(opts.recipientUserId),
-      supabase.from("profiles").select("username").eq("id", opts.recipientUserId).single(),
-    ]);
+    const profileRes = await supabase
+      .from("profiles")
+      .select("username, email")
+      .eq("id", opts.recipientUserId)
+      .single();
 
-    const email = recipientRes.data?.user?.email;
-    const recipientUsername = actorProfileRes.data?.username ?? "there";
+    const email = profileRes.data?.email as string | null | undefined;
+    const recipientUsername = profileRes.data?.username ?? "there";
 
     if (!email) return;
 

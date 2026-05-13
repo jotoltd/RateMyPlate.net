@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 const FROM = process.env.EMAIL_FROM ?? "Rate My Plate <noreply@ratemyplate.net>";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ratemyplate.net";
 
@@ -58,6 +59,7 @@ function p(text: string) {
 // ─── Email types ────────────────────────────────────────────────────────────
 
 export async function sendWelcomeEmail(to: string, username: string) {
+  if (!resend) return;
   return resend.emails.send({
     from: FROM,
     to,
@@ -112,6 +114,7 @@ export async function sendNotificationEmail(opts: {
     follow: "View Profile",
   };
 
+  if (!resend) return;
   return resend.emails.send({
     from: FROM,
     to,
@@ -126,6 +129,7 @@ export async function sendNotificationEmail(opts: {
 }
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
+  if (!resend) return;
   return resend.emails.send({
     from: FROM,
     to,
@@ -149,6 +153,7 @@ export async function sendPlateRatedEmail(opts: {
 }) {
   const { to, recipientUsername, plateTitle, plateId, raterUsername, stars } = opts;
   const starStr = "★".repeat(stars) + "☆".repeat(5 - stars);
+  if (!resend) return;
   return resend.emails.send({
     from: FROM,
     to,
