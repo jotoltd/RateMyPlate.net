@@ -97,6 +97,7 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
           .rmp-strip { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.06) !important; }
           .rmp-logo-text { color: #1a1208 !important; }
           .rmp-glow-bl, .rmp-glow-br { opacity: 0.15 !important; }
+          .rmp-avatar-border { border-color: #f8f5f2 !important; }
         }
       `}</style>
 
@@ -117,25 +118,25 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
               <ChefHat className="w-3 h-3 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-white/60 text-xs font-bold">{review.dish}</span>
-              <span className="text-white/30 text-[10px]">AI verdict</span>
+              <span className="rmp-text-muted text-white/60 text-xs font-bold">{review.dish}</span>
+              <span className="rmp-text-faint text-white/30 text-[10px]">AI verdict</span>
             </div>
             <div className="ml-auto flex flex-col items-end gap-0.5">
               <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
                 <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                 <span className="text-amber-400 text-xs font-black">{review.rating}/10</span>
               </div>
-              <span className="text-white/25 text-[10px]">{review.from}</span>
+              <span className="rmp-text-faint text-white/25 text-[10px]">{review.from}</span>
             </div>
           </div>
-          <p className="text-white/70 text-sm italic leading-relaxed">&ldquo;{review.text}&rdquo;</p>
+          <p className="rmp-text-main text-white/70 text-sm italic leading-relaxed">&ldquo;{review.text}&rdquo;</p>
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/5">
-            <span className="text-white/25 text-[10px] font-bold uppercase tracking-wider">Community also rated</span>
+            <span className="rmp-text-faint text-white/25 text-[10px] font-bold uppercase tracking-wider">Community also rated</span>
             <div className="flex items-center gap-1">
               {[8,7,9,6,8].map((s,i) => (
                 <div key={i} className="flex items-center gap-0.5 bg-white/5 px-1.5 py-0.5 rounded-md">
                   <Heart className="w-2.5 h-2.5 text-rose-400 fill-rose-400" />
-                  <span className="text-white/50 text-[10px] font-bold">{s}</span>
+                  <span className="rmp-text-muted text-white/50 text-[10px] font-bold">{s}</span>
                 </div>
               ))}
             </div>
@@ -144,15 +145,15 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
 
         {/* Headline */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest mb-4">
+          <div className="rmp-pill inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest mb-4">
             <Flame className="w-3 h-3" /> Opening soon
           </div>
           <h1 className="text-4xl sm:text-5xl font-black leading-tight mb-3">
-            <span className="text-white">Is your cooking</span><br />
+            <span className="rmp-text-main text-white">Is your cooking</span><br />
             <span className="shimmer-text">actually good?</span>
           </h1>
-          <p className="text-white/45 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
-            Post your plate. Get rated by <span className="text-white/70 font-semibold">real food lovers from around the world</span> — plus a brutally honest AI critique. Follow chefs, build your reputation, climb the leaderboard.
+          <p className="rmp-text-muted text-white/45 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+            Post your plate. Get rated by <span className="rmp-text-main text-white/70 font-semibold">real food lovers from around the world</span> — plus a brutally honest AI critique. Follow chefs, build your reputation, climb the leaderboard.
           </p>
         </div>
 
@@ -165,7 +166,7 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
           ].map(({ icon, label }) => (
             <div key={label} className="rmp-val flex flex-col items-center gap-1.5 bg-white/4 border border-white/8 rounded-xl py-3 px-2">
               {icon}
-              <span className="text-white/50 text-[10px] font-bold text-center leading-tight">{label}</span>
+              <span className="rmp-text-muted text-white/50 text-[10px] font-bold text-center leading-tight">{label}</span>
             </div>
           ))}
         </div>
@@ -174,13 +175,13 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
         <div className="flex items-center justify-center gap-2.5 mb-5">
           <div className="flex -space-x-2">
             {AVATARS.map((u) => (
-              <div key={u.avatar} className={`w-7 h-7 rounded-full bg-gradient-to-br ${u.color} border-2 border-[#080808] flex items-center justify-center`}>
+              <div key={u.avatar} className={`rmp-avatar-border w-7 h-7 rounded-full bg-gradient-to-br ${u.color} border-2 border-[#080808] flex items-center justify-center`}>
                 <span className="text-white text-[10px] font-black">{u.avatar}</span>
               </div>
             ))}
           </div>
-          <p className="text-white/40 text-xs font-semibold">
-            <span className="text-white font-black">{count > 0 ? `${count.toLocaleString()}` : "..."}</span> food lovers worldwide already waiting
+          <p className="rmp-text-muted text-white/40 text-xs font-semibold">
+            <span className="rmp-text-main text-white font-black">{count > 0 ? `${count.toLocaleString()}` : "..."}</span> food lovers worldwide already waiting
           </p>
         </div>
 
@@ -188,17 +189,17 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
         {done ? (
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center fadein">
             <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-            <p className="text-lg font-black text-white mb-1">You&rsquo;re in! 🎉</p>
-            <p className="text-white/50 text-sm mb-4">We&rsquo;ll email you the moment we launch.</p>
+            <p className="text-lg font-black rmp-text-main text-white mb-1">You&rsquo;re in! 🎉</p>
+            <p className="rmp-text-muted text-white/50 text-sm mb-4">We&rsquo;ll email you the moment we launch.</p>
             <div className="flex items-center justify-center gap-2 text-xs text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2">
               <Star className="w-3.5 h-3.5 fill-amber-400" /> Early-access badge reserved for you
             </div>
-            <p className="text-white/25 text-xs mt-4">Tell a friend → more people means faster launch 👇</p>
+            <p className="rmp-text-faint text-white/25 text-xs mt-4">Tell a friend → more people means faster launch 👇</p>
             <a
               href={`https://twitter.com/intent/tweet?text=Just joined the waitlist for Rate My Plate — an AI that rates your food like Gordon Ramsay would 🍽🔥 ratemyplate.net`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors"
+              className="mt-3 inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rmp-text-muted text-white/70 hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors"
             >
               Share on X / Twitter
             </a>
@@ -224,9 +225,9 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
                   {isPending ? "..." : "Join →"}
                 </button>
               </div>
-              {error && <p className="text-rose-400 text-xs font-semibold px-1 pt-1">{error}</p>}
+              {error && <p className="text-rose-500 text-xs font-semibold px-1 pt-1">{error}</p>}
             </form>
-            <p className="text-center text-white/20 text-xs">Free forever · No spam · Unsubscribe anytime</p>
+            <p className="text-center rmp-text-faint text-white/20 text-xs">Free forever · No spam · Unsubscribe anytime</p>
           </div>
         )}
       </div>
