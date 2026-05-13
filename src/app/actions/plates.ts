@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { sanitise } from "@/lib/sanitise";
 import { sendNotifEmail } from "@/lib/sendNotifEmail";
+import { sendPlateSubmittedEmail } from "@/lib/email";
 
 export async function uploadPlate(formData: FormData) {
   const supabase = await createClient();
@@ -77,6 +78,24 @@ export async function uploadPlate(formData: FormData) {
     .single();
 
   if (dbError) return { error: dbError.message };
+
+  // Notify admin of new pending plate (fire-and-forget)
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+    sendPlateSubmittedEmail({
+      adminEmail,
+      uploaderUsername: profile?.username ?? "unknown",
+      plateTitle: title,
+      plateId: plate.id,
+      aiRating: aiResult.rating,
+      aiComment: aiResult.comment,
+    }).catch(() => {});
+  }
 
   revalidatePath("/");
   redirect(`/plate/${plate.id}`);

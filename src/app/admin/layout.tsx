@@ -4,17 +4,22 @@ import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail, Clipboa
 
 export const metadata = { title: "Admin – Rate My Plate" };
 
-const nav = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/review", icon: ClipboardCheck, label: "Review" },
-  { href: "/admin/users", icon: Users, label: "Users" },
-  { href: "/admin/plates", icon: ImageIcon, label: "Plates" },
-  { href: "/admin/comments", icon: MessageSquare, label: "Comments" },
-  { href: "/admin/waitlist", icon: Mail, label: "Waitlist" },
-];
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const { supabase } = await requireAdmin();
+
+  const { count: pendingCount } = await supabase
+    .from("plates")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending");
+
+  const nav = [
+    { href: "/admin", icon: LayoutDashboard, label: "Dashboard", badge: null },
+    { href: "/admin/review", icon: ClipboardCheck, label: "Review", badge: pendingCount ?? 0 },
+    { href: "/admin/users", icon: Users, label: "Users", badge: null },
+    { href: "/admin/plates", icon: ImageIcon, label: "Plates", badge: null },
+    { href: "/admin/comments", icon: MessageSquare, label: "Comments", badge: null },
+    { href: "/admin/waitlist", icon: Mail, label: "Waitlist", badge: null },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -30,15 +35,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
 
       {/* Nav tabs */}
-      <div className="flex gap-1 bg-surface-1 rounded-2xl p-1 mb-8 w-fit">
-        {nav.map(({ href, icon: Icon, label }) => (
+      <div className="flex gap-1 bg-surface-1 rounded-2xl p-1 mb-8 w-fit flex-wrap">
+        {nav.map(({ href, icon: Icon, label, badge }) => (
           <Link
             key={href}
             href={href}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-muted hover:text-app hover:bg-surface-2 transition-colors"
+            className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-muted hover:text-app hover:bg-surface-2 transition-colors"
           >
             <Icon className="w-4 h-4" />
             {label}
+            {badge !== null && badge > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                {badge > 99 ? "99+" : badge}
+              </span>
+            )}
           </Link>
         ))}
       </div>

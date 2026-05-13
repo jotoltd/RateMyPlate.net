@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMITED_PATHS = ["/auth/signup", "/auth/verify-email"];
+const RATE_LIMITED_PATHS = ["/auth/signup", "/auth/verify-email", "/upload"];
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();

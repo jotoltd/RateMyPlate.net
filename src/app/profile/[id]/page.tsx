@@ -35,9 +35,18 @@ export default async function ProfilePage({
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwnProfile = user?.id === id;
+
+  // Only fetch pending/rejected for the profile owner
+  const { data: pendingPlates } = isOwnProfile
+    ? await supabase
+        .from("plates")
+        .select("id, title, image_url, status, created_at")
+        .eq("user_id", id)
+        .in("status", ["pending", "rejected"])
+        .order("created_at", { ascending: false })
+    : { data: null };
 
   const totalRatings =
     plates?.reduce((sum, p) => sum + (p.rating_count ?? 0), 0) ?? 0;
@@ -51,8 +60,6 @@ export default async function ProfilePage({
             arr.length === 0 ? sum : sum + p.avg_user_rating / arr.length
           , 0)
       : null;
-
-  const isOwnProfile = user?.id === id;
 
   const isFollowing = user && !isOwnProfile
     ? !!(await supabase.from("follows").select("id").eq("follower_id", user.id).eq("following_id", id).single()).data
@@ -187,6 +194,37 @@ export default async function ProfilePage({
       )}
 
       {activeTab === "ratings" && <RatingsTab userId={id} />}
+
+      {/* Pending / rejected plates — only visible to the owner */}
+      {activeTab === "plates" && isOwnProfile && pendingPlates && pendingPlates.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-sm font-bold text-muted uppercase tracking-widest mb-4">In Review</h2>
+          <div className="space-y-3">
+            {pendingPlates.map((plate) => (
+              <Link
+                key={plate.id}
+                href={`/plate/${plate.id}`}
+                className="flex items-center gap-4 p-4 bg-surface-1 border border-app-1 rounded-2xl hover:border-orange-500/20 transition-all"
+              >
+                <div className="relative w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden bg-surface-2">
+                  <Image src={plate.image_url} alt={plate.title} fill className="object-cover" sizes="56px" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-app truncate">{plate.title}</p>
+                  <p className="text-xs text-faint">{formatDate(plate.created_at)}</p>
+                </div>
+                <span className={`flex-shrink-0 text-xs font-bold px-3 py-1 rounded-full ${
+                  plate.status === "pending"
+                    ? "bg-amber-500/15 text-amber-400"
+                    : "bg-red-500/15 text-red-400"
+                }`}>
+                  {plate.status === "pending" ? "⏳ Pending" : "✕ Rejected"}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

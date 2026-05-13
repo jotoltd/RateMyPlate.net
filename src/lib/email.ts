@@ -166,6 +166,65 @@ export async function sendPlateRatedEmail(opts: {
   });
 }
 
+export async function sendPlateSubmittedEmail(opts: {
+  adminEmail: string;
+  uploaderUsername: string;
+  plateTitle: string;
+  plateId: string;
+  aiRating: number;
+  aiComment: string;
+}) {
+  if (!resend) return;
+  const { adminEmail, uploaderUsername, plateTitle, plateId, aiRating, aiComment } = opts;
+  return resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `New plate pending review: "${plateTitle}"`,
+    html: base(`
+      ${h1("New plate in the queue")}
+      ${p(`<strong style="color:#fff;">@${uploaderUsername}</strong> just uploaded a plate called <strong style="color:#f97316;">"${plateTitle}"</strong> and it's waiting for your approval.`)}
+      <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:20px;margin:16px 0;">
+        <p style="color:#888;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Ramsay's verdict (${aiRating}/10)</p>
+        <p style="color:#c4b5fd;font-size:14px;font-style:italic;margin:0;">"${aiComment}"</p>
+      </div>
+      ${btn("Review Now", SITE + "/admin/review")}
+    `),
+  });
+}
+
+export async function sendPlateStatusEmail(opts: {
+  to: string;
+  username: string;
+  plateTitle: string;
+  plateId: string;
+  approved: boolean;
+}) {
+  if (!resend) return;
+  const { to, username, plateTitle, plateId, approved } = opts;
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: approved
+      ? `Your plate "${plateTitle}" is live! 🎉`
+      : `Update on your plate "${plateTitle}"`,
+    html: base(
+      approved
+        ? `
+          ${h1("Your plate is live! 🎉")}
+          ${p(`Great news, <strong style="color:#fff;">@${username}</strong> — your plate <strong style="color:#f97316;">"${plateTitle}"</strong> has been approved and is now visible to the community.`)}
+          ${p("Get out there and collect some ratings!")}
+          ${btn("View Your Plate", SITE + "/plate/" + plateId)}
+        `
+        : `
+          ${h1("Plate not approved")}
+          ${p(`Hey <strong style="color:#fff;">@${username}</strong> — unfortunately your plate <strong style="color:#f97316;">"${plateTitle}"</strong> didn't meet our community guidelines and won't be published.`)}
+          ${p("This could be because it didn't contain food, or the content wasn't appropriate. You're welcome to upload a different plate.")}
+          ${btn("Upload a New Plate", SITE + "/upload")}
+        `
+    ),
+  });
+}
+
 export async function sendVerificationEmail(to: string, username: string, code: string) {
   if (!resend) return;
   const digits = code.split("");
