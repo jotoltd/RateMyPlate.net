@@ -12,3 +12,15 @@ export async function toggleMaintenanceMode(formData: FormData): Promise<void> {
     .eq("id", true);
   revalidatePath("/admin");
 }
+
+export async function saveSettings(formData: FormData): Promise<void> {
+  const { supabase } = await requireAdmin();
+  const analytics_id = (formData.get("analytics_id") as string)?.trim() || null;
+  const site_announcement = (formData.get("site_announcement") as string)?.trim() || null;
+  await supabase
+    .from("app_settings")
+    .update({ analytics_id, site_announcement })
+    .eq("id", true);
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+}

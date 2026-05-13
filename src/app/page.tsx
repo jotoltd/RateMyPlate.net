@@ -145,15 +145,16 @@ export default async function Home({
                 className="group flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-lg hover:from-orange-400 hover:to-rose-400 transition-all glow-fire active:scale-95"
               >
                 <Flame className="w-5 h-5 group-hover:animate-bounce" />
-                Submit Your Plate
+                Get Started Free
               </Link>
               <Link
-                href="#feed"
-                className="flex items-center gap-2 border border-app-2 text-muted hover:text-app hover:border-app-2 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
+                href="/auth/login"
+                className="flex items-center gap-2 border border-app-2 text-muted hover:text-app hover:border-orange-500/40 hover:text-orange-400 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
               >
-                See the Feed
+                Sign In
               </Link>
             </div>
+            <p className="text-xs text-faint mt-4">Already have an account? <Link href="/auth/login" className="text-orange-400 hover:underline font-semibold">Sign in here →</Link></p>
 
             {/* Stats row */}
             <div className="mt-14 flex flex-wrap justify-center gap-10">
@@ -319,6 +320,24 @@ export default async function Home({
           </div>
         )}
       </div>
+
+      {/* Sticky mobile sign-in bar for logged-out users */}
+      {!user && (
+        <div className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-nav/95 backdrop-blur border-t border-nav px-4 py-3 flex items-center gap-3">
+          <Link
+            href="/auth/signup"
+            className="flex-1 text-center py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm rounded-xl"
+          >
+            Get Started Free
+          </Link>
+          <Link
+            href="/auth/login"
+            className="flex-1 text-center py-2.5 border border-app-2 text-app font-semibold text-sm rounded-xl"
+          >
+            Sign In
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

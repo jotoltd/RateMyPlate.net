@@ -46,6 +46,15 @@ export default async function RootLayout({
   let avatarUrl: string | null = null;
   let isAdmin = false;
   let notifications: unknown[] = [];
+
+  const { data: appSettings } = await supabase
+    .from("app_settings")
+    .select("analytics_id, site_announcement")
+    .eq("id", true)
+    .single();
+  const analyticsId = appSettings?.analytics_id ?? null;
+  const announcement = appSettings?.site_announcement ?? null;
+
   if (user) {
     const [profileRes, notifRes] = await Promise.all([
       supabase.from("profiles").select("username, avatar_url, is_admin").eq("id", user.id).single(),
@@ -64,15 +73,24 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
-      <Script src="https://www.googletagmanager.com/gtag/js?id=G-KY54CZX9QJ" strategy="afterInteractive" />
-      <Script id="gtag-init" strategy="afterInteractive">{`
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-KY54CZX9QJ');
-      `}</Script>
+      {analyticsId && (
+        <>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} strategy="afterInteractive" />
+          <Script id="gtag-init" strategy="afterInteractive">{`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${analyticsId}');
+          `}</Script>
+        </>
+      )}
       <body className="min-h-full flex flex-col bg-app text-app transition-colors">
         <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} isAdmin={isAdmin} />
+        {announcement && (
+          <div className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white text-sm font-semibold text-center py-2.5 px-4">
+            {announcement}
+          </div>
+        )}
         <ToastProvider>
           <main className="flex-1">
             <ErrorBoundary>{children}</ErrorBoundary>

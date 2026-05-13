@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
-import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail, ClipboardCheck } from "lucide-react";
+import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail, ClipboardCheck, Settings } from "lucide-react";
 
 export const metadata = { title: "Admin – Rate My Plate" };
 
@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/plates", icon: ImageIcon, label: "Plates", badge: null },
     { href: "/admin/comments", icon: MessageSquare, label: "Comments", badge: null },
     { href: "/admin/waitlist", icon: Mail, label: "Waitlist", badge: null },
+    { href: "/admin/settings", icon: Settings, label: "Settings", badge: null },
   ];
 
   return (
