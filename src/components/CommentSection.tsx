@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MessageSquare, Send, Trash2, CornerDownRight, Heart } from "lucide-react";
@@ -8,6 +8,7 @@ import { addComment, deleteComment } from "@/app/actions/comments";
 import { toggleCommentLike } from "@/app/actions/commentLikes";
 import { Comment } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 type CommentSectionProps = {
   plateId: string;
@@ -244,22 +245,58 @@ function CommentItem({
 
 export default function CommentSection({
   plateId,
-  comments,
+  comments: initialComments,
   currentUserId,
 }: CommentSectionProps) {
-  // Build tree: top-level comments with nested replies
-  const topLevel = comments.filter((c) => !c.parent_id);
-  const replies = comments.filter((c) => c.parent_id);
+  const [comments, setComments] = useState<Comment[]>(initialComments);
 
-  const tree: Comment[] = topLevel.map((c) => ({
-    ...c,
-    replies: replies
-      .filter((r) => r.parent_id === c.id)
-      .map((r) => ({
-        ...r,
-        replies: replies.filter((rr) => rr.parent_id === r.id),
-      })),
-  }));
+  const buildTree = useCallback((flat: Comment[]): Comment[] => {
+    const topLevel = flat.filter((c) => !c.parent_id);
+    const replies = flat.filter((c) => c.parent_id);
+    return topLevel.map((c) => ({
+      ...c,
+      replies: replies
+        .filter((r) => r.parent_id === c.id)
+        .map((r) => ({ ...r, replies: replies.filter((rr) => rr.parent_id === r.id) })),
+    }));
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`comments:${plateId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "comments", filter: `plate_id=eq.${plateId}` },
+        async (payload) => {
+          // Fetch the full comment row with profile join
+          const { data } = await supabase
+            .from("comments")
+            .select("*, profiles(id, username, avatar_url)")
+            .eq("id", payload.new.id)
+            .single();
+          if (data) {
+            setComments((prev) => {
+              // Avoid duplicates (server action already adds it via revalidatePath sometimes)
+              if (prev.some((c) => c.id === data.id)) return prev;
+              return [...prev, data as Comment];
+            });
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "comments", filter: `plate_id=eq.${plateId}` },
+        (payload) => {
+          setComments((prev) => prev.filter((c) => c.id !== payload.old.id));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [plateId]);
+
+  const tree = buildTree(comments);
 
   return (
     <section className="mt-10">
