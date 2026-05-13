@@ -1,19 +1,36 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useEffect } from "react";
 import Image from "next/image";
 import { Upload, ImagePlus, Sparkles, X } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
 import { CATEGORIES } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 
 export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [compressedBlob, setCompressedBlob] = useState<Blob | null>(null);
   const [compressedName, setCompressedName] = useState("image.jpg");
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadCount, setUploadCount] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from("plates")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("created_at", since);
+      setUploadCount(count ?? 0);
+    });
+  }, []);
 
   function compressImage(file: File): Promise<Blob> {
     return new Promise((resolve) => {
@@ -33,17 +50,9 @@ export default function UploadPage() {
     });
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Image must be under 10MB");
-      return;
-    }
+  function processFile(file: File) {
+    if (!file.type.startsWith("image/")) { setError("Please upload an image file"); return; }
+    if (file.size > 10 * 1024 * 1024) { setError("Image must be under 10MB"); return; }
     setError("");
     compressImage(file).then((blob) => {
       setCompressedBlob(blob);
@@ -52,6 +61,18 @@ export default function UploadPage() {
       reader.onload = () => setPreview(reader.result as string);
       reader.readAsDataURL(blob);
     });
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,9 +92,23 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-white mb-2">Upload Your Plate</h1>
-        <p className="text-white/40">Share your creation and get brutally honest AI ratings</p>
+      <div className="mb-8 flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-3xl font-black text-white mb-2">Upload Your Plate</h1>
+          <p className="text-white/40">Share your creation and get brutally honest AI ratings</p>
+        </div>
+        {uploadCount !== null && (
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold ${
+            uploadCount >= 5
+              ? "border-red-500/30 bg-red-500/10 text-red-400"
+              : uploadCount >= 3
+              ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+              : "border-white/10 bg-white/5 text-white/40"
+          }`}>
+            <Upload className="w-3.5 h-3.5" />
+            {uploadCount}/5 today
+          </div>
+        )}
       </div>
 
       {error && (
@@ -87,7 +122,7 @@ export default function UploadPage() {
         <div>
           <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Plate Photo *</label>
           {preview ? (
-            <div className="relative rounded-2xl overflow-hidden bg-white/5 aspect-square max-w-sm mx-auto">
+            <div className="relative rounded-2xl overflow-hidden bg-white/5 aspect-square max-w-sm mx-auto" onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}>
               <Image
                 src={preview}
                 alt="Preview"
@@ -110,7 +145,10 @@ export default function UploadPage() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="w-full aspect-square max-w-sm mx-auto flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02] hover:bg-orange-500/5 hover:border-orange-500/40 transition-colors cursor-pointer"
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              className={`w-full aspect-square max-w-sm mx-auto flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl transition-colors cursor-pointer ${isDragging ? "border-orange-500/60 bg-orange-500/10" : "border-white/10 bg-white/[0.02] hover:bg-orange-500/5 hover:border-orange-500/40"}`}
             >
               <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center">
                 <ImagePlus className="w-8 h-8 text-orange-400" />

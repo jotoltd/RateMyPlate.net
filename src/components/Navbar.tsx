@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import { Notification } from "@/lib/types";
@@ -65,6 +65,9 @@ export default function Navbar({ user, username, notifications = [], themeToggle
             <>
               <Link href="/saved" className="p-2 text-white/40 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Saved">
                 <Bookmark className="w-4 h-4" />
+              </Link>
+              <Link href="/collections" className="p-2 text-white/40 hover:text-violet-400 hover:bg-violet-500/10 rounded-xl transition-colors" title="Collections">
+                <BookMarked className="w-4 h-4" />
               </Link>
               <NotificationBell notifications={notifications} userId={userId} />
               <Link
@@ -144,6 +147,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
             { href: "/chefs", icon: <User className="w-4 h-4" />, label: "Discover Chefs" },
             ...(user ? [
               { href: "/saved", icon: <Bookmark className="w-4 h-4" />, label: "Saved Plates" },
+              { href: "/collections", icon: <BookMarked className="w-4 h-4" />, label: "Collections" },
               { href: "/notifications", icon: <Bell className="w-4 h-4" />, label: "Notifications" },
             ] : []),
           ].map(({ href, icon, label }) => (
