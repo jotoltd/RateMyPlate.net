@@ -36,10 +36,11 @@ export default async function RootLayout({
 
   let username: string | null = null;
   let avatarUrl: string | null = null;
+  let isAdmin = false;
   let notifications: unknown[] = [];
   if (user) {
     const [profileRes, notifRes] = await Promise.all([
-      supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
+      supabase.from("profiles").select("username, avatar_url, is_admin").eq("id", user.id).single(),
       supabase
         .from("notifications")
         .select("*, actor:actor_id(id, username), plate:plate_id(id, title, image_url)")
@@ -50,12 +51,13 @@ export default async function RootLayout({
     username = profileRes.data?.username ?? null;
     notifications = notifRes.data ?? [];
     avatarUrl = profileRes.data?.avatar_url ?? null;
+    isAdmin = profileRes.data?.is_admin === true;
   }
 
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-app text-app transition-colors">
-        <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} />
+        <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} isAdmin={isAdmin} />
         <ToastProvider>
           <main className="flex-1">
             <ErrorBoundary>{children}</ErrorBoundary>

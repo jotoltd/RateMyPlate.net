@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked, Settings } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked, Settings, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import UserMenu from "@/components/UserMenu";
@@ -16,9 +16,10 @@ type NavbarProps = {
   themeToggle?: React.ReactNode;
   avatarUrl?: string | null;
   userId?: string;
+  isAdmin?: boolean;
 };
 
-export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl, userId }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl, userId, isAdmin }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -84,6 +85,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
                 email={user.email}
                 avatarUrl={avatarUrl}
                 themeToggle={themeToggle}
+                isAdmin={isAdmin}
               />
             </>
           ) : (
@@ -147,6 +149,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               { href: "/collections", icon: <BookMarked className="w-4 h-4" />, label: "Collections" },
               { href: "/notifications", icon: <Bell className="w-4 h-4" />, label: "Notifications" },
               { href: "/settings", icon: <Settings className="w-4 h-4" />, label: "Settings" },
+              ...(isAdmin ? [{ href: "/admin", icon: <ShieldCheck className="w-4 h-4 text-violet-400" />, label: "Admin Panel" }] : []),
             ] : []),
           ].map(({ href, icon, label }) => (
             <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted hover:text-app hover:bg-surface-1 text-sm font-medium">

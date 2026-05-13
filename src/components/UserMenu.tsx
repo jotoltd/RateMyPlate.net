@@ -8,6 +8,7 @@ import {
   User,
   Settings,
   Shield,
+  ShieldCheck,
   LogOut,
   Upload,
   Bookmark,
@@ -23,9 +24,10 @@ type UserMenuProps = {
   email?: string;
   avatarUrl?: string | null;
   themeToggle?: React.ReactNode;
+  isAdmin?: boolean;
 };
 
-export default function UserMenu({ userId, username, email, avatarUrl, themeToggle }: UserMenuProps) {
+export default function UserMenu({ userId, username, email, avatarUrl, themeToggle, isAdmin }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -97,6 +99,9 @@ export default function UserMenu({ userId, username, email, avatarUrl, themeTogg
           </div>
 
           <div className="border-t border-app-1 py-1.5">
+            {isAdmin && (
+              <MenuItem href="/admin" icon={<ShieldCheck className="w-4 h-4 text-violet-400" />} label="Admin Panel" onClick={() => setOpen(false)} />
+            )}
             <MenuItem href="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setOpen(false)} />
             <MenuItem href="/settings#privacy" icon={<Shield className="w-4 h-4" />} label="Privacy" onClick={() => setOpen(false)} />
             {themeToggle && (
