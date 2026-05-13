@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const MAINTENANCE_BYPASS_ROUTES = ["/maintenance", "/auth/login", "/auth/signup", "/admin"];
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -31,7 +33,31 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ["/auth/login", "/auth/signup"];
+  // ── Maintenance mode ────────────────────────────────────────────
+  const maintenanceMode = process.env.MAINTENANCE_MODE === "true";
+  if (maintenanceMode) {
+    const isBypassed = MAINTENANCE_BYPASS_ROUTES.some((r) => pathname.startsWith(r));
+    if (!isBypassed) {
+      // Check if the logged-in user is an admin — admins see the real site
+      let isAdmin = false;
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single();
+        isAdmin = data?.is_admin === true;
+      }
+      if (!isAdmin) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/maintenance";
+        return NextResponse.redirect(url);
+      }
+    }
+  }
+  // ────────────────────────────────────────────────────────────────
+
+  const publicRoutes = ["/auth/login", "/auth/signup", "/maintenance"];
   const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
 
   if (!user && !isPublic) {
@@ -40,7 +66,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && publicRoutes.includes(pathname)) {
+  if (user && ["/auth/login", "/auth/signup"].includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

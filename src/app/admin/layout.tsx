@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
-import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail } from "lucide-react";
 
 export const metadata = { title: "Admin – Rate My Plate" };
 
@@ -9,6 +9,7 @@ const nav = [
   { href: "/admin/users", icon: Users, label: "Users" },
   { href: "/admin/plates", icon: ImageIcon, label: "Plates" },
   { href: "/admin/comments", icon: MessageSquare, label: "Comments" },
+  { href: "/admin/waitlist", icon: Mail, label: "Waitlist" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
