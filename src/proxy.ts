@@ -21,7 +21,7 @@ function isRateLimited(ip: string): boolean {
 }
 // ─────────────────────────────────────────────────────────────────
 
-const MAINTENANCE_BYPASS_ROUTES = ["/maintenance", "/auth/login", "/auth/signup", "/admin"];
+const MAINTENANCE_BYPASS_ROUTES = ["/maintenance", "/auth/login", "/admin"];
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
