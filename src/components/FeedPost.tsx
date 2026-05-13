@@ -3,28 +3,31 @@
 import { useState, useTransition, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, MessageSquare, CheckCircle2, Eye, Send } from "lucide-react";
-import { Plate } from "@/lib/types";
-import { Comment } from "@/lib/types";
+import { Star, Heart, MessageSquare, CheckCircle2, Eye, Send, UserPlus, UserCheck } from "lucide-react";
+import { Plate, Comment } from "@/lib/types";
 import { scoreToStars, starsToScore, formatDate } from "@/lib/utils";
 import { imgUrl } from "@/lib/imageUrl";
 import { toggleLike } from "@/app/actions/likes";
 import { submitRating } from "@/app/actions/plates";
 import { addComment } from "@/app/actions/comments";
+import { toggleFollow } from "@/app/actions/follows";
+import { useToast } from "@/components/ToastProvider";
 
 type FeedPostProps = {
   plate: Plate;
   initialLiked?: boolean;
-  initialRating?: number | null; // stored score (1-10)
+  initialRating?: number | null;
   userId?: string | null;
   initialComments?: Comment[];
   currentUserAvatar?: string | null;
   currentUsername?: string | null;
+  initialFollowing?: boolean;
 };
 
 const STAR_LABELS = ["", "Poor 😬", "Okay 😐", "Good 👍", "Great 🔥", "Exceptional ✨"];
 
-export default function FeedPost({ plate, initialLiked = false, initialRating = null, userId, initialComments = [], currentUserAvatar, currentUsername }: FeedPostProps) {
+export default function FeedPost({ plate, initialLiked = false, initialRating = null, userId, initialComments = [], currentUserAvatar, currentUsername, initialFollowing = false }: FeedPostProps) {
+  const { toast } = useToast();
   const rawRating = plate.avg_user_rating ?? plate.ai_rating ?? null;
   const displayStars = rawRating !== null ? scoreToStars(rawRating) : null;
   const initial = (plate.profiles?.username ?? "C")[0].toUpperCase();
@@ -68,6 +71,7 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
         setCommentError(res.error);
         setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
         setCommentBody(text);
+        toast(res.error, "error");
       }
     });
   }
@@ -80,6 +84,21 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
   const [ratingDone, setRatingDone] = useState(initialRating !== null);
   const [ratingPending, startRatingTransition] = useTransition();
   const [ratingError, setRatingError] = useState("");
+
+  // Follow state
+  const isOwner = userId === plate.user_id;
+  const [following, setFollowing] = useState(initialFollowing);
+  const [followPending, startFollowTransition] = useTransition();
+
+  function handleFollow() {
+    if (!userId || isOwner) return;
+    startFollowTransition(async () => {
+      const next = !following;
+      setFollowing(next);
+      await toggleFollow(plate.user_id);
+      toast(next ? `Following @${plate.profiles?.username}` : `Unfollowed @${plate.profiles?.username}`);
+    });
+  }
 
   function handleLike() {
     if (!userId) return;
@@ -99,8 +118,10 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
       if (res?.error) {
         setRatingError(res.error);
         setRatingDone(false);
+        toast(res.error, "error");
       } else {
         setRatingDone(true);
+        toast("Rating saved!");
       }
     });
   }
@@ -130,6 +151,20 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
           <span className="px-2.5 py-1 rounded-xl bg-orange-500/10 text-orange-400 text-[11px] font-bold uppercase tracking-wide flex-shrink-0">
             {plate.category}
           </span>
+        )}
+        {userId && !isOwner && (
+          <button
+            onClick={handleFollow}
+            disabled={followPending}
+            className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all disabled:opacity-50 ${
+              following
+                ? "bg-surface-2 text-faint hover:bg-red-500/10 hover:text-red-400"
+                : "bg-orange-500/10 text-orange-400 hover:bg-orange-500/20"
+            }`}
+          >
+            {following ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
+            {following ? "Following" : "Follow"}
+          </button>
         )}
       </div>
 

@@ -57,11 +57,11 @@ export default async function Home({
   let initialLikedIds: string[] = [];
   let initialRatingMap: Record<string, number> = {};
   let initialCommentMap: Record<string, import("@/lib/types").Comment[]> = {};
+  let initialFollowingIds: string[] = [];
   let currentUserAvatar: string | null = null;
   let currentUsername: string | null = null;
 
   if (initialPlateIds.length > 0) {
-    // Fetch last 2 comments per plate (for everyone, not just logged-in)
     const commentsRes = await supabase
       .from("comments")
       .select("*, profiles(id, username, avatar_url)")
@@ -79,15 +79,17 @@ export default async function Home({
     }
 
     if (user) {
-      const [likesRes, ratingsRes, profileRes] = await Promise.all([
+      const [likesRes, ratingsRes, profileRes, followsRes] = await Promise.all([
         supabase.from("likes").select("plate_id").eq("user_id", user.id).in("plate_id", initialPlateIds),
         supabase.from("ratings").select("plate_id, score").eq("user_id", user.id).in("plate_id", initialPlateIds),
         supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single(),
+        supabase.from("follows").select("following_id").eq("follower_id", user.id),
       ]);
       initialLikedIds = (likesRes.data ?? []).map((r) => r.plate_id);
       initialRatingMap = Object.fromEntries((ratingsRes.data ?? []).map((r) => [r.plate_id, r.score]));
       currentUserAvatar = profileRes.data?.avatar_url ?? null;
       currentUsername = profileRes.data?.username ?? null;
+      initialFollowingIds = (followsRes.data ?? []).map((r) => r.following_id);
     }
   }
 
@@ -252,6 +254,7 @@ export default async function Home({
               initialLikedIds={initialLikedIds}
               initialRatingMap={initialRatingMap}
               initialCommentMap={initialCommentMap}
+              initialFollowingIds={initialFollowingIds}
               currentUserAvatar={currentUserAvatar}
               currentUsername={currentUsername}
             />
@@ -296,6 +299,7 @@ export default async function Home({
             initialLikedIds={initialLikedIds}
             initialRatingMap={initialRatingMap}
             initialCommentMap={initialCommentMap}
+            initialFollowingIds={initialFollowingIds}
             currentUserAvatar={currentUserAvatar}
             currentUsername={currentUsername}
           />

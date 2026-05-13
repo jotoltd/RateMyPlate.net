@@ -130,7 +130,7 @@ export default async function ProfilePage({
                 Upload Plate
               </Link>
               <Link
-                href="/profile/edit"
+                href="/settings"
                 className="flex items-center gap-2 border border-app-1 text-muted px-5 py-2.5 rounded-xl font-medium hover:border-orange-500/40 hover:text-orange-400 transition-all text-sm"
               >
                 <Pencil className="w-4 h-4" />

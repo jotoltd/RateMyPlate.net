@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useEffect, useRef } from "react";
 import PlateCard from "@/components/PlateCard";
 import FeedPost from "@/components/FeedPost";
 import { PlateCardSkeleton } from "@/components/Skeleton";
-import { Plate } from "@/lib/types";
+import { Plate, Comment } from "@/lib/types";
 import { loadMorePlates, loadFollowingFeed } from "@/app/actions/feed";
 
 const PAGE_SIZE = 12;
@@ -18,6 +18,7 @@ export default function InfiniteFeed({
   initialLikedIds = [],
   initialRatingMap = {},
   initialCommentMap = {},
+  initialFollowingIds = [],
   currentUserAvatar,
   currentUsername,
 }: {
@@ -28,11 +29,16 @@ export default function InfiniteFeed({
   userId?: string | null;
   initialLikedIds?: string[];
   initialRatingMap?: Record<string, number>;
-  initialCommentMap?: Record<string, import("@/lib/types").Comment[]>;
+  initialCommentMap?: Record<string, Comment[]>;
+  initialFollowingIds?: string[];
   currentUserAvatar?: string | null;
   currentUsername?: string | null;
 }) {
   const [plates, setPlates] = useState<Plate[]>(initialPlates);
+  const [likedIds, setLikedIds] = useState<string[]>(initialLikedIds);
+  const [ratingMap, setRatingMap] = useState<Record<string, number>>(initialRatingMap);
+  const [commentMap, setCommentMap] = useState<Record<string, Comment[]>>(initialCommentMap);
+  const [followingIds] = useState<string[]>(initialFollowingIds);
   const [offset, setOffset] = useState(initialPlates.length);
   const [hasMore, setHasMore] = useState(initialPlates.length === PAGE_SIZE);
   const [isPending, startTransition] = useTransition();
@@ -41,13 +47,17 @@ export default function InfiniteFeed({
   const loadMore = useCallback(() => {
     if (isPending || !hasMore) return;
     startTransition(async () => {
-      const more =
+      const batch =
         mode === "following"
           ? await loadFollowingFeed(offset, PAGE_SIZE)
           : await loadMorePlates(offset, PAGE_SIZE, category);
-      if (more.length < PAGE_SIZE) setHasMore(false);
-      setPlates((prev) => [...prev, ...more]);
-      setOffset((prev) => prev + more.length);
+      if (batch.plates.length < PAGE_SIZE) setHasMore(false);
+      setPlates((prev) => [...prev, ...batch.plates]);
+      setLikedIds((prev) => [...prev, ...batch.likedIds]);
+      setRatingMap((prev) => ({ ...prev, ...batch.ratingMap }));
+      setCommentMap((prev) => ({ ...prev, ...batch.commentMap }));
+      setOffset((prev) => prev + batch.plates.length);
+      // followingIds don't change on loadMore — user's follows are stable
     });
   }, [offset, category, mode, isPending, hasMore]);
 
@@ -84,9 +94,10 @@ export default function InfiniteFeed({
         key={plate.id}
         plate={plate}
         userId={userId}
-        initialLiked={initialLikedIds.includes(plate.id)}
-        initialRating={initialRatingMap[plate.id] ?? null}
-        initialComments={initialCommentMap[plate.id] ?? []}
+        initialLiked={likedIds.includes(plate.id)}
+        initialRating={ratingMap[plate.id] ?? null}
+        initialComments={commentMap[plate.id] ?? []}
+        initialFollowing={followingIds.includes(plate.user_id ?? "")}
         currentUserAvatar={currentUserAvatar}
         currentUsername={currentUsername}
       />

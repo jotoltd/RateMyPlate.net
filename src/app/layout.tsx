@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ToastProvider from "@/components/ToastProvider";
 import { createClient } from "@/lib/supabase/server";
 
 const geistSans = Geist({
@@ -55,9 +56,11 @@ export default async function RootLayout({
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-app text-app transition-colors">
         <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} />
-        <main className="flex-1">
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </main>
+        <ToastProvider>
+          <main className="flex-1">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </main>
+        </ToastProvider>
         <footer className="border-t border-nav bg-nav py-6 text-center text-sm text-faintest hidden md:block">
           {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
