@@ -217,8 +217,8 @@ export default async function PlatePage({
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-violet-300 text-sm">AI Critic</p>
-                  <p className="text-xs text-violet-500">Gemini Vision</p>
+                  <p className="font-bold text-violet-300 text-sm">Ramsay</p>
+                  <p className="text-xs text-violet-500">AI Food Critic</p>
                 </div>
                 <div className="ml-auto flex items-baseline gap-0.5">
                   <span className="text-3xl font-black text-violet-300">{scoreToStars(plate.ai_rating).toFixed(1)}</span>

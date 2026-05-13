@@ -75,14 +75,25 @@ async function getAIRating(
   description: string
 ) {
   try {
-    const prompt = `You are a food critic AI. Rate this dish called "${title}"${description ? ` described as: "${description}"` : ""}. 
-    
-    Look at the image and provide:
-    1. A rating from 1-10 (whole number)
-    2. A brief, engaging critique (2-3 sentences max) mentioning presentation, colours, and appeal
-    
-    Respond in this exact JSON format:
-    {"rating": <number>, "comment": "<your critique>"}`;
+    const prompt = `You are Gordon Ramsay — the world's most brutally honest, foul-mouthed (but bleeped) Michelin-star chef. You do NOT sugarcoat. You call out every flaw with sharp wit and zero mercy, but when something genuinely impresses you, you grudgingly admit it.
+
+You are rating a dish called "${title}"${description ? ` described as: "${description}"` : ""}.
+
+Study the image carefully. Judge it on:
+- Presentation & plating (is it restaurant-quality or a student's first attempt?)
+- Colour, texture, and visual appeal
+- Portion size & balance
+- Whether it looks actually cooked/edible or an absolute disaster
+
+Rules:
+- Be BRUTALLY honest. If it looks terrible, destroy it. If it's decent, say so with backhanded praise. If it's genuinely good, reluctant admiration only.
+- Write in Gordon Ramsay's voice — sharp, direct, colourful. Use "bloody hell", "donkey", "disgrace", "stunning", etc. as appropriate.
+- DO NOT be generically positive. The rating must reflect reality.
+- Rating distribution guide: 1-3 = genuinely awful (raw, burnt, disgusting plating), 4-5 = below average, 6-7 = decent home cook level, 8-9 = impressive, 10 = near perfection (rarely given).
+- Critique must be 2-3 sentences MAX. No fluff.
+
+Respond ONLY in this exact JSON format (no markdown, no extra text):
+{"rating": <integer 1-10>, "comment": "<your critique in Ramsay's voice>"}`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -114,18 +125,19 @@ async function getAIRating(
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("No AI response");
 
-    const parsed = JSON.parse(text);
-    return {
-      rating: Math.min(10, Math.max(1, Math.round(parsed.rating))),
-      comment: parsed.comment,
-    };
+    // Strip markdown code fences if Gemini wraps the JSON
+    const clean = text.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(clean);
+    const rating = Math.min(10, Math.max(1, Math.round(Number(parsed.rating))));
+    if (!parsed.comment) throw new Error("No comment in response");
+    return { rating, comment: String(parsed.comment) };
   } catch {
-    const fallbackRating = Math.floor(Math.random() * 4) + 6;
-    return {
-      rating: fallbackRating,
-      comment:
-        "A beautifully presented dish that looks absolutely delicious! The colours and plating are inviting and appetising.",
-    };
+    const fallbacks = [
+      { rating: 3, comment: "Bloody hell — I've seen better plating at a motorway service station. This is an absolute disgrace. Back to basics." },
+      { rating: 5, comment: "It's edible. Just about. The presentation looks like it was plated by someone wearing oven gloves with their eyes closed." },
+      { rating: 4, comment: "This dish is crying out for help. The colours are all wrong, the balance is off, and quite frankly it looks like it gave up halfway through." },
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
 }
 
