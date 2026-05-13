@@ -22,6 +22,7 @@ import { Comment, Plate } from "@/lib/types";
 import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
 import SaveButton from "@/components/SaveButton";
 import ViewCounter from "@/components/ViewCounter";
+import AddToCollectionButton from "@/components/AddToCollectionButton";
 import PlateCard from "@/components/PlateCard";
 
 export async function generateMetadata({
@@ -113,6 +114,14 @@ export default async function PlatePage({
     ? await supabase.from("saved_plates").select("id").eq("user_id", user.id).eq("plate_id", id).single()
     : null;
   const initialSaved = !!savedCheck?.data;
+
+  // User's collections for Add to Collection button
+  const userCollections = user ? await supabase
+    .from("collections")
+    .select("id, name")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .then(({ data }) => data ?? []) : [];
 
   // Related plates: same category, exclude current
   const { data: relatedRaw } = await supabase
@@ -279,6 +288,9 @@ export default async function PlatePage({
             />
             {user && (
               <SaveButton plateId={plate.id} initialSaved={initialSaved} />
+            )}
+            {user && (
+              <AddToCollectionButton plateId={plate.id} collections={userCollections} />
             )}
             <ShareButton title={plate.title} />
           </div>

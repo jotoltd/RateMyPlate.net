@@ -100,7 +100,7 @@ export default async function SearchPage({
                         <p className="font-semibold text-white truncate">{plate.title}</p>
                         <p className="text-xs text-white/40">by @{prof?.username ?? "chef"} · {formatDate(plate.created_at)}</p>
                         {plate.description && (
-                          <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{plate.description}</p>
+                          <p className="text-xs text-white/30 line-clamp-1 mt-0.5">{plate.description}</p>
                         )}
                       </div>
                       {rating && (

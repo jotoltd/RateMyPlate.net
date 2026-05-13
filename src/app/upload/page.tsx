@@ -190,7 +190,7 @@ export default function UploadPage() {
 
         <button
           type="submit"
-          disabled={isPending || !preview}
+          disabled={isPending || !compressedBlob}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg"
         >
           <Upload className="w-5 h-5" />
