@@ -31,7 +31,7 @@ export default function FollowButton({
       disabled={isPending}
       className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm ${
         following
-          ? "bg-white/5 border border-white/10 text-white/50 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+          ? "bg-surface-1 border border-app-1 text-muted hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
           : "bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:opacity-90 shadow-md shadow-orange-500/20"
       }`}
     >

@@ -36,7 +36,7 @@ export default function LikeButton({
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
         liked
           ? "bg-rose-500/15 text-rose-400 hover:bg-rose-500/25"
-          : "bg-white/5 text-white/40 hover:bg-rose-500/10 hover:text-rose-400"
+          : "bg-surface-1 text-muted hover:bg-rose-500/10 hover:text-rose-400"
       }`}
     >
       <Heart

@@ -82,7 +82,7 @@ export default async function Home({
     <div>
       {/* HERO */}
       {!user && (
-        <section className="relative overflow-hidden bg-[#0a0a0a] border-b border-white/5">
+        <section className="relative overflow-hidden bg-app border-b border-nav">
           {/* Fire radial glow background */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-b from-orange-600/30 via-rose-600/10 to-transparent blur-3xl" />
@@ -98,13 +98,13 @@ export default async function Home({
             </div>
 
             {/* Main headline */}
-            <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tight mb-6">
+            <h1 className="text-6xl md:text-8xl font-black text-app leading-[0.9] tracking-tight mb-6">
               Dare to be
               <br />
               <span className="text-fire">Rated?</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-white/50 mb-10 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted mb-10 max-w-xl mx-auto leading-relaxed">
               Upload your plate. Get brutally honest AI critiques.
               <br className="hidden sm:block" /> Find out if your cooking is actually good.
             </p>
@@ -120,7 +120,7 @@ export default async function Home({
               </Link>
               <Link
                 href="#feed"
-                className="flex items-center gap-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
+                className="flex items-center gap-2 border border-app-2 text-muted hover:text-app hover:border-app-2 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
               >
                 See the Feed
               </Link>
@@ -136,7 +136,7 @@ export default async function Home({
               ].map(({ icon, label }) => (
                 <div key={label} className="flex flex-col items-center gap-1.5">
                   {icon}
-                  <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">{label}</span>
+                  <span className="text-xs text-faint font-semibold uppercase tracking-wider">{label}</span>
                 </div>
               ))}
             </div>
@@ -153,7 +153,7 @@ export default async function Home({
             { href: "/chefs", icon: <Users className="w-3.5 h-3.5" />, label: "Chefs" },
             ...(user ? [{ href: "/saved", icon: <Sparkles className="w-3.5 h-3.5" />, label: "Saved" }] : []),
           ].map(({ href, icon, label }) => (
-            <Link key={href} href={href} className="flex items-center gap-1.5 px-3.5 py-2 bg-white/5 hover:bg-orange-500/10 hover:text-orange-400 text-white/40 rounded-xl text-xs font-bold uppercase tracking-wide whitespace-nowrap flex-shrink-0 transition-colors border border-white/5 hover:border-orange-500/20">
+            <Link key={href} href={href} className="flex items-center gap-1.5 px-3.5 py-2 bg-surface-1 hover:bg-orange-500/10 hover:text-orange-400 text-muted rounded-xl text-xs font-bold uppercase tracking-wide whitespace-nowrap flex-shrink-0 transition-colors border border-app-1 hover:border-orange-500/20">
               {icon}{label}
             </Link>
           ))}
@@ -164,9 +164,9 @@ export default async function Home({
           <section className="mb-10">
             <div className="flex items-center gap-2 mb-5">
               <Crown className="w-5 h-5 text-amber-500" />
-              <h2 className="text-xl font-bold text-white">Chef Spotlight</h2>
+              <h2 className="text-xl font-bold text-app">Chef Spotlight</h2>
             </div>
-            <div className="bg-white/[0.03] border border-orange-500/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center gap-6">
+            <div className="bg-surface-1 border border-orange-500/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center gap-6">
               <Link href={`/profile/${spotlightChef.id}`} className="flex-shrink-0 group">
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-lg group-hover:scale-105 transition-transform">
                   {spotlightChef.avatar_url ? (
@@ -180,7 +180,7 @@ export default async function Home({
               </Link>
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <Link href={`/profile/${spotlightChef.id}`} className="text-xl font-black text-white hover:text-orange-400 transition-colors">
+                  <Link href={`/profile/${spotlightChef.id}`} className="text-xl font-black text-app hover:text-orange-400 transition-colors">
                     @{spotlightChef.username}
                   </Link>
                   <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full">
@@ -188,9 +188,9 @@ export default async function Home({
                   </span>
                 </div>
                 {spotlightChef.bio && (
-                  <p className="text-sm text-white/40 mb-2 line-clamp-2">{spotlightChef.bio}</p>
+                  <p className="text-sm text-muted mb-2 line-clamp-2">{spotlightChef.bio}</p>
                 )}
-                <p className="text-xs text-white/30">{spotlightChef.follower_count ?? 0} followers</p>
+                <p className="text-xs text-faint">{spotlightChef.follower_count ?? 0} followers</p>
               </div>
               {spotlightPlate && (
                 <Link href={`/plate/${spotlightPlate.id}`} className="flex-shrink-0 group">
@@ -213,7 +213,7 @@ export default async function Home({
           <section className="mb-10">
             <div className="flex items-center gap-2 mb-5">
               <TrendingUp className="w-5 h-5 text-orange-500" />
-              <h2 className="text-xl font-bold text-white">Top Rated</h2>
+              <h2 className="text-xl font-bold text-app">Top Rated</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {topPlates.map((plate) => (
@@ -226,7 +226,7 @@ export default async function Home({
         {/* Feed */}
         <section id="feed">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold text-white">Latest Plates</h2>
+            <h2 className="text-xl font-bold text-app">Latest Plates</h2>
             {user && (
               <Link
                 href="/upload"
@@ -239,13 +239,13 @@ export default async function Home({
 
           {/* All / Following tabs */}
           {user && (
-            <div className="flex gap-1 mb-5 bg-white/5 rounded-2xl p-1 w-fit">
+            <div className="flex gap-1 mb-5 bg-surface-1 rounded-2xl p-1 w-fit">
               <Link
                 href="/"
                 className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
                   activeTab === "all"
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-white/40 hover:text-white/70"
+                    ? "bg-surface-2 text-app shadow-sm"
+                    : "text-muted hover:text-app"
                 }`}
               >
                 For You
@@ -254,8 +254,8 @@ export default async function Home({
                 href="/?tab=following"
                 className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
                   activeTab === "following"
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-white/40 hover:text-white/70"
+                    ? "bg-surface-2 text-app shadow-sm"
+                    : "text-muted hover:text-app"
                 }`}
               >
                 Following
@@ -271,7 +271,7 @@ export default async function Home({
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
                   activeCategory === "all"
                     ? "bg-orange-500 text-white"
-                    : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10"
+                    : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
                 }`}
               >
                 All
@@ -283,7 +283,7 @@ export default async function Home({
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
                     activeCategory === cat
                       ? "bg-orange-500 text-white"
-                      : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10"
+                      : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
                   }`}
                 >
                   {cat}
@@ -299,13 +299,13 @@ export default async function Home({
                 mode="following"
               />
             ) : (
-              <div className="text-center py-20 text-white/30">
+              <div className="text-center py-20 text-faint">
                 <Users className="w-14 h-14 mx-auto mb-4 opacity-30" />
                 <p className="text-lg font-medium">No plates from people you follow yet</p>
                 <p className="text-sm mt-1 mb-6">Follow chefs to see their plates here</p>
                 {topPlates && topPlates.length > 0 && (
                   <>
-                    <p className="text-sm font-semibold text-white/30 mb-4">Suggested plates</p>
+                    <p className="text-sm font-semibold text-faint mb-4">Suggested plates</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
                       {topPlates.map((p) => <PlateCard key={p.id} plate={p as Plate} />)}
                     </div>

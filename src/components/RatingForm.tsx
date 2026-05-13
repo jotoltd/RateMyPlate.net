@@ -41,7 +41,7 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-3">
+        <label className="block text-xs font-bold text-muted uppercase tracking-widest mb-3">
           Tap to rate
         </label>
         <StarRating value={stars} onChange={setStars} size="lg" />
@@ -51,9 +51,9 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+        <label className="block text-xs font-bold text-muted uppercase tracking-widest mb-2 flex items-center gap-1.5">
           <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
-          Comment <span className="font-normal normal-case tracking-normal text-white/20">(optional)</span>
+          Comment <span className="font-normal normal-case tracking-normal text-faintest">(optional)</span>
         </label>
         <textarea
           value={comment}
@@ -61,7 +61,7 @@ export default function RatingForm({ plateId, existingRating }: RatingFormProps)
           placeholder="What did you think? Presentation, taste, vibes…"
           rows={3}
           maxLength={500}
-          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-white placeholder-white/20"
+          className="w-full bg-surface-1 border border-app-1 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-app placeholder-faint"
         />
       </div>
 

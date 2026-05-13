@@ -21,7 +21,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+    <div className="min-h-screen bg-app relative overflow-hidden">
       {/* Fire glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-orange-600/25 via-rose-600/10 to-transparent blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-orange-700/10 blur-3xl pointer-events-none" />
@@ -35,12 +35,12 @@ export default function LoginPage() {
             <Flame className="w-3.5 h-3.5" />
             AI-Powered Food Critic
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tight mb-5">
+          <h1 className="text-6xl md:text-8xl font-black text-app leading-[0.9] tracking-tight mb-5">
             Dare to be
             <br />
             <span className="text-fire">Rated?</span>
           </h1>
-          <p className="text-white/40 text-lg max-w-md mx-auto mb-8">
+          <p className="text-muted text-lg max-w-md mx-auto mb-8">
             Upload your plate. Get brutally honest AI critiques. Find out if your cooking is actually good.
           </p>
           <Link
@@ -56,7 +56,7 @@ export default function LoginPage() {
               { icon: <Flame className="w-4 h-4 text-orange-400" />, label: "Trending Feed" },
               { icon: <Users className="w-4 h-4 text-rose-400" />, label: "Chef Community" },
             ].map(({ icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-xs text-white/30 font-semibold uppercase tracking-wider">
+              <div key={label} className="flex items-center gap-2 text-xs text-faint font-semibold uppercase tracking-wider">
                 {icon}{label}
               </div>
             ))}
@@ -65,9 +65,9 @@ export default function LoginPage() {
 
         {/* Login form card */}
         <div className="w-full max-w-sm">
-          <div className="border border-white/10 bg-white/[0.03] rounded-3xl p-7 backdrop-blur-sm">
-            <h2 className="text-lg font-black text-white mb-1">Sign in</h2>
-            <p className="text-white/30 text-sm mb-6">Already have an account?</p>
+          <div className="border border-app-1 bg-surface-1 rounded-3xl p-7 backdrop-blur-sm">
+            <h2 className="text-lg font-black text-app mb-1">Sign in</h2>
+            <p className="text-faint text-sm mb-6">Already have an account?</p>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-6">
@@ -77,34 +77,34 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Email</label>
+            <label className="block text-xs font-bold text-muted uppercase tracking-widest mb-2">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-faint" />
               <input
                 name="email"
                 type="email"
                 required
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-white placeholder-white/20"
+                className="w-full pl-10 pr-4 py-3 bg-surface-1 border border-app-1 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-app placeholder-faint"
               />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-white/50 uppercase tracking-widest">Password</label>
+              <label className="block text-xs font-bold text-muted uppercase tracking-widest">Password</label>
               <Link href="/auth/forgot-password" className="text-xs text-orange-400 hover:text-orange-300 font-semibold transition-colors">Forgot password?</Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-faint" />
               <input
                 name="password"
                 type={showPass ? "text" : "password"}
                 required
                 placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-white placeholder-white/20"
+                className="w-full pl-10 pr-10 py-3 bg-surface-1 border border-app-1 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-app placeholder-faint"
               />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-faint hover:text-muted transition-colors">
                 {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -120,7 +120,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-            <p className="text-center text-sm text-white/30 mt-6">
+            <p className="text-center text-sm text-faint mt-6">
               No account?{" "}
               <Link href="/auth/signup" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
                 Sign up free

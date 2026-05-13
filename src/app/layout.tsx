@@ -53,12 +53,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white transition-colors">
+      <body className="min-h-full flex flex-col bg-app text-app transition-colors">
         <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} />
         <main className="flex-1">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
-        <footer className="border-t border-white/5 bg-[#0a0a0a] py-6 text-center text-sm text-white/20 hidden md:block">
+        <footer className="border-t border-nav bg-nav py-6 text-center text-sm text-faintest hidden md:block">
           {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
         <MobileNav userId={user?.id} />

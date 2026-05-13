@@ -51,8 +51,8 @@ export default async function NotificationsPage() {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Notifications</h1>
-            <p className="text-sm text-white/40">{unread > 0 ? `${unread} unread` : "All caught up!"}</p>
+            <h1 className="text-2xl font-bold text-app">Notifications</h1>
+            <p className="text-sm text-muted">{unread > 0 ? `${unread} unread` : "All caught up!"}</p>
           </div>
         </div>
         {unread > 0 && (
@@ -69,7 +69,7 @@ export default async function NotificationsPage() {
       </div>
 
       {notifs.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <Bell className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">No notifications yet</p>
           <p className="text-sm mt-1">When someone likes, rates or comments — it shows up here</p>
@@ -86,7 +86,7 @@ export default async function NotificationsPage() {
                 className={`flex items-start gap-4 p-4 rounded-3xl border transition-all hover:border-orange-500/30 ${
                   !n.read
                     ? "bg-orange-500/5 border-orange-500/20 border-l-2 border-l-orange-500"
-                    : "bg-white/[0.02] border-white/5"
+                    : "bg-surface-1 border-app-1"
                 }`}
               >
                 {/* Avatar */}
@@ -100,26 +100,26 @@ export default async function NotificationsPage() {
                       </span>
                     </div>
                   )}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#141414] rounded-full flex items-center justify-center">
+                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-nav rounded-full flex items-center justify-center">
                     {icons[n.type] ?? <Bell className="w-3 h-3 text-gray-400" />}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white/80">
+                  <p className="text-sm text-app">
                     <span className="font-bold">{actor?.username ?? "Someone"}</span>{" "}
                     {messages[n.type] ?? "interacted with you"}
                     {plate && (
                       <span className="font-semibold text-orange-500"> "{plate.title}"</span>
                     )}
                   </p>
-                  <p className="text-xs text-white/30 mt-0.5">{formatDate(n.created_at)}</p>
+                  <p className="text-xs text-faint mt-0.5">{formatDate(n.created_at)}</p>
                 </div>
 
                 {/* Plate thumbnail */}
                 {plate && (
-                  <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-white/5">
+                  <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-surface-2">
                     <img src={plate.image_url} alt={plate.title} className="w-full h-full object-cover" />
                   </div>
                 )}
