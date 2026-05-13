@@ -5,12 +5,12 @@ import { Mail, Users, Download } from "lucide-react";
 export default async function AdminWaitlistPage() {
   const { supabase } = await requireAdmin();
 
-  const { data: entries, count } = await supabase
-    .from("waitlist")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false });
+  const [{ data: entries, count }, { data: settings }] = await Promise.all([
+    supabase.from("waitlist").select("*", { count: "exact" }).order("created_at", { ascending: false }),
+    supabase.from("app_settings").select("maintenance_mode").eq("id", true).single(),
+  ]);
 
-  const isMaintenance = process.env.MAINTENANCE_MODE === "true";
+  const isMaintenance = settings?.maintenance_mode === true;
 
   return (
     <div className="space-y-6">
@@ -29,13 +29,10 @@ export default async function AdminWaitlistPage() {
             <p className="text-xs text-faint mt-0.5">
               {isMaintenance
                 ? "All non-admin visitors see the maintenance page."
-                : 'Set MAINTENANCE_MODE=true in your Vercel env vars to activate.'}
+                : "Toggle maintenance mode from the Dashboard tab."}
             </p>
           </div>
         </div>
-        <code className="text-xs bg-black/20 px-3 py-1.5 rounded-lg text-faint font-mono">
-          MAINTENANCE_MODE={isMaintenance ? "true" : "false"}
-        </code>
       </div>
 
       {/* Waitlist stats */}
