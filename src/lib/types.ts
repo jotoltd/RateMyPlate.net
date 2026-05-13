@@ -35,6 +35,7 @@ export type Plate = {
   avg_user_rating: number | null;
   rating_count: number;
   like_count: number;
+  view_count?: number;
   created_at: string;
   profiles?: Profile;
 };

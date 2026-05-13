@@ -1,11 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Upload, Star, Users, Sparkles, TrendingUp, ChefHat, Flame, Crown } from "lucide-react";
+import { Upload, Star, Users, Sparkles, ChefHat, Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import PlateCard from "@/components/PlateCard";
 import InfiniteFeed from "@/components/InfiniteFeed";
 import { Plate, CATEGORIES } from "@/lib/types";
-import { scoreToStars } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
 
@@ -50,46 +48,19 @@ export default async function Home({
     feedQuery = feedQuery.eq("category", activeCategory);
   }
 
-  const [{ data: plates }, { data: topPlates }, { data: spotlightChefData }] = await Promise.all([
-    feedQuery,
-    supabase
-      .from("plates")
-      .select("*, profiles(id, username, avatar_url)")
-      .not("avg_user_rating", "is", null)
-      .order("avg_user_rating", { ascending: false })
-      .limit(3),
-    supabase
-      .from("profiles")
-      .select("id, username, bio, avatar_url, follower_count")
-      .order("follower_count", { ascending: false })
-      .limit(1)
-      .single(),
-  ]);
+  const { data: plates } = await feedQuery;
 
-  // Suggested chefs to follow (used on empty following tab)
+  // Suggested chefs for empty following tab
   const suggestedChefsRes = (activeTab === "following" && user && followingPlates.length === 0)
     ? await supabase
         .from("profiles")
-        .select("id, username, bio, avatar_url, follower_count, plate_count")
+        .select("id, username, bio, avatar_url, follower_count")
         .neq("id", user.id)
         .not("id", "in", `(${followedIds.length > 0 ? followedIds.join(",") : "''"})`)
         .order("follower_count", { ascending: false })
         .limit(6)
     : { data: null };
   const suggestedChefs = suggestedChefsRes.data ?? [];
-
-  // Get spotlight chef's best plate
-  const spotlightChef = spotlightChefData ?? null;
-  const { data: spotlightPlateData } = spotlightChef
-    ? await supabase
-        .from("plates")
-        .select("id, title, image_url, avg_user_rating, ai_rating, like_count")
-        .eq("user_id", spotlightChef.id)
-        .order("like_count", { ascending: false })
-        .limit(1)
-        .single()
-    : { data: null };
-  const spotlightPlate = spotlightPlateData ?? null;
 
   return (
     <div>
@@ -157,9 +128,10 @@ export default async function Home({
         </section>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Feed chrome: quick links + tabs + filters — full width */}
+      <div className="max-w-[680px] mx-auto px-4 pt-6 pb-2">
         {/* Quick links */}
-        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 no-scrollbar">
           {[
             { href: "/trending", icon: <Flame className="w-3.5 h-3.5" />, label: "Trending" },
             { href: "/leaderboard", icon: <Star className="w-3.5 h-3.5" />, label: "Top Rated" },
@@ -170,211 +142,120 @@ export default async function Home({
               {icon}{label}
             </Link>
           ))}
+          {user && (
+            <Link
+              href="/upload"
+              className="ml-auto flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl text-xs font-bold uppercase tracking-wide whitespace-nowrap flex-shrink-0 transition-opacity hover:opacity-90"
+            >
+              <Upload className="w-3.5 h-3.5" /> Upload
+            </Link>
+          )}
         </div>
 
-        {/* Chef Spotlight */}
-        {spotlightChef && activeCategory === "all" && activeTab === "all" && (
-          <section className="mb-10">
-            <div className="flex items-center gap-2 mb-5">
-              <Crown className="w-5 h-5 text-amber-500" />
-              <h2 className="text-xl font-bold text-app">Chef Spotlight</h2>
-            </div>
-            <div className="bg-surface-1 border border-orange-500/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center gap-6">
-              <Link href={`/profile/${spotlightChef.id}`} className="flex-shrink-0 group">
-                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-lg group-hover:scale-105 transition-transform">
-                  {spotlightChef.avatar_url ? (
-                    <Image src={spotlightChef.avatar_url} alt={spotlightChef.username} fill className="object-cover" sizes="80px" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-white text-3xl font-black">{spotlightChef.username[0].toUpperCase()}</span>
-                    </div>
-                  )}
-                </div>
+        {/* For You / Following tabs */}
+        {user && (
+          <div className="flex gap-1 mb-4 bg-surface-1 rounded-2xl p-1 w-fit">
+            <Link
+              href="/"
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                activeTab === "all" ? "bg-surface-2 text-app shadow-sm" : "text-muted hover:text-app"
+              }`}
+            >
+              For You
+            </Link>
+            <Link
+              href="/?tab=following"
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                activeTab === "following" ? "bg-surface-2 text-app shadow-sm" : "text-muted hover:text-app"
+              }`}
+            >
+              Following
+            </Link>
+          </div>
+        )}
+
+        {/* Category filter pills */}
+        {activeTab === "all" && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+            <Link
+              href="/"
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+                activeCategory === "all" ? "bg-orange-500 text-white" : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
+              }`}
+            >
+              All
+            </Link>
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat}
+                href={`/?category=${cat}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
+                  activeCategory === cat ? "bg-orange-500 text-white" : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
+                }`}
+              >
+                {cat}
               </Link>
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <Link href={`/profile/${spotlightChef.id}`} className="text-xl font-black text-app hover:text-orange-400 transition-colors">
-                    @{spotlightChef.username}
-                  </Link>
-                  <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full">
-                    ⭐ Top Chef
-                  </span>
-                </div>
-                {spotlightChef.bio && (
-                  <p className="text-sm text-muted mb-2 line-clamp-2">{spotlightChef.bio}</p>
-                )}
-                <p className="text-xs text-faint">{spotlightChef.follower_count ?? 0} followers</p>
-              </div>
-              {spotlightPlate && (
-                <Link href={`/plate/${spotlightPlate.id}`} className="flex-shrink-0 group">
-                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform">
-                    <Image src={spotlightPlate.image_url} alt={spotlightPlate.title} fill className="object-cover" sizes="96px" />
-                    {(spotlightPlate.avg_user_rating ?? spotlightPlate.ai_rating) && (
-                      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 whitespace-nowrap">
-                        ⭐ {scoreToStars(spotlightPlate.avg_user_rating ?? spotlightPlate.ai_rating!).toFixed(1)}
-                      </div>
-                    )}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Feed */}
+      <div className="px-4 pb-12" id="feed">
+        {activeTab === "following" ? (
+          followingPlates.length > 0 ? (
+            <InfiniteFeed initialPlates={followingPlates} mode="following" />
+          ) : (
+            <div className="max-w-[680px] mx-auto py-10 text-center">
+              <Users className="w-14 h-14 mx-auto mb-4 text-faint opacity-40" />
+              <p className="text-lg font-bold text-app mb-1">No plates yet</p>
+              <p className="text-sm text-muted mb-8">Follow chefs to see their plates here</p>
+              {suggestedChefs.length > 0 && (
+                <div className="text-left">
+                  <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Suggested Chefs</p>
+                  <div className="space-y-2">
+                    {suggestedChefs.map((chef) => (
+                      <Link
+                        key={chef.id}
+                        href={`/profile/${chef.id}`}
+                        className="flex items-center gap-4 p-4 bg-surface-1 border border-app-1 rounded-2xl hover:border-orange-500/30 transition-all"
+                      >
+                        <div className="w-11 h-11 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0">
+                          {chef.avatar_url
+                            ? <Image src={chef.avatar_url} alt={chef.username} width={44} height={44} className="object-cover w-full h-full" />
+                            : <div className="w-full h-full flex items-center justify-center"><span className="text-white font-black text-base">{chef.username[0].toUpperCase()}</span></div>
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-app truncate">@{chef.username}</p>
+                          {chef.bio && <p className="text-xs text-muted truncate">{chef.bio}</p>}
+                        </div>
+                        <span className="text-xs text-faint flex-shrink-0">{chef.follower_count ?? 0} followers</span>
+                      </Link>
+                    ))}
                   </div>
-                </Link>
+                </div>
               )}
             </div>
-          </section>
-        )}
-
-        {/* Top Rated strip */}
-        {topPlates && topPlates.length > 0 && activeCategory === "all" && (
-          <section className="mb-10">
-            <div className="flex items-center gap-2 mb-5">
-              <TrendingUp className="w-5 h-5 text-orange-500" />
-              <h2 className="text-xl font-bold text-app">Top Rated</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {topPlates.map((plate) => (
-                <PlateCard key={plate.id} plate={plate as Plate} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Feed */}
-        <section id="feed">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold text-app">Latest Plates</h2>
-            {user && (
-              <Link
-                href="/upload"
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-md"
-              >
-                <Upload className="w-4 h-4" /> Upload
-              </Link>
-            )}
+          )
+        ) : plates && plates.length > 0 ? (
+          <InfiniteFeed
+            initialPlates={plates as Plate[]}
+            category={activeCategory !== "all" ? activeCategory : undefined}
+          />
+        ) : (
+          <div className="max-w-[680px] mx-auto text-center py-24 text-faint">
+            <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-30" />
+            <p className="text-lg font-medium">No plates in this category yet!</p>
+            <Link
+              href={user ? "/upload" : "/auth/signup"}
+              className="inline-flex items-center gap-2 mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
+            >
+              <Upload className="w-4 h-4" />
+              Upload a Plate
+            </Link>
           </div>
-
-          {/* All / Following tabs */}
-          {user && (
-            <div className="flex gap-1 mb-5 bg-surface-1 rounded-2xl p-1 w-fit">
-              <Link
-                href="/"
-                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
-                  activeTab === "all"
-                    ? "bg-surface-2 text-app shadow-sm"
-                    : "text-muted hover:text-app"
-                }`}
-              >
-                For You
-              </Link>
-              <Link
-                href="/?tab=following"
-                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-colors ${
-                  activeTab === "following"
-                    ? "bg-surface-2 text-app shadow-sm"
-                    : "text-muted hover:text-app"
-                }`}
-              >
-                Following
-              </Link>
-            </div>
-          )}
-
-          {/* Category filter tabs (only in For You tab) */}
-          {activeTab === "all" && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
-              <Link
-                href="/"
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
-                  activeCategory === "all"
-                    ? "bg-orange-500 text-white"
-                    : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
-                }`}
-              >
-                All
-              </Link>
-              {CATEGORIES.map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/?category=${cat}`}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
-                    activeCategory === cat
-                      ? "bg-orange-500 text-white"
-                      : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
-                  }`}
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {activeTab === "following" ? (
-            followingPlates.length > 0 ? (
-              <InfiniteFeed
-                initialPlates={followingPlates}
-                mode="following"
-              />
-            ) : (
-              <div className="py-10 text-center">
-                <Users className="w-14 h-14 mx-auto mb-4 text-faint opacity-40" />
-                <p className="text-lg font-bold text-app mb-1">No plates yet</p>
-                <p className="text-sm text-muted mb-8">Follow chefs to see their plates here</p>
-
-                {suggestedChefs.length > 0 && (
-                  <div className="mb-10 text-left max-w-xl mx-auto">
-                    <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Suggested Chefs</p>
-                    <div className="space-y-2">
-                      {suggestedChefs.map((chef) => (
-                        <Link
-                          key={chef.id}
-                          href={`/profile/${chef.id}`}
-                          className="flex items-center gap-4 p-4 bg-surface-1 border border-app-1 rounded-2xl hover:border-orange-500/30 transition-all"
-                        >
-                          <div className="w-11 h-11 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0">
-                            {chef.avatar_url
-                              ? <Image src={chef.avatar_url} alt={chef.username} width={44} height={44} className="object-cover w-full h-full" />
-                              : <div className="w-full h-full flex items-center justify-center"><span className="text-white font-black text-base">{chef.username[0].toUpperCase()}</span></div>
-                            }
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-app truncate">@{chef.username}</p>
-                            {chef.bio && <p className="text-xs text-muted truncate">{chef.bio}</p>}
-                          </div>
-                          <div className="text-xs text-faint flex-shrink-0">
-                            {chef.follower_count ?? 0} followers
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {topPlates && topPlates.length > 0 && (
-                  <div className="text-left max-w-2xl mx-auto">
-                    <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Top Rated Plates</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      {topPlates.map((p) => <PlateCard key={p.id} plate={p as Plate} />)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          ) : plates && plates.length > 0 ? (
-            <InfiniteFeed
-              initialPlates={plates as Plate[]}
-              category={activeCategory !== "all" ? activeCategory : undefined}
-            />
-          ) : (
-            <div className="text-center py-24 text-faint">
-              <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-30" />
-              <p className="text-lg font-medium">No plates in this category yet!</p>
-              <Link
-                href={user ? "/upload" : "/auth/signup"}
-                className="inline-flex items-center gap-2 mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
-              >
-                <Upload className="w-4 h-4" />
-                Upload a Plate
-              </Link>
-            </div>
-          )}
-        </section>
+        )}
       </div>
     </div>
   );
