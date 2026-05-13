@@ -8,6 +8,7 @@ import { signUp } from "@/app/actions/auth";
 export default function SignupPage() {
   const [error, setError] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -22,6 +23,10 @@ export default function SignupPage() {
     }
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
+      return;
+    }
+    if (!agreed) {
+      setError("Please agree to the Terms of Service before creating an account");
       return;
     }
     startTransition(async () => {
@@ -85,9 +90,35 @@ export default function SignupPage() {
             </div>
           </div>
 
+          {/* T&C agreement */}
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="relative mt-0.5 flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${agreed ? "bg-orange-500 border-orange-500" : "border-app-1 bg-surface-1 group-hover:border-orange-500/50"}`}>
+                {agreed && (
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-xs text-muted leading-relaxed">
+              I agree to the{" "}
+              <Link href="/legal#terms" target="_blank" className="text-orange-400 hover:underline font-semibold">Terms of Service</Link>
+              {" "}and{" "}
+              <Link href="/legal#privacy" target="_blank" className="text-orange-400 hover:underline font-semibold">Privacy Policy</Link>
+              , including the content licence which allows Rate My Plate to use my uploaded photos for promotional purposes.
+            </span>
+          </label>
+
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || !agreed}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3.5 rounded-xl font-black hover:from-orange-400 hover:to-rose-400 transition-all disabled:opacity-40 glow-fire mt-2"
           >
             <Sparkles className="w-4 h-4" />

@@ -146,6 +146,26 @@ export default async function PlatePage({
         Back to feed
       </Link>
 
+      {/* Pending review notice — only visible to owner */}
+      {user && user.id === plate.user_id && plate.status === "pending" && (
+        <div className="mb-6 flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+          <span className="text-amber-400 text-lg mt-0.5">⏳</span>
+          <div>
+            <p className="font-bold text-amber-300 text-sm">Pending review</p>
+            <p className="text-xs text-amber-400/80 mt-0.5">Your plate is in the queue and will appear publicly once approved by our team. This usually takes a short while.</p>
+          </div>
+        </div>
+      )}
+      {user && user.id === plate.user_id && plate.status === "rejected" && (
+        <div className="mb-6 flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+          <span className="text-red-400 text-lg mt-0.5">✕</span>
+          <div>
+            <p className="font-bold text-red-300 text-sm">Not approved</p>
+            <p className="text-xs text-red-400/80 mt-0.5">This plate didn't meet our community guidelines and won't appear publicly. You can delete it and try uploading again.</p>
+          </div>
+        </div>
+      )}
+
       <div className="grid md:grid-cols-2 gap-8">
         {/* Image with lightbox */}
         <PlateImageWithLightbox src={plate.image_url} alt={plate.title}>

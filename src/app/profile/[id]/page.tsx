@@ -32,6 +32,7 @@ export default async function ProfilePage({
     .from("plates")
     .select("*, profiles(id, username, avatar_url)")
     .eq("user_id", id)
+    .eq("status", "approved")
     .order("created_at", { ascending: false });
 
   const {

@@ -58,9 +58,10 @@ async function LegalContent() {
           <p>You must be at least 13 years old to use the Service. By using the Service, you represent that you meet this requirement.</p>
         </Section>
 
-        <Section title="3. User Content">
-          <p>You retain ownership of content you upload (&quot;User Content&quot;). By uploading, you grant Rate My Plate a worldwide, non-exclusive, royalty-free licence to display, distribute, and promote your content within the Service.</p>
-          <p>You are solely responsible for your content. You must not upload content that is illegal, harmful, deceptive, infringing, or violates the rights of others.</p>
+        <Section title="3. User Content &amp; Licence">
+          <p>You retain ownership of all content you upload (&quot;User Content&quot;). By uploading any image or content to the Service, you grant Rate My Plate and its affiliates a perpetual, worldwide, non-exclusive, royalty-free, sublicensable, transferable licence to use, reproduce, modify, adapt, publish, translate, distribute, publicly display, and create derivative works from that content, in any media or format now known or later developed, for any purpose connected with operating, promoting, or improving the Service — including marketing and editorial use.</p>
+          <p>You represent and warrant that you own or have the necessary rights to grant this licence and that your content does not infringe any third-party rights.</p>
+          <p>You are solely responsible for your content. You must not upload content that is illegal, harmful, deceptive, infringing, sexually explicit, or violates the rights of others.</p>
         </Section>
 
         <Section title="4. Prohibited Conduct">

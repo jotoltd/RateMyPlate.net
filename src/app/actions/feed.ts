@@ -54,6 +54,7 @@ export async function loadMorePlates(
   let query = supabase
     .from("plates")
     .select("*, profiles(id, username, avatar_url)")
+    .eq("status", "approved")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -86,6 +87,7 @@ export async function loadFollowingFeed(
     .from("plates")
     .select("*, profiles(id, username, avatar_url)")
     .in("user_id", ids)
+    .eq("status", "approved")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 

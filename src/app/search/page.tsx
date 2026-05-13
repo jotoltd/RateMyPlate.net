@@ -20,6 +20,7 @@ export default async function SearchPage({
   let platesQuery = supabase
     .from("plates")
     .select("id, title, description, image_url, avg_user_rating, ai_rating, like_count, created_at, category, profiles(id, username)")
+    .eq("status", "approved")
     .order("created_at", { ascending: false })
     .limit(30);
 

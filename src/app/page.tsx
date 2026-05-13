@@ -32,6 +32,7 @@ export default async function Home({
         .from("plates")
         .select("*, profiles(id, username, avatar_url)")
         .in("user_id", followedIds)
+        .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
       followingPlates = (data ?? []) as Plate[];
@@ -41,6 +42,7 @@ export default async function Home({
   let feedQuery = supabase
     .from("plates")
     .select("*, profiles(id, username, avatar_url)")
+    .eq("status", "approved")
     .order("created_at", { ascending: false })
     .limit(PAGE_SIZE);
 

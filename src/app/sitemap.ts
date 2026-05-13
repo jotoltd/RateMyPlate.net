@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://ratemyplate.net";
 
   const [{ data: plates }, { data: profiles }] = await Promise.all([
-    supabase.from("plates").select("id, created_at").order("created_at", { ascending: false }).limit(500),
+    supabase.from("plates").select("id, created_at").eq("status", "approved").order("created_at", { ascending: false }).limit(500),
     supabase.from("profiles").select("id, created_at").limit(500),
   ]);
 

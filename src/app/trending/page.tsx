@@ -33,7 +33,8 @@ export default async function TrendingPage({
 
   let query = supabase
     .from("plates")
-    .select("id, title, image_url, avg_user_rating, ai_rating, like_count, rating_count, created_at, category, profiles(id, username, avatar_url)");
+    .select("id, title, image_url, avg_user_rating, ai_rating, like_count, rating_count, created_at, category, profiles(id, username, avatar_url)")
+    .eq("status", "approved");
 
   if (since) query = query.gte("created_at", since);
   if (activeCategory !== "all") query = query.eq("category", activeCategory);
