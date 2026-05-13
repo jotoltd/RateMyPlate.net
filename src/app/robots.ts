@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/profile/edit", "/upload", "/auth/"],
+        disallow: ["/profile/edit", "/upload", "/auth/", "/admin", "/api/", "/saved", "/collections", "/notifications", "/settings"],
       },
     ],
     sitemap: "https://ratemyplate.net/sitemap.xml",

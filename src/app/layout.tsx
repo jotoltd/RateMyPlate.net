@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   title: "Rate My Plate – Share & Rate Food",
   description:
     "Upload your plates, get rated by AI and the community. The ultimate food rating platform.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/favicon.svg",
+  },
   openGraph: {
     siteName: "Rate My Plate",
     type: "website",
@@ -64,7 +71,12 @@ export default async function RootLayout({
           </main>
         </ToastProvider>
         <footer className="border-t border-nav bg-nav py-6 text-center text-sm text-faintest hidden md:block">
-          {new Date().getFullYear()} Rate My Plate — Share the love of food
+          <p>{new Date().getFullYear()} Rate My Plate — Share the love of food</p>
+          <p className="mt-1.5 flex items-center justify-center gap-4">
+            <a href="/legal#terms" className="hover:text-orange-400 transition-colors">Terms</a>
+            <a href="/legal#privacy" className="hover:text-orange-400 transition-colors">Privacy</a>
+            <a href="mailto:legal@ratemyplate.net" className="hover:text-orange-400 transition-colors">Contact</a>
+          </p>
         </footer>
         <MobileNav userId={user?.id} unreadCount={(notifications as {read?: boolean}[]).filter((n) => !n.read).length} />
       </body>

@@ -175,14 +175,11 @@ export async function deleteAccount() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  // Delete profile (cascades to plates, ratings, etc. via FK)
+  // Delete profile first (cascades to plates, ratings, comments, etc.)
   await supabase.from("profiles").delete().eq("id", user.id);
-  // Delete auth user via admin — falls back to just signing out if service role not available
-  try {
-    const { createClient: createAdmin } = await import("@/lib/supabase/server");
-    const admin = await createAdmin();
-    await admin.auth.admin.deleteUser(user.id);
-  } catch { /* no-op: profile cascade is sufficient */ }
+
+  // Delete the auth user via SECURITY DEFINER RPC (no service role key needed)
+  await supabase.rpc("delete_own_auth_user");
 
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
