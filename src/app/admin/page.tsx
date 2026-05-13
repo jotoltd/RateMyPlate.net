@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
-import { Users, ImageIcon, MessageSquare, Star, Heart, TrendingUp } from "lucide-react";
+import { Users, ImageIcon, MessageSquare, Star, Heart, TrendingUp, Construction } from "lucide-react";
+import { toggleMaintenanceMode } from "@/app/actions/settings";
 
 export default async function AdminDashboard() {
   const { supabase } = await requireAdmin();
@@ -11,6 +12,7 @@ export default async function AdminDashboard() {
     { count: ratingCount },
     { count: bannedCount },
     recentPlates,
+    { data: appSettings },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("plates").select("*", { count: "exact", head: true }),
@@ -18,7 +20,10 @@ export default async function AdminDashboard() {
     supabase.from("ratings").select("*", { count: "exact", head: true }),
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("banned", true),
     supabase.from("plates").select("id, title, like_count, rating_count, created_at, profiles(username)").order("created_at", { ascending: false }).limit(5),
+    supabase.from("app_settings").select("maintenance_mode").eq("id", true).single(),
   ]);
+
+  const maintenanceOn = appSettings?.maintenance_mode === true;
 
   const stats = [
     { label: "Total Users", value: userCount ?? 0, icon: Users, color: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20" },
@@ -30,6 +35,31 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Maintenance mode toggle */}
+      <div className={`flex items-center justify-between gap-4 rounded-2xl border p-5 ${maintenanceOn ? "bg-amber-500/10 border-amber-500/30" : "bg-surface-1 border-app-1"}`}>
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${maintenanceOn ? "bg-amber-500/20" : "bg-surface-2"}`}>
+            <Construction className={`w-5 h-5 ${maintenanceOn ? "text-amber-400" : "text-faint"}`} />
+          </div>
+          <div>
+            <p className="font-bold text-app text-sm">Maintenance Mode</p>
+            <p className="text-xs text-faint mt-0.5">
+              {maintenanceOn ? "Site is in maintenance mode — only admins can access it." : "Site is live and accessible to everyone."}
+            </p>
+          </div>
+        </div>
+        <form action={toggleMaintenanceMode.bind(null, !maintenanceOn)}>
+          <button
+            type="submit"
+            className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${maintenanceOn ? "bg-amber-500" : "bg-surface-2"}`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${maintenanceOn ? "translate-x-5" : "translate-x-0.5"}`}
+            />
+          </button>
+        </form>
+      </div>
+
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map(({ label, value, icon: Icon, color, shadow }) => (

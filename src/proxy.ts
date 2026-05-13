@@ -66,11 +66,20 @@ export async function proxy(request: NextRequest) {
   // ────────────────────────────────────────────────────────────────
 
   // ── Maintenance mode ────────────────────────────────────────────
-  const maintenanceMode = process.env.MAINTENANCE_MODE === "true";
+  // Env var overrides DB (useful for emergency deploy-time lockdown)
+  let maintenanceMode = process.env.MAINTENANCE_MODE === "true";
+  if (!maintenanceMode) {
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("maintenance_mode")
+      .eq("id", true)
+      .single();
+    maintenanceMode = settings?.maintenance_mode === true;
+  }
   if (maintenanceMode) {
     const isBypassed = MAINTENANCE_BYPASS_ROUTES.some((r) => pathname.startsWith(r));
     if (!isBypassed) {
-      // Check if the logged-in user is an admin — admins see the real site
+      // Admins always see the real site
       let isAdmin = false;
       if (user) {
         const { data } = await supabase
