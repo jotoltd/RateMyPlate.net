@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { joinWaitlist } from "@/app/actions/waitlist";
-import { ChefHat, Flame, Star, CheckCircle2, Trophy, Zap, MessageSquare } from "lucide-react";
+import { ChefHat, Flame, Star, CheckCircle2, Trophy, Globe, Heart } from "lucide-react";
 
 const AVATARS = [
   { avatar: "A", color: "from-orange-400 to-rose-500" },
@@ -13,9 +13,11 @@ const AVATARS = [
 ];
 
 const REVIEWS = [
-  { text: "This lasagne is an absolute disgrace. Soggy, pale, and tastes of regret.", rating: 2, dish: "Homemade Lasagne" },
-  { text: "Finally — someone who actually knows how to sear a steak. Beautiful crust, perfect pink. I'm impressed.", rating: 9, dish: "Ribeye Steak" },
-  { text: "This carbonara has cream in it. CREAM. Get out of my kitchen.", rating: 1, dish: "Carbonara" },
+  { text: "This lasagne is an absolute disgrace. Soggy, pale, and tastes of regret.", rating: 2, dish: "Homemade Lasagne", from: "🇬🇧 London" },
+  { text: "Finally — someone who knows how to sear a steak. Beautiful crust, perfect pink. I'm genuinely impressed.", rating: 9, dish: "Ribeye Steak", from: "🇺🇸 New York" },
+  { text: "This carbonara has cream in it. CREAM. Get out of my kitchen.", rating: 1, dish: "Carbonara", from: "🇮🇹 Rome" },
+  { text: "The plating is chaotic but the flavours are there. 7 from me — try harder with the presentation.", rating: 7, dish: "Chicken Tikka", from: "🇮🇳 Mumbai" },
+  { text: "Clean, confident, delicious. This is what home cooking should look like.", rating: 8, dish: "Avocado Toast", from: "🇦🇺 Sydney" },
 ];
 
 export default function MaintenancePage({ initialCount = 0 }: { initialCount?: number }) {
@@ -91,19 +93,36 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
           <span className="font-black text-lg text-white">Rate My Plate</span>
         </div>
 
-        {/* Live AI review ticker */}
+        {/* Live review ticker */}
         <div key={reviewIdx} className="fadein bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 text-left">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-rose-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <ChefHat className="w-3 h-3 text-white" />
             </div>
-            <span className="text-white/40 text-xs font-bold">Ramsay on <span className="text-white/70">{review.dish}</span></span>
-            <div className="ml-auto flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-              <span className="text-amber-400 text-xs font-black">{review.rating}/10</span>
+            <div className="flex flex-col">
+              <span className="text-white/60 text-xs font-bold">{review.dish}</span>
+              <span className="text-white/30 text-[10px]">AI verdict</span>
+            </div>
+            <div className="ml-auto flex flex-col items-end gap-0.5">
+              <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <span className="text-amber-400 text-xs font-black">{review.rating}/10</span>
+              </div>
+              <span className="text-white/25 text-[10px]">{review.from}</span>
             </div>
           </div>
           <p className="text-white/70 text-sm italic leading-relaxed">&ldquo;{review.text}&rdquo;</p>
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/5">
+            <span className="text-white/25 text-[10px] font-bold uppercase tracking-wider">Community also rated</span>
+            <div className="flex items-center gap-1">
+              {[8,7,9,6,8].map((s,i) => (
+                <div key={i} className="flex items-center gap-0.5 bg-white/5 px-1.5 py-0.5 rounded-md">
+                  <Heart className="w-2.5 h-2.5 text-rose-400 fill-rose-400" />
+                  <span className="text-white/50 text-[10px] font-bold">{s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Headline */}
@@ -115,17 +134,17 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
             <span className="text-white">Is your cooking</span><br />
             <span className="shimmer-text">actually good?</span>
           </h1>
-          <p className="text-white/45 text-sm sm:text-base leading-relaxed max-w-xs mx-auto">
-            Upload your plate. Our Ramsay-trained AI will tell you exactly what it thinks — brutally, honestly, with no filter.
+          <p className="text-white/45 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+            Post your plate. Get rated by <span className="text-white/70 font-semibold">real food lovers from around the world</span> — plus a brutally honest AI critique. Follow chefs, build your reputation, climb the leaderboard.
           </p>
         </div>
 
-        {/* 3 value props — quick scan */}
+        {/* 3 value props */}
         <div className="grid grid-cols-3 gap-2 mb-6">
           {[
-            { icon: <Zap className="w-4 h-4 text-amber-400" />, label: "Instant AI rating" },
-            { icon: <MessageSquare className="w-4 h-4 text-orange-400" />, label: "Real community" },
-            { icon: <Trophy className="w-4 h-4 text-rose-400" />, label: "Leaderboard" },
+            { icon: <Globe className="w-4 h-4 text-blue-400" />, label: "Global raters" },
+            { icon: <Heart className="w-4 h-4 text-rose-400" />, label: "Follow chefs" },
+            { icon: <Trophy className="w-4 h-4 text-amber-400" />, label: "Leaderboard" },
           ].map(({ icon, label }) => (
             <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 border border-white/8 rounded-xl py-3 px-2">
               {icon}
@@ -144,7 +163,7 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
             ))}
           </div>
           <p className="text-white/40 text-xs font-semibold">
-            <span className="text-white font-black">{count > 0 ? `${count.toLocaleString()}` : "..."}</span> people already on the list
+            <span className="text-white font-black">{count > 0 ? `${count.toLocaleString()}` : "..."}</span> food lovers worldwide already waiting
           </p>
         </div>
 
