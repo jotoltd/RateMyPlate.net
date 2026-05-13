@@ -9,9 +9,9 @@ export default function NotFound() {
         <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/25">
           <Flame className="w-8 h-8 text-white" />
         </div>
-        <p className="text-8xl font-black text-white/5 mb-2 leading-none select-none">404</p>
-        <h1 className="text-2xl font-black text-white -mt-4 mb-3">Page not found</h1>
-        <p className="text-white/40 text-sm mb-8 max-w-xs mx-auto">
+        <p className="text-8xl font-black text-faintest mb-2 leading-none select-none">404</p>
+        <h1 className="text-2xl font-black text-app -mt-4 mb-3">Page not found</h1>
+        <p className="text-muted text-sm mb-8 max-w-xs mx-auto">
           This plate doesn&apos;t exist — or it got eaten. Either way, it&apos;s gone.
         </p>
         <Link

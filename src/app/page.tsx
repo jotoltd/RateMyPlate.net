@@ -22,17 +22,18 @@ export default async function Home({
   const { data: { user } } = await supabase.auth.getUser();
 
   let followingPlates: Plate[] = [];
+  let followedIds: string[] = [];
   if (activeTab === "following" && user) {
     const { data: follows } = await supabase
       .from("follows")
       .select("following_id")
       .eq("follower_id", user.id);
-    if (follows && follows.length > 0) {
-      const ids = follows.map((f) => f.following_id);
+    followedIds = (follows ?? []).map((f) => f.following_id);
+    if (followedIds.length > 0) {
       const { data } = await supabase
         .from("plates")
         .select("*, profiles(id, username, avatar_url)")
-        .in("user_id", ids)
+        .in("user_id", followedIds)
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
       followingPlates = (data ?? []) as Plate[];
@@ -64,6 +65,18 @@ export default async function Home({
       .limit(1)
       .single(),
   ]);
+
+  // Suggested chefs to follow (used on empty following tab)
+  const suggestedChefsRes = (activeTab === "following" && user && followingPlates.length === 0)
+    ? await supabase
+        .from("profiles")
+        .select("id, username, bio, avatar_url, follower_count, plate_count")
+        .neq("id", user.id)
+        .not("id", "in", `(${followedIds.length > 0 ? followedIds.join(",") : "''"})`)
+        .order("follower_count", { ascending: false })
+        .limit(6)
+    : { data: null };
+  const suggestedChefs = suggestedChefsRes.data ?? [];
 
   // Get spotlight chef's best plate
   const spotlightChef = spotlightChefData ?? null;
@@ -299,17 +312,47 @@ export default async function Home({
                 mode="following"
               />
             ) : (
-              <div className="text-center py-20 text-faint">
-                <Users className="w-14 h-14 mx-auto mb-4 opacity-30" />
-                <p className="text-lg font-medium">No plates from people you follow yet</p>
-                <p className="text-sm mt-1 mb-6">Follow chefs to see their plates here</p>
+              <div className="py-10 text-center">
+                <Users className="w-14 h-14 mx-auto mb-4 text-faint opacity-40" />
+                <p className="text-lg font-bold text-app mb-1">No plates yet</p>
+                <p className="text-sm text-muted mb-8">Follow chefs to see their plates here</p>
+
+                {suggestedChefs.length > 0 && (
+                  <div className="mb-10 text-left max-w-xl mx-auto">
+                    <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Suggested Chefs</p>
+                    <div className="space-y-2">
+                      {suggestedChefs.map((chef) => (
+                        <Link
+                          key={chef.id}
+                          href={`/profile/${chef.id}`}
+                          className="flex items-center gap-4 p-4 bg-surface-1 border border-app-1 rounded-2xl hover:border-orange-500/30 transition-all"
+                        >
+                          <div className="w-11 h-11 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 flex-shrink-0">
+                            {chef.avatar_url
+                              ? <Image src={chef.avatar_url} alt={chef.username} width={44} height={44} className="object-cover w-full h-full" />
+                              : <div className="w-full h-full flex items-center justify-center"><span className="text-white font-black text-base">{chef.username[0].toUpperCase()}</span></div>
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-app truncate">@{chef.username}</p>
+                            {chef.bio && <p className="text-xs text-muted truncate">{chef.bio}</p>}
+                          </div>
+                          <div className="text-xs text-faint flex-shrink-0">
+                            {chef.follower_count ?? 0} followers
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {topPlates && topPlates.length > 0 && (
-                  <>
-                    <p className="text-sm font-semibold text-faint mb-4">Suggested plates</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                  <div className="text-left max-w-2xl mx-auto">
+                    <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Top Rated Plates</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       {topPlates.map((p) => <PlateCard key={p.id} plate={p as Plate} />)}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             )
@@ -319,7 +362,7 @@ export default async function Home({
               category={activeCategory !== "all" ? activeCategory : undefined}
             />
           ) : (
-            <div className="text-center py-24 text-white/30">
+            <div className="text-center py-24 text-faint">
               <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-30" />
               <p className="text-lg font-medium">No plates in this category yet!</p>
               <Link

@@ -140,7 +140,7 @@ export default async function PlatePage({
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-2 text-white/30 hover:text-orange-400 transition-colors mb-6 text-sm font-medium"
+        className="inline-flex items-center gap-2 text-faint hover:text-orange-400 transition-colors mb-6 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to feed
@@ -163,11 +163,11 @@ export default async function PlatePage({
         {/* Info */}
         <div className="flex flex-col gap-5">
           <div>
-            <h1 className="text-3xl font-extrabold text-white mb-2 leading-tight">
+            <h1 className="text-3xl font-extrabold text-app mb-2 leading-tight">
               {plate.title}
             </h1>
             {plate.description && (
-              <p className="text-white/50 text-base leading-relaxed">
+              <p className="text-muted text-base leading-relaxed">
                 {plate.description}
               </p>
             )}
@@ -185,12 +185,12 @@ export default async function PlatePage({
             </div>
           )}
 
-        <div className="flex flex-wrap gap-4 text-sm text-white/40">
+        <div className="flex flex-wrap gap-4 text-sm text-muted">
             <div className="flex items-center gap-1.5">
               <User className="w-4 h-4" />
               <Link
                 href={`/profile/${plate.profiles?.id}`}
-                className="font-medium text-white/60 hover:text-orange-400"
+                className="font-medium text-muted hover:text-orange-400"
               >
                 {plate.profiles?.username ?? "Chef"}
               </Link>
@@ -266,11 +266,11 @@ export default async function PlatePage({
 
           {/* Rate it */}
           {user && user.id !== plate.user_id && (
-            <div className="bg-white/[0.03] border border-white/8 rounded-3xl p-5">
-              <h3 className="font-bold text-white mb-1">
+            <div className="bg-surface-1 border border-app-1 rounded-3xl p-5">
+              <h3 className="font-bold text-app mb-1">
                 {existingRating ? "Update Your Rating" : "Rate This Plate"}
               </h3>
-              <p className="text-xs text-white/30 mb-4">Your opinion matters</p>
+              <p className="text-xs text-faint mb-4">Your opinion matters</p>
               <RatingForm
                 plateId={plate.id}
                 existingRating={existingRating}
@@ -297,7 +297,7 @@ export default async function PlatePage({
 
           {!user && (
             <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-5 text-center">
-              <p className="text-white/50 text-sm mb-3">
+              <p className="text-muted text-sm mb-3">
                 Sign in to rate this plate
               </p>
               <Link
@@ -314,7 +314,7 @@ export default async function PlatePage({
       {/* Related plates */}
       {relatedPlates.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl font-bold text-white mb-5">
+          <h2 className="text-xl font-bold text-app mb-5">
             More {plate.category} plates
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -324,7 +324,7 @@ export default async function PlatePage({
       )}
 
       {/* Comments */}
-      <div className="bg-white/[0.02] rounded-3xl border border-white/5 p-6 mt-10">
+      <div className="bg-surface-1 rounded-3xl border border-app-1 p-6 mt-10">
         <CommentSection
           plateId={plate.id}
           comments={(comments ?? []) as Comment[]}
