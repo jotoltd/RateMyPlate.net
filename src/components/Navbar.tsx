@@ -3,9 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked } from "lucide-react";
+import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import UserMenu from "@/components/UserMenu";
 import { Notification } from "@/lib/types";
 
 type NavbarProps = {
@@ -57,7 +58,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
 
         {/* Desktop right */}
         <div className="hidden md:flex items-center gap-1">
-          {themeToggle}
+          {!user && themeToggle}
           <Link href="/trending" className="p-2 text-muted hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Trending">
             <Flame className="w-4 h-4" />
           </Link>
@@ -77,17 +78,13 @@ export default function Navbar({ user, username, notifications = [], themeToggle
                 <Upload className="w-3.5 h-3.5" />
                 Upload
               </Link>
-              <Link href={`/profile/${user.id}`} className="ml-1 flex-shrink-0" title={username ?? "Profile"}>
-                <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-sm hover:scale-105 transition-transform">
-                  {avatarUrl
-                    ? <img src={avatarUrl} alt={initial} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center"><span className="text-white text-xs font-black">{initial}</span></div>
-                  }
-                </div>
-              </Link>
-              <button onClick={handleSignOut} className="p-2 text-muted hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors" title="Sign out">
-                <LogOut className="w-4 h-4" />
-              </button>
+              <UserMenu
+                userId={user.id}
+                username={username ?? "chef"}
+                email={user.email}
+                avatarUrl={avatarUrl}
+                themeToggle={themeToggle}
+              />
             </>
           ) : (
             <>
@@ -149,6 +146,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               { href: "/saved", icon: <Bookmark className="w-4 h-4" />, label: "Saved Plates" },
               { href: "/collections", icon: <BookMarked className="w-4 h-4" />, label: "Collections" },
               { href: "/notifications", icon: <Bell className="w-4 h-4" />, label: "Notifications" },
+              { href: "/settings", icon: <Settings className="w-4 h-4" />, label: "Settings" },
             ] : []),
           ].map(({ href, icon, label }) => (
             <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted hover:text-app hover:bg-surface-1 text-sm font-medium">
