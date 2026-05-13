@@ -47,7 +47,14 @@ export async function uploadPlate(formData: FormData) {
   } = supabase.storage.from("plates").getPublicUrl(fileName);
 
   // Get AI rating — also validates it's actually food
-  const aiResult = await getAIRating(publicUrl, title, description);
+  let aiResult: { rating: number; comment: string; notFood?: boolean };
+  try {
+    aiResult = await getAIRating(publicUrl, title, description);
+  } catch (err) {
+    console.error("getAIRating failed:", err);
+    // Don't block the upload — fall back to a default
+    aiResult = { rating: 5, comment: "I couldn't get a proper look at this. Could be stunning, could be a disaster — the jury's out." };
+  }
 
   if (aiResult.notFood) {
     // Remove the uploaded image since we're rejecting the plate
@@ -91,11 +98,14 @@ async function getAIRating(
   }
 
   // Fetch image and convert to base64 with correct MIME type
-  const imgRes = await fetch(imageUrl);
+  const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(15000) });
   if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`);
   const imgBuffer = await imgRes.arrayBuffer();
-  const contentType = imgRes.headers.get("content-type") ?? "image/jpeg";
-  const mimeType = contentType.split(";")[0].trim();
+  const rawMime = imgRes.headers.get("content-type") ?? "image/jpeg";
+  const detectedMime = rawMime.split(";")[0].trim();
+  // Gemini only supports jpeg, png, gif, webp — normalise anything else to jpeg
+  const supportedMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  const mimeType = supportedMimes.includes(detectedMime) ? detectedMime : "image/jpeg";
   const base64 = Buffer.from(imgBuffer).toString("base64");
 
   const prompt = `You are Gordon Ramsay — the world's most brutally honest Michelin-star chef.
