@@ -21,11 +21,31 @@ export default function ConfirmPage() {
       const type = searchParams.get("type") as "email" | "recovery" | "invite" | null;
 
       if (tokenHash && type) {
-        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+        const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
         if (error) {
           setErrorMsg(error.message);
           setStatus("error");
         } else {
+          // Create profile if it doesn't exist yet
+          if (data.user) {
+            const username = data.user.user_metadata?.username as string | undefined;
+            const email = data.user.email ?? "";
+            if (username) {
+              await supabase.from("profiles").upsert({
+                id: data.user.id,
+                username,
+                email,
+                avatar_url: null,
+                bio: null,
+              });
+              // Fire welcome email (non-blocking)
+              fetch("/api/welcome-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, username }),
+              }).catch(() => {});
+            }
+          }
           setStatus("success");
           setTimeout(() => router.push("/"), 2500);
         }

@@ -11,31 +11,37 @@ export async function signUp(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const username = formData.get("username") as string;
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username } },
+      options: {
+        data: { username },
+        emailRedirectTo: `${SITE}/auth/confirm`,
+      },
     });
 
-    if (error) {
-      return { error: error.message };
-    }
+    if (error) return { error: error.message };
 
-    if (data.user) {
+    // If Supabase returns a session immediately it means email confirmation is
+    // disabled — create the profile and go straight in.
+    if (data.session) {
       await supabase.from("profiles").upsert({
-        id: data.user.id,
+        id: data.user!.id,
         username,
         email,
         avatar_url: null,
         bio: null,
       });
       sendWelcomeEmail(email, username).catch(() => {});
+      revalidatePath("/", "layout");
+      redirect("/");
     }
 
-    revalidatePath("/", "layout");
-    redirect("/");
+    // Email confirmation required — hold on check-email page
+    redirect(`/auth/check-email?email=${encodeURIComponent(email)}`);
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };
@@ -67,6 +73,17 @@ export async function signOut() {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function resendConfirmation(email: string) {
+  const supabase = await createClient();
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${SITE}/auth/confirm` },
+  });
+  return { success: true };
 }
 
 export async function forgotPassword(formData: FormData) {
