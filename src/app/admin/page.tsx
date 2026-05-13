@@ -48,7 +48,8 @@ export default async function AdminDashboard() {
             </p>
           </div>
         </div>
-        <form action={toggleMaintenanceMode.bind(null, !maintenanceOn)}>
+        <form action={toggleMaintenanceMode}>
+          <input type="hidden" name="enabled" value={maintenanceOn ? "false" : "true"} />
           <button
             type="submit"
             className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${maintenanceOn ? "bg-amber-500" : "bg-surface-2"}`}
