@@ -54,13 +54,13 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
   const review = REVIEWS[reviewIdx];
 
   return (
-    <div className="relative min-h-screen bg-[#080808] flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
+    <div className="rmp-bg relative min-h-screen bg-[#080808] flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
 
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-to-b from-orange-600/25 via-rose-600/10 to-transparent blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-700/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-rose-700/10 blur-3xl" />
+        <div className="rmp-glow-top absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-to-b from-orange-600/25 via-rose-600/10 to-transparent blur-3xl" />
+        <div className="rmp-glow-bl absolute bottom-0 left-0 w-80 h-80 bg-violet-700/10 blur-3xl" />
+        <div className="rmp-glow-br absolute bottom-0 right-0 w-80 h-80 bg-rose-700/10 blur-3xl" />
       </div>
 
       <style>{`
@@ -81,6 +81,23 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
           to { opacity: 1; transform: translateY(0); }
         }
         .fadein { animation: fadein 0.4s ease both; }
+
+        /* Light mode overrides */
+        @media (prefers-color-scheme: light) {
+          .rmp-bg { background: #f8f5f2 !important; }
+          .rmp-card { background: #ffffff !important; border-color: #e5e0d8 !important; }
+          .rmp-text-main { color: #1a1208 !important; }
+          .rmp-text-muted { color: #6b5e4e !important; }
+          .rmp-text-faint { color: #9c8878 !important; }
+          .rmp-glow-top { background: radial-gradient(ellipse at top, rgba(251,146,60,0.18) 0%, transparent 70%) !important; }
+          .rmp-input { background: #fff !important; border: 2px solid #d97706 !important; color: #1a1208 !important; }
+          .rmp-input::placeholder { color: #b08060 !important; }
+          .rmp-pill { background: rgba(249,115,22,0.12) !important; border-color: rgba(249,115,22,0.3) !important; }
+          .rmp-val { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.08) !important; }
+          .rmp-strip { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.06) !important; }
+          .rmp-logo-text { color: #1a1208 !important; }
+          .rmp-glow-bl, .rmp-glow-br { opacity: 0.15 !important; }
+        }
       `}</style>
 
       <div className="relative z-10 w-full max-w-md">
@@ -90,11 +107,11 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
           <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
             <ChefHat className="w-5 h-5 text-white" />
           </div>
-          <span className="font-black text-lg text-white">Rate My Plate</span>
+          <span className="rmp-logo-text font-black text-lg text-white">Rate My Plate</span>
         </div>
 
         {/* Live review ticker */}
-        <div key={reviewIdx} className="fadein bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 text-left">
+        <div key={reviewIdx} className="rmp-card fadein bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 text-left">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-rose-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <ChefHat className="w-3 h-3 text-white" />
@@ -146,7 +163,7 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
             { icon: <Heart className="w-4 h-4 text-rose-400" />, label: "Follow chefs" },
             { icon: <Trophy className="w-4 h-4 text-amber-400" />, label: "Leaderboard" },
           ].map(({ icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 border border-white/8 rounded-xl py-3 px-2">
+            <div key={label} className="rmp-val flex flex-col items-center gap-1.5 bg-white/4 border border-white/8 rounded-xl py-3 px-2">
               {icon}
               <span className="text-white/50 text-[10px] font-bold text-center leading-tight">{label}</span>
             </div>
@@ -196,8 +213,8 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoFocus
-                  placeholder="Enter your email..."
-                  className="flex-1 px-4 py-4 bg-white/6 border border-white/12 rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/70 transition-all"
+                  placeholder="your@email.com"
+                  className="rmp-input flex-1 px-4 py-4 bg-white/15 border-2 border-white/40 rounded-xl text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                 />
                 <button
                   type="submit"
