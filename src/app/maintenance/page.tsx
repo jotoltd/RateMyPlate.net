@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { joinWaitlist } from "@/app/actions/waitlist";
-import { ChefHat, Flame, Star, Users, Sparkles, ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import { ChefHat, Flame, Star, Users, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const FEATURES = [
   { icon: "🤖", label: "AI food critiques" },
@@ -32,13 +32,12 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-export default function MaintenancePage() {
-  const [name, setName] = useState("");
+export default function MaintenancePage({ initialCount = 0 }: { initialCount?: number }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0 });
+  const [count, setCount] = useState(initialCount);
   const [particlePos] = useState(() =>
     Array.from({ length: 20 }, () => ({
       x: Math.random() * 100,
@@ -49,21 +48,11 @@ export default function MaintenancePage() {
     }))
   );
 
-  // Countdown to next round hour
+  // Fetch real count on mount
   useEffect(() => {
-    function tick() {
-      const now = new Date();
-      const next = new Date(now);
-      next.setHours(next.getHours() + 1, 0, 0, 0);
-      const diff = Math.max(0, next.getTime() - now.getTime());
-      const h = Math.floor(diff / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      const s = Math.floor((diff % 60_000) / 1_000);
-      setCountdown({ h, m, s });
-    }
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
+    fetch("/api/waitlist-count").then(r => r.json()).then(d => {
+      if (d.count) setCount(d.count);
+    }).catch(() => {});
   }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,11 +60,10 @@ export default function MaintenancePage() {
     setError("");
     const fd = new FormData();
     fd.set("email", email);
-    fd.set("name", name);
     startTransition(async () => {
       const res = await joinWaitlist(fd);
       if (res?.error) setError(res.error);
-      else setDone(true);
+      else { setDone(true); setCount(c => c + 1); }
     });
   }
 
@@ -134,19 +122,19 @@ export default function MaintenancePage() {
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-8">
-          <Clock className="w-3 h-3" />
-          Back very soon
+          <Flame className="w-3 h-3" />
+          Launching very soon
         </div>
 
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl font-black leading-[0.95] mb-5">
-          <span className="text-white">We&rsquo;re cooking</span>
+          <span className="text-white">Get your food</span>
           <br />
-          <span className="shimmer-text">something big</span>
+          <span className="shimmer-text">brutally rated.</span>
         </h1>
 
         <p className="text-white/50 text-base sm:text-lg leading-relaxed mb-8 max-w-md mx-auto">
-          Rate My Plate is getting a major upgrade. Drop your email to be first in line when we&rsquo;re back — plus an exclusive early-access badge.
+          Upload your plate. Our AI — trained on Gordon Ramsay&rsquo;s harshest criticism — will tell you exactly how bad (or good) your cooking actually is.
         </p>
 
         {/* Feature pills */}
@@ -158,6 +146,21 @@ export default function MaintenancePage() {
           ))}
         </div>
 
+        {/* Social proof — above form for trust */}
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="flex -space-x-2">
+            {SOCIAL_PROOF.map((u) => (
+              <div key={u.name} className={`w-7 h-7 rounded-full bg-gradient-to-br ${u.color} border-2 border-[#080808] flex items-center justify-center`}>
+                <span className="text-white text-[10px] font-black">{u.avatar}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-white/40 text-xs font-semibold">
+            <span className="text-white font-black">{count > 0 ? `${count}+` : "Join"}</span> {count > 0 ? "people on the list" : "the waitlist"}
+          </p>
+          <Users className="w-3.5 h-3.5 text-white/30" />
+        </div>
+
         {/* Lead capture */}
         <div className="bg-white/5 border border-white/8 rounded-3xl p-6 sm:p-8 backdrop-blur-sm mb-8">
           {done ? (
@@ -167,7 +170,7 @@ export default function MaintenancePage() {
               </div>
               <div>
                 <p className="text-xl font-black text-white">You&rsquo;re on the list! 🎉</p>
-                <p className="text-white/50 text-sm mt-1">We&rsquo;ll hit you up the moment we&rsquo;re live.</p>
+                <p className="text-white/50 text-sm mt-1">We&rsquo;ll email you the moment we go live.</p>
               </div>
               <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold px-4 py-2 rounded-full">
                 <Star className="w-3.5 h-3.5 fill-orange-400" />
@@ -178,67 +181,34 @@ export default function MaintenancePage() {
             <>
               <p className="text-sm font-bold text-white/60 uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
                 <Sparkles className="w-4 h-4 text-orange-400" />
-                Get early access
+                Claim your spot — free
               </p>
               <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name (optional)"
-                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/25 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/25 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                    placeholder="your@email.com"
+                    className="flex-1 px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/25 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-400 hover:to-rose-400 text-white font-black px-5 py-4 rounded-xl text-sm transition-all disabled:opacity-50 shadow-xl shadow-orange-500/30 active:scale-[0.98] whitespace-nowrap"
+                  >
+                    {isPending ? "…" : <><ArrowRight className="w-4 h-4" /></>}
+                  </button>
+                </div>
                 {error && (
                   <p className="text-rose-400 text-xs font-semibold text-left px-1">{error}</p>
                 )}
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-400 hover:to-rose-400 text-white font-black py-4 rounded-xl text-base transition-all disabled:opacity-50 shadow-xl shadow-orange-500/30 active:scale-[0.98]"
-                >
-                  <Flame className="w-4 h-4" />
-                  {isPending ? "Saving your spot…" : "Notify me when we're live"}
-                  {!isPending && <ArrowRight className="w-4 h-4" />}
-                </button>
               </form>
-              <p className="text-white/20 text-xs mt-3">No spam. One email only. Unsubscribe anytime.</p>
+              <p className="text-white/20 text-xs mt-3">No spam. One email when we launch. That&rsquo;s it.</p>
             </>
           )}
-        </div>
-
-        {/* Countdown */}
-        <div className="mb-8">
-          <p className="text-white/30 text-xs font-bold uppercase tracking-widest mb-4">Back online in approximately</p>
-          <div className="flex items-center justify-center gap-3">
-            <CountdownUnit value={countdown.h} label="hrs" />
-            <span className="text-2xl font-black text-white/20 mb-4">:</span>
-            <CountdownUnit value={countdown.m} label="min" />
-            <span className="text-2xl font-black text-white/20 mb-4">:</span>
-            <CountdownUnit value={countdown.s} label="sec" />
-          </div>
-        </div>
-
-        {/* Social proof */}
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex -space-x-2">
-            {SOCIAL_PROOF.map((u) => (
-              <div key={u.name} className={`w-7 h-7 rounded-full bg-gradient-to-br ${u.color} border-2 border-[#080808] flex items-center justify-center`}>
-                <span className="text-white text-[10px] font-black">{u.avatar}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-white/40 text-xs font-semibold">
-            <span className="text-white font-black">247+</span> chefs already waiting
-          </p>
-          <Users className="w-3.5 h-3.5 text-white/30" />
         </div>
       </div>
     </div>
