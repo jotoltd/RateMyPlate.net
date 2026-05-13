@@ -41,9 +41,17 @@ export default async function TrendingPage({
   const { data: plates } = await query
     .order("like_count", { ascending: false })
     .order("rating_count", { ascending: false })
+    .order("view_count", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(25);
 
-  const allPlates = plates ?? [];
+  // Client-side hot score: likes*3 + ratings*2 + views*0.1, decayed by age
+  const scored = (plates ?? []).map((p) => {
+    const ageHours = (Date.now() - new Date(p.created_at).getTime()) / 3_600_000;
+    const decay = 1 / (1 + ageHours / 48);
+    const hot = ((p.like_count ?? 0) * 3 + (p.rating_count ?? 0) * 2) * decay;
+    return { ...p, hot };
+  }).sort((a, b) => b.hot - a.hot);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -98,7 +106,7 @@ export default async function TrendingPage({
         ))}
       </div>
 
-      {allPlates.length === 0 ? (
+      {scored.length === 0 ? (
         <div className="text-center py-20 text-faint">
           <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">Nothing trending yet</p>
@@ -112,7 +120,7 @@ export default async function TrendingPage({
         </div>
       ) : (
         <div className="space-y-2">
-          {allPlates.map((plate, i) => {
+          {scored.map((plate, i) => {
             const prof = plate.profiles as unknown as { id: string; username: string } | null;
             const rating = plate.avg_user_rating ?? plate.ai_rating;
             const isHot = i === 0;

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { sanitise } from "@/lib/sanitise";
+import { sendNotifEmail } from "@/lib/sendNotifEmail";
 
 export async function uploadPlate(formData: FormData) {
   const supabase = await createClient();
@@ -199,6 +200,16 @@ export async function submitRating(
       actor_id: user.id,
       type: "rating",
       plate_id: plateId,
+    });
+    const actorRes = await supabase.from("profiles").select("username").eq("id", user.id).single();
+    const plateInfoRes = await supabase.from("plates").select("title").eq("id", plateId).single();
+    sendNotifEmail({
+      recipientUserId: plate.user_id,
+      actorUserId: user.id,
+      actorUsername: actorRes.data?.username ?? "Someone",
+      type: "rating",
+      plateTitle: plateInfoRes.data?.title,
+      plateId,
     });
   }
 

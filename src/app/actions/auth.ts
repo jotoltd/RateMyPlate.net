@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { createClient } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -23,13 +24,13 @@ export async function signUp(formData: FormData) {
     }
 
     if (data.user) {
-      // Non-fatal: profile table may not exist yet during initial setup
       await supabase.from("profiles").upsert({
         id: data.user.id,
         username,
         avatar_url: null,
         bio: null,
       });
+      sendWelcomeEmail(email, username).catch(() => {});
     }
 
     revalidatePath("/", "layout");

@@ -1,27 +1,10 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Bell, Heart, MessageSquare, Star, CornerDownRight, Users, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { markAllRead } from "@/app/actions/notifications";
-import { formatDate } from "@/lib/utils";
+import NotificationItem from "./NotificationItem";
 
 export const metadata = { title: "Notifications – Rate My Plate" };
-
-const icons: Record<string, React.ReactNode> = {
-  like: <Heart className="w-4 h-4 text-rose-500 fill-rose-400" />,
-  comment: <MessageSquare className="w-4 h-4 text-blue-500" />,
-  rating: <Star className="w-4 h-4 text-amber-400 fill-amber-400" />,
-  reply: <CornerDownRight className="w-4 h-4 text-orange-500" />,
-  follow: <Users className="w-4 h-4 text-violet-500" />,
-};
-
-const messages: Record<string, string> = {
-  like: "liked your plate",
-  comment: "commented on your plate",
-  rating: "rated your plate",
-  reply: "replied to your comment",
-  follow: "started following you",
-};
 
 export default async function NotificationsPage() {
   const supabase = await createClient();
@@ -76,60 +59,17 @@ export default async function NotificationsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {notifs.map((n) => {
-            const actor = n.actor as { id: string; username: string; avatar_url?: string } | null;
-            const plate = n.plate as { id: string; title: string; image_url: string } | null;
-            return (
-              <Link
-                key={n.id}
-                href={plate ? `/plate/${plate.id}` : actor ? `/profile/${actor.id}` : "/"}
-                className={`flex items-start gap-4 p-4 rounded-3xl border transition-all hover:border-orange-500/30 ${
-                  !n.read
-                    ? "bg-orange-500/5 border-orange-500/20 border-l-2 border-l-orange-500"
-                    : "bg-surface-1 border-app-1"
-                }`}
-              >
-                {/* Avatar */}
-                <div className="relative w-11 h-11 flex-shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-md">
-                  {actor?.avatar_url ? (
-                    <img src={actor.avatar_url} alt={actor.username} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-white font-bold text-base">
-                        {(actor?.username ?? "?")[0].toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-nav rounded-full flex items-center justify-center">
-                    {icons[n.type] ?? <Bell className="w-3 h-3 text-gray-400" />}
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-app">
-                    <span className="font-bold">{actor?.username ?? "Someone"}</span>{" "}
-                    {messages[n.type] ?? "interacted with you"}
-                    {plate && (
-                      <span className="font-semibold text-orange-500"> "{plate.title}"</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-faint mt-0.5">{formatDate(n.created_at)}</p>
-                </div>
-
-                {/* Plate thumbnail */}
-                {plate && (
-                  <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-surface-2">
-                    <img src={plate.image_url} alt={plate.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-
-                {!n.read && (
-                  <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0 mt-2" />
-                )}
-              </Link>
-            );
-          })}
+          {notifs.map((n) => (
+            <NotificationItem
+              key={n.id}
+              id={n.id}
+              read={n.read}
+              type={n.type}
+              created_at={n.created_at}
+              actor={n.actor as { id: string; username: string; avatar_url?: string } | null}
+              plate={n.plate as { id: string; title: string; image_url: string } | null}
+            />
+          ))}
         </div>
       )}
     </div>

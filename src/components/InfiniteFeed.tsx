@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition, useCallback, useEffect, useRef } from "react";
+import { ArrowUp } from "lucide-react";
 import PlateCard from "@/components/PlateCard";
 import FeedPost from "@/components/FeedPost";
 import { PlateCardSkeleton } from "@/components/Skeleton";
 import { Plate, Comment } from "@/lib/types";
 import { loadMorePlates, loadFollowingFeed } from "@/app/actions/feed";
+import { createClient } from "@/lib/supabase/client";
 
 const PAGE_SIZE = 12;
 
@@ -39,6 +41,7 @@ export default function InfiniteFeed({
   const [ratingMap, setRatingMap] = useState<Record<string, number>>(initialRatingMap);
   const [commentMap, setCommentMap] = useState<Record<string, Comment[]>>(initialCommentMap);
   const [followingIds] = useState<string[]>(initialFollowingIds);
+  const [newPlateCount, setNewPlateCount] = useState(0);
   const [offset, setOffset] = useState(initialPlates.length);
   const [hasMore, setHasMore] = useState(initialPlates.length === PAGE_SIZE);
   const [isPending, startTransition] = useTransition();
@@ -72,6 +75,19 @@ export default function InfiniteFeed({
     return () => observer.disconnect();
   }, [loadMore]);
 
+  // Realtime: notify when new plates are uploaded
+  useEffect(() => {
+    if (variant !== "feed" || mode === "following") return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel("feed-new-plates")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "plates" }, () => {
+        setNewPlateCount((n) => n + 1);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [variant, mode]);
+
   if (variant === "grid") {
     return (
       <div>
@@ -87,8 +103,23 @@ export default function InfiniteFeed({
     );
   }
 
+  function handleRefresh() {
+    setNewPlateCount(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.location.reload();
+  }
+
   return (
     <div className="max-w-[680px] mx-auto space-y-4">
+      {newPlateCount > 0 && (
+        <button
+          onClick={handleRefresh}
+          className="w-full flex items-center justify-center gap-2 py-2.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 rounded-2xl text-sm font-bold hover:bg-orange-500/20 transition-all animate-in fade-in slide-in-from-top-2"
+        >
+          <ArrowUp className="w-4 h-4" />
+          {newPlateCount} new {newPlateCount === 1 ? "plate" : "plates"} — tap to refresh
+        </button>
+      )}
       {plates.map((plate) => (
       <FeedPost
         key={plate.id}

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotifEmail } from "@/lib/sendNotifEmail";
 
 export async function toggleLike(plateId: string, ownerId: string) {
   const supabase = await createClient();
@@ -42,13 +43,24 @@ export async function toggleLike(plateId: string, ownerId: string) {
       .update({ like_count: (plate?.like_count ?? 0) + 1 })
       .eq("id", plateId);
 
-    // Notify plate owner (skip self-like)
     if (user.id !== ownerId) {
       await supabase.from("notifications").insert({
         user_id: ownerId,
         actor_id: user.id,
         type: "like",
         plate_id: plateId,
+      });
+      const [actorRes, plateRes] = await Promise.all([
+        supabase.from("profiles").select("username").eq("id", user.id).single(),
+        supabase.from("plates").select("title").eq("id", plateId).single(),
+      ]);
+      sendNotifEmail({
+        recipientUserId: ownerId,
+        actorUserId: user.id,
+        actorUsername: actorRes.data?.username ?? "Someone",
+        type: "like",
+        plateTitle: plateRes.data?.title,
+        plateId,
       });
     }
   }

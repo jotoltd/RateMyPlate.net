@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotifEmail } from "@/lib/sendNotifEmail";
 
 export async function toggleFollow(targetUserId: string) {
   const supabase = await createClient();
@@ -34,8 +35,15 @@ export async function toggleFollow(targetUserId: string) {
     await supabase.from("notifications").insert({
       user_id: targetUserId,
       actor_id: user.id,
-      type: "comment",
+      type: "follow",
       plate_id: null,
+    });
+    const actorRes = await supabase.from("profiles").select("username").eq("id", user.id).single();
+    sendNotifEmail({
+      recipientUserId: targetUserId,
+      actorUserId: user.id,
+      actorUsername: actorRes.data?.username ?? "Someone",
+      type: "follow",
     });
   }
 

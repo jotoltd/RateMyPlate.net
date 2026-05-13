@@ -64,7 +64,7 @@ export default async function RootLayout({
         <footer className="border-t border-nav bg-nav py-6 text-center text-sm text-faintest hidden md:block">
           {new Date().getFullYear()} Rate My Plate — Share the love of food
         </footer>
-        <MobileNav userId={user?.id} />
+        <MobileNav userId={user?.id} unreadCount={(notifications as {read?: boolean}[]).filter((n) => !n.read).length} />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sanitise } from "@/lib/sanitise";
+import { sendNotifEmail } from "@/lib/sendNotifEmail";
 
 export async function addComment(
   plateId: string,
@@ -41,30 +42,27 @@ export async function addComment(
 
   if (error) return { error: error.message };
 
-  // Notify plate owner on comment (not self)
-  const { data: plate } = await supabase
-    .from("plates")
-    .select("user_id")
-    .eq("id", plateId)
-    .single();
+  const [actorRes, fullPlateRes] = await Promise.all([
+    supabase.from("profiles").select("username").eq("id", user.id).single(),
+    supabase.from("plates").select("user_id, title").eq("id", plateId).single(),
+  ]);
+  const actorUsername = actorRes.data?.username ?? "Someone";
+  const plateTitle = fullPlateRes.data?.title;
+  const plateOwnerId = fullPlateRes.data?.user_id;
 
-  if (plate && plate.user_id !== user.id) {
+  if (plateOwnerId && plateOwnerId !== user.id) {
     await supabase.from("notifications").insert({
-      user_id: plate.user_id,
+      user_id: plateOwnerId,
       actor_id: user.id,
       type: "comment",
       plate_id: plateId,
       comment_id: newComment.id,
     });
+    sendNotifEmail({ recipientUserId: plateOwnerId, actorUserId: user.id, actorUsername, type: "comment", plateTitle, plateId });
   }
 
-  // Notify parent comment author on reply (not self)
   if (parentId) {
-    const { data: parent } = await supabase
-      .from("comments")
-      .select("user_id")
-      .eq("id", parentId)
-      .single();
+    const { data: parent } = await supabase.from("comments").select("user_id").eq("id", parentId).single();
     if (parent && parent.user_id !== user.id) {
       await supabase.from("notifications").insert({
         user_id: parent.user_id,
@@ -73,6 +71,7 @@ export async function addComment(
         plate_id: plateId,
         comment_id: newComment.id,
       });
+      sendNotifEmail({ recipientUserId: parent.user_id, actorUserId: user.id, actorUsername, type: "reply", plateTitle, plateId });
     }
   }
 
