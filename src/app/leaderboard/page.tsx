@@ -65,13 +65,13 @@ export default async function LeaderboardPage({
           <Trophy className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Leaderboard</h1>
-          <p className="text-sm text-white/40">The best plates on the platform</p>
+          <h1 className="text-2xl font-bold text-app">Leaderboard</h1>
+          <p className="text-sm text-muted">The best plates on the platform</p>
         </div>
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-white/5 rounded-2xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-surface-1 rounded-2xl p-1 mb-6 w-fit">
         {[
           { key: "rated", icon: <Star className="w-3.5 h-3.5" />, label: "Top Rated" },
           { key: "liked", icon: <Heart className="w-3.5 h-3.5" />, label: "Most Liked" },
@@ -83,7 +83,7 @@ export default async function LeaderboardPage({
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
               activeTab === key
                 ? "bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-sm"
-                : "text-white/40 hover:text-white/70"
+                : "text-muted hover:text-app"
             }`}
           >
             {icon}{label}
@@ -96,7 +96,7 @@ export default async function LeaderboardPage({
         <Link
           href={`/leaderboard?tab=${activeTab}`}
           className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-colors ${
-            activeCategory === "all" ? "bg-orange-500 text-white" : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
+            activeCategory === "all" ? "bg-orange-500 text-white" : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
           }`}
         >
           All
@@ -106,7 +106,7 @@ export default async function LeaderboardPage({
             key={cat}
             href={`/leaderboard?tab=${activeTab}&category=${cat}`}
             className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-colors capitalize ${
-              activeCategory === cat ? "bg-orange-500 text-white" : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
+              activeCategory === cat ? "bg-orange-500 text-white" : "bg-surface-1 text-muted hover:text-app hover:bg-surface-2"
             }`}
           >
             {cat}
@@ -115,7 +115,7 @@ export default async function LeaderboardPage({
       </div>
 
       {list.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <Trophy className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">Nothing ranked yet</p>
           <p className="text-sm mt-1">Be the first to upload in this category!</p>
@@ -143,16 +143,16 @@ export default async function LeaderboardPage({
                   <Link
                     key={plate.id}
                     href={`/plate/${plate.id}`}
-                    className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl border bg-white/[0.03] hover:bg-white/5 transition-all shadow-lg ${podiumGlow[realRank - 1]} ${realRank === 1 ? "pb-6 pt-6" : "pb-4 pt-4"}`}
+                    className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl border bg-surface-1 hover:bg-surface-2 transition-all shadow-lg ${podiumGlow[realRank - 1]} ${realRank === 1 ? "pb-6 pt-6" : "pb-4 pt-4"}`}
                   >
                     {realRank === 1 && <Crown className="w-5 h-5 text-amber-400 mb-1" />}
                     <div className={`relative ${podiumSize[realRank - 1] ?? "w-16 h-16"} rounded-2xl overflow-hidden shadow-lg flex-shrink-0`}>
                       <Image src={plate.image_url} alt={plate.title} fill className="object-cover" sizes="96px" />
                     </div>
                     <span className="text-lg">{podiumLabel[realRank - 1].split(" ")[0]}</span>
-                    <p className="text-xs font-bold text-white text-center line-clamp-2 leading-tight">{plate.title}</p>
-                    <p className="text-[10px] text-white/30">@{prof?.username ?? "chef"}</p>
-                    <div className="mt-1 px-2.5 py-1 rounded-lg bg-white/5 text-xs font-bold text-orange-400">{stat}</div>
+                    <p className="text-xs font-bold text-app text-center line-clamp-2 leading-tight">{plate.title}</p>
+                    <p className="text-[10px] text-faint">@{prof?.username ?? "chef"}</p>
+                    <div className="mt-1 px-2.5 py-1 rounded-lg bg-surface-2 text-xs font-bold text-orange-400">{stat}</div>
                   </Link>
                 );
               })}
@@ -169,15 +169,15 @@ export default async function LeaderboardPage({
                   <Link
                     key={plate.id}
                     href={`/plate/${plate.id}`}
-                    className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-2xl border border-white/5 hover:border-orange-500/30 hover:bg-white/5 transition-all group"
+                    className="flex items-center gap-4 p-4 bg-surface-1 rounded-2xl border border-app-1 hover:border-orange-500/30 hover:bg-surface-2 transition-all group"
                   >
-                    <span className="w-7 text-center text-sm font-bold text-white/20 flex-shrink-0">{rank}</span>
-                    <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-white/5">
+                    <span className="w-7 text-center text-sm font-bold text-faintest flex-shrink-0">{rank}</span>
+                    <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-surface-2">
                       <Image src={plate.image_url} alt={plate.title} fill className="object-cover" sizes="48px" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-white truncate group-hover:text-orange-400 transition-colors text-sm">{plate.title}</p>
-                      <p className="text-xs text-white/30">@{prof?.username ?? "chef"}</p>
+                      <p className="font-semibold text-app truncate group-hover:text-orange-400 transition-colors text-sm">{plate.title}</p>
+                      <p className="text-xs text-faint">@{prof?.username ?? "chef"}</p>
                     </div>
                     <div className="flex-shrink-0">
                       {activeTab === "rated" && plate.avg_user_rating && (

@@ -36,7 +36,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
-          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-200/60 dark:shadow-none group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-200/60 group-hover:scale-105 transition-transform">
             <ChefHat className="w-4 h-4 text-white" />
           </div>
           <span className="font-black text-base text-fire hidden sm:block">
@@ -58,21 +58,21 @@ export default function Navbar({ user, username, notifications = [], themeToggle
         {/* Desktop right */}
         <div className="hidden md:flex items-center gap-1">
           {themeToggle}
-          <Link href="/trending" className="p-2 text-white/40 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Trending">
+          <Link href="/trending" className="p-2 text-muted hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Trending">
             <Flame className="w-4 h-4" />
           </Link>
           {user ? (
             <>
-              <Link href="/saved" className="p-2 text-white/40 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Saved">
+              <Link href="/saved" className="p-2 text-muted hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Saved">
                 <Bookmark className="w-4 h-4" />
               </Link>
-              <Link href="/collections" className="p-2 text-white/40 hover:text-violet-400 hover:bg-violet-500/10 rounded-xl transition-colors" title="Collections">
+              <Link href="/collections" className="p-2 text-muted hover:text-violet-400 hover:bg-violet-500/10 rounded-xl transition-colors" title="Collections">
                 <BookMarked className="w-4 h-4" />
               </Link>
               <NotificationBell notifications={notifications} userId={userId} />
               <Link
                 href="/upload"
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-orange-200/50 dark:shadow-none ml-1"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-orange-200/50 ml-1"
               >
                 <Upload className="w-3.5 h-3.5" />
                 Upload
@@ -94,7 +94,7 @@ export default function Navbar({ user, username, notifications = [], themeToggle
               <Link href="/auth/login" className="text-sm font-semibold text-muted hover:text-app px-3 py-1.5 rounded-xl hover:bg-surface-1 transition-colors ml-1">
                 Sign in
               </Link>
-              <Link href="/auth/signup" className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md shadow-orange-200/50 dark:shadow-none">
+              <Link href="/auth/signup" className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md shadow-orange-200/50">
                 Get Started
               </Link>
             </>

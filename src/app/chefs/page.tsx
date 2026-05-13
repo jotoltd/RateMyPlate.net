@@ -43,13 +43,13 @@ export default async function ChefsPage() {
           <Users className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Discover Chefs</h1>
-          <p className="text-sm text-white/40">Find talented food creators to follow</p>
+          <h1 className="text-2xl font-bold text-app">Discover Chefs</h1>
+          <p className="text-sm text-muted">Find talented food creators to follow</p>
         </div>
       </div>
 
       {chefs.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-medium">No chefs yet</p>
         </div>
@@ -62,7 +62,7 @@ export default async function ChefsPage() {
               <Link
                 key={chef.id}
                 href={`/profile/${chef.id}`}
-                className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-3xl border border-white/5 hover:border-orange-500/30 hover:bg-white/5 transition-all group"
+                className="flex items-center gap-4 p-4 bg-surface-1 rounded-3xl border border-app-1 hover:border-orange-500/30 hover:bg-surface-2 transition-all group"
               >
                 <div className="relative w-14 h-14 flex-shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500 shadow-md">
                   {chef.avatar_url ? (
@@ -74,16 +74,16 @@ export default async function ChefsPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white group-hover:text-orange-400 transition-colors truncate">
+                  <p className="font-bold text-app group-hover:text-orange-400 transition-colors truncate">
                     @{chef.username}
                     {isOwn && <span className="ml-2 text-[10px] font-bold bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full">You</span>}
                   </p>
                   {chef.bio && (
-                    <p className="text-xs text-white/40 line-clamp-1 mt-0.5">{chef.bio}</p>
+                    <p className="text-xs text-muted line-clamp-1 mt-0.5">{chef.bio}</p>
                   )}
                   <div className="flex items-center gap-3 mt-1.5">
                     {stats?.plates > 0 && (
-                      <span className="flex items-center gap-1 text-xs text-white/30">
+                      <span className="flex items-center gap-1 text-xs text-faint">
                         <Upload className="w-3 h-3" />
                         {stats.plates}
                       </span>
@@ -100,7 +100,7 @@ export default async function ChefsPage() {
                         {scoreToStars(stats.avgRating).toFixed(1)}
                       </span>
                     )}
-                    <span className="text-xs text-white/30 ml-auto">
+                    <span className="text-xs text-faint ml-auto">
                       {chef.follower_count ?? 0} followers
                     </span>
                   </div>

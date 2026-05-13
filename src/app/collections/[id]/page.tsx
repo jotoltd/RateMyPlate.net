@@ -32,7 +32,7 @@ export default async function CollectionDetailPage({ params }: { params: Promise
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <Link href="/collections" className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-orange-400 mb-6 transition-colors">
+      <Link href="/collections" className="inline-flex items-center gap-2 text-sm text-faint hover:text-orange-400 mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> My Collections
       </Link>
 
@@ -41,14 +41,14 @@ export default async function CollectionDetailPage({ params }: { params: Promise
           <BookMarked className="w-6 h-6 text-violet-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-white">{collection.name}</h1>
-          {collection.description && <p className="text-white/40 text-sm mt-1">{collection.description}</p>}
-          <p className="text-xs text-white/20 mt-1">{plates.length} {plates.length === 1 ? "plate" : "plates"}</p>
+          <h1 className="text-2xl font-black text-app">{collection.name}</h1>
+          {collection.description && <p className="text-muted text-sm mt-1">{collection.description}</p>}
+          <p className="text-xs text-faint mt-1">{plates.length} {plates.length === 1 ? "plate" : "plates"}</p>
         </div>
       </div>
 
       {plates.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <BookMarked className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">No plates in this collection yet</p>
           <p className="text-sm mt-1">Add plates from their detail page</p>

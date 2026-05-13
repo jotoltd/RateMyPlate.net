@@ -29,13 +29,13 @@ export default async function SavedPage() {
           <Bookmark className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Saved Plates</h1>
-          <p className="text-sm text-white/40">{plates.length} plate{plates.length !== 1 ? "s" : ""} saved</p>
+          <h1 className="text-2xl font-bold text-app">Saved Plates</h1>
+          <p className="text-sm text-muted">{plates.length} plate{plates.length !== 1 ? "s" : ""} saved</p>
         </div>
       </div>
 
       {plates.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <Bookmark className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium text-lg">No saved plates yet</p>
           <p className="text-sm mt-1 mb-6">Tap the bookmark on any plate to save it here</p>

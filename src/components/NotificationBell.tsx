@@ -93,7 +93,7 @@ export default function NotificationBell({
     <div ref={ref} className="relative">
       <button
         onClick={handleOpen}
-        className="relative p-2 rounded-xl hover:bg-orange-500/10 transition-colors text-white/40 hover:text-orange-400"
+        className="relative p-2 rounded-xl hover:bg-orange-500/10 transition-colors text-muted hover:text-orange-400"
       >
         <Bell className="w-5 h-5" />
         {unread > 0 && (
@@ -104,9 +104,9 @@ export default function NotificationBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-[#141414] rounded-2xl shadow-2xl border border-white/10 overflow-hidden z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-            <span className="font-bold text-white text-sm">Notifications</span>
+        <div className="absolute right-0 mt-2 w-80 bg-app rounded-2xl shadow-2xl border border-app-1 overflow-hidden z-50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-app-1">
+            <span className="font-bold text-app text-sm">Notifications</span>
             {notifications.length > 0 && (
               <button
                 onClick={() => { startTransition(() => markAllRead()); setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))); }}
@@ -118,9 +118,9 @@ export default function NotificationBell({
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto divide-y divide-white/5">
+          <div className="max-h-96 overflow-y-auto divide-y divide-app-1">
             {notifications.length === 0 ? (
-              <p className="text-sm text-white/30 text-center py-8">
+              <p className="text-sm text-faint text-center py-8">
                 No notifications yet
               </p>
             ) : (
@@ -129,7 +129,7 @@ export default function NotificationBell({
                   key={n.id}
                   href={n.plate_id ? `/plate/${n.plate_id}` : "/"}
                   onClick={() => setOpen(false)}
-                  className={`flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors ${
+                  className={`flex items-start gap-3 px-4 py-3 hover:bg-surface-2 transition-colors ${
                     !n.read ? "bg-orange-500/5 border-l-2 border-orange-500" : ""
                   }`}
                 >
@@ -137,8 +137,8 @@ export default function NotificationBell({
                     {(n.actor?.username ?? "?")[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/80">
-                      <span className="font-semibold text-white">
+                    <p className="text-sm text-muted">
+                      <span className="font-semibold text-app">
                         {n.actor?.username ?? "Someone"}
                       </span>{" "}
                       {messages[n.type]}
@@ -148,7 +148,7 @@ export default function NotificationBell({
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-white/30 mt-0.5">
+                    <p className="text-xs text-faint mt-0.5">
                       {formatDate(n.created_at)}
                     </p>
                   </div>

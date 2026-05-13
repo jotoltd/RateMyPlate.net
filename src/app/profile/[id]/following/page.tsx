@@ -38,7 +38,7 @@ export default async function FollowingPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <Link href={`/profile/${id}`} className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-orange-400 mb-6 transition-colors">
+      <Link href={`/profile/${id}`} className="inline-flex items-center gap-2 text-sm text-faint hover:text-orange-400 mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> @{profile.username}
       </Link>
 
@@ -47,20 +47,20 @@ export default async function FollowingPage({ params }: { params: Promise<{ id: 
           <UserPlus className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-black text-white">Following</h1>
-          <p className="text-sm text-white/40">@{profile.username} follows {following.length} {following.length === 1 ? "chef" : "chefs"}</p>
+          <h1 className="text-xl font-black text-app">Following</h1>
+          <p className="text-sm text-muted">@{profile.username} follows {following.length} {following.length === 1 ? "chef" : "chefs"}</p>
         </div>
       </div>
 
       {following.length === 0 ? (
-        <div className="text-center py-20 text-white/30">
+        <div className="text-center py-20 text-faint">
           <UserPlus className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="font-medium">Not following anyone yet</p>
         </div>
       ) : (
         <div className="space-y-3">
           {following.map((f) => (
-            <div key={f.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+            <div key={f.id} className="flex items-center gap-4 p-4 rounded-2xl bg-surface-1 border border-app-1 hover:border-app-2 transition-colors">
               <Link href={`/profile/${f.id}`} className="flex-shrink-0">
                 <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-400 to-rose-500">
                   {f.avatar_url
@@ -70,8 +70,8 @@ export default async function FollowingPage({ params }: { params: Promise<{ id: 
                 </div>
               </Link>
               <div className="flex-1 min-w-0">
-                <Link href={`/profile/${f.id}`} className="font-bold text-white hover:text-orange-400 transition-colors">@{f.username}</Link>
-                {f.bio && <p className="text-xs text-white/40 truncate mt-0.5">{f.bio}</p>}
+                <Link href={`/profile/${f.id}`} className="font-bold text-app hover:text-orange-400 transition-colors">@{f.username}</Link>
+                {f.bio && <p className="text-xs text-muted truncate mt-0.5">{f.bio}</p>}
               </div>
               {user && user.id !== f.id && (
                 <FollowButton

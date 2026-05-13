@@ -22,9 +22,9 @@ export default function Error({
         <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
           <AlertTriangle className="w-8 h-8 text-red-400" />
         </div>
-        <p className="text-8xl font-black text-white/5 mb-2 leading-none select-none">500</p>
-        <h1 className="text-2xl font-black text-white -mt-4 mb-3">Something went wrong</h1>
-        <p className="text-white/40 text-sm mb-8 max-w-xs mx-auto">
+        <p className="text-8xl font-black text-faintest mb-2 leading-none select-none">500</p>
+        <h1 className="text-2xl font-black text-app -mt-4 mb-3">Something went wrong</h1>
+        <p className="text-muted text-sm mb-8 max-w-xs mx-auto">
           An unexpected error occurred. Try refreshing or head back to the feed.
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -37,7 +37,7 @@ export default function Error({
           </button>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/60 px-6 py-3 rounded-xl font-bold hover:bg-white/10 transition-colors"
+            className="inline-flex items-center gap-2 bg-surface-1 border border-app-1 text-muted px-6 py-3 rounded-xl font-bold hover:bg-surface-2 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to feed
