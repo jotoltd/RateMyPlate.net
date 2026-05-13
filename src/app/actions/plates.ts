@@ -46,8 +46,14 @@ export async function uploadPlate(formData: FormData) {
     data: { publicUrl },
   } = supabase.storage.from("plates").getPublicUrl(fileName);
 
-  // Get AI rating
+  // Get AI rating — also validates it's actually food
   const aiResult = await getAIRating(publicUrl, title, description);
+
+  if (aiResult.notFood) {
+    // Remove the uploaded image since we're rejecting the plate
+    await supabase.storage.from("plates").remove([fileName]);
+    return { error: "That doesn't look like food. Ramsay says: get out of his kitchen." };
+  }
 
   const { data: plate, error: dbError } = await supabase
     .from("plates")
@@ -73,65 +79,9 @@ async function getAIRating(
   imageUrl: string,
   title: string,
   description: string
-) {
-  try {
-    const prompt = `You are Gordon Ramsay — the world's most brutally honest, foul-mouthed (but bleeped) Michelin-star chef. You do NOT sugarcoat. You call out every flaw with sharp wit and zero mercy, but when something genuinely impresses you, you grudgingly admit it.
-
-You are rating a dish called "${title}"${description ? ` described as: "${description}"` : ""}.
-
-Study the image carefully. Judge it on:
-- Presentation & plating (is it restaurant-quality or a student's first attempt?)
-- Colour, texture, and visual appeal
-- Portion size & balance
-- Whether it looks actually cooked/edible or an absolute disaster
-
-Rules:
-- Be BRUTALLY honest. If it looks terrible, destroy it. If it's decent, say so with backhanded praise. If it's genuinely good, reluctant admiration only.
-- Write in Gordon Ramsay's voice — sharp, direct, colourful. Use "bloody hell", "donkey", "disgrace", "stunning", etc. as appropriate.
-- DO NOT be generically positive. The rating must reflect reality.
-- Rating distribution guide: 1-3 = genuinely awful (raw, burnt, disgusting plating), 4-5 = below average, 6-7 = decent home cook level, 8-9 = impressive, 10 = near perfection (rarely given).
-- Critique must be 2-3 sentences MAX. No fluff.
-
-Respond ONLY in this exact JSON format (no markdown, no extra text):
-{"rating": <integer 1-10>, "comment": "<your critique in Ramsay's voice>"}`;
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: "image/jpeg",
-                    data: await urlToBase64(imageUrl),
-                  },
-                },
-                { text: prompt },
-              ],
-            },
-          ],
-          generationConfig: { responseMimeType: "application/json" },
-        }),
-      }
-    );
-
-    if (!response.ok) throw new Error("AI API error");
-
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("No AI response");
-
-    // Strip markdown code fences if Gemini wraps the JSON
-    const clean = text.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();
-    const parsed = JSON.parse(clean);
-    const rating = Math.min(10, Math.max(1, Math.round(Number(parsed.rating))));
-    if (!parsed.comment) throw new Error("No comment in response");
-    return { rating, comment: String(parsed.comment) };
-  } catch {
+): Promise<{ rating: number; comment: string; notFood?: boolean }> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     const fallbacks = [
       { rating: 3, comment: "Bloody hell — I've seen better plating at a motorway service station. This is an absolute disgrace. Back to basics." },
       { rating: 5, comment: "It's edible. Just about. The presentation looks like it was plated by someone wearing oven gloves with their eyes closed." },
@@ -139,17 +89,81 @@ Respond ONLY in this exact JSON format (no markdown, no extra text):
     ];
     return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
-}
 
-async function urlToBase64(url: string): Promise<string> {
-  const response = await fetch(url);
-  const buffer = await response.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  // Fetch image and convert to base64 with correct MIME type
+  const imgRes = await fetch(imageUrl);
+  if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`);
+  const imgBuffer = await imgRes.arrayBuffer();
+  const contentType = imgRes.headers.get("content-type") ?? "image/jpeg";
+  const mimeType = contentType.split(";")[0].trim();
+  const base64 = Buffer.from(imgBuffer).toString("base64");
+
+  const prompt = `You are Gordon Ramsay — the world's most brutally honest Michelin-star chef.
+
+FIRST: Look at this image carefully. Is it actually food or a dish of food?
+- If it is NOT food (e.g. a person, landscape, animal, object, meme, screenshot), respond with ONLY: {"notFood": true, "rating": 1, "comment": "That's not food. Get out of my kitchen."}
+- If it IS food, continue with the full critique below.
+
+You are rating a dish called "${title}"${description ? ` described as: "${description}"` : ""}.
+
+Judge it on:
+- Presentation & plating (restaurant-quality or student's first attempt?)
+- Colour, texture, and visual appeal
+- Portion size & balance
+- Whether it looks properly cooked or an absolute disaster
+
+Rules:
+- Be BRUTALLY honest. Destroy bad food. Give grudging praise only to genuinely good food.
+- Write in Ramsay's voice — use "bloody hell", "donkey", "disgrace", "beautiful", etc. as appropriate.
+- DO NOT be generically positive. The rating must match reality.
+- Scale: 1-3 = disaster, 4-5 = below average, 6-7 = decent home cook, 8-9 = impressive, 10 = near perfection (almost never).
+- 2-3 sentences MAX.
+
+Respond ONLY in this exact JSON (no markdown, no code blocks):
+{"notFood": false, "rating": <integer 1-10>, "comment": "<critique in Ramsay's voice>"}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { inlineData: { mimeType, data: base64 } },
+              { text: prompt },
+            ],
+          },
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.9,
+          maxOutputTokens: 300,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini API ${response.status}: ${errText}`);
   }
-  return btoa(binary);
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error(`No text in Gemini response: ${JSON.stringify(data)}`);
+
+  const clean = text.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();
+  const parsed = JSON.parse(clean);
+
+  if (parsed.notFood) {
+    return { rating: 1, comment: "That's not food. Get out of my kitchen.", notFood: true };
+  }
+
+  const rating = Math.min(10, Math.max(1, Math.round(Number(parsed.rating))));
+  if (!parsed.comment) throw new Error("No comment in Gemini response");
+  return { rating, comment: String(parsed.comment) };
 }
 
 export async function submitRating(
