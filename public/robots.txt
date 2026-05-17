@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /settings
+Disallow: /notifications
+Disallow: /upload
+Disallow: /maintenance
+Allow: /
+
+Sitemap: https://ratemyplate.net/sitemap.xml
