@@ -11,7 +11,7 @@ export default function ViewCounter({ plateId, initialCount }: { plateId: string
   }, [plateId]);
 
   return (
-    <span className="flex items-center gap-1 text-white/30 text-sm">
+    <span className="flex items-center gap-1 text-faint text-sm">
       <Eye className="w-3.5 h-3.5" />
       {(initialCount + 1).toLocaleString()}
     </span>
