@@ -324,16 +324,23 @@ export default async function PlatePage({
           </div>
 
           {!user && (
-            <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-5 text-center">
-              <p className="text-muted text-sm mb-3">
-                Sign in to rate this plate
-              </p>
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity text-sm shadow-md"
-              >
-                Sign In to Rate
-              </Link>
+            <div className="bg-gradient-to-br from-orange-500/10 to-rose-500/10 border border-orange-500/25 rounded-2xl p-5">
+              <p className="font-black text-app text-base mb-1">Think you can do better?</p>
+              <p className="text-sm text-muted mb-4">Join free and rate this plate, leave a comment, and upload your own masterpiece.</p>
+              <div className="flex gap-2 flex-wrap">
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-sm shadow-md shadow-orange-500/30 active:scale-95"
+                >
+                  🔥 Join Free
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border border-app-1 text-muted hover:text-app hover:border-orange-500/40 transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
           )}
         </div>
@@ -349,6 +356,21 @@ export default async function PlatePage({
             {relatedPlates.map((p) => <PlateCard key={p.id} plate={p} />)}
           </div>
         </section>
+      )}
+
+      {/* Sticky mobile guest banner */}
+      {!user && (
+        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 px-3 pb-1">
+          <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 shadow-xl shadow-orange-500/30">
+            <p className="text-white text-sm font-bold leading-tight">Rate it. Roast it. Upload yours.</p>
+            <Link
+              href="/auth/signup"
+              className="flex-shrink-0 bg-white text-orange-500 text-xs font-black px-4 py-2 rounded-xl hover:bg-orange-50 transition-colors active:scale-95"
+            >
+              Join Free
+            </Link>
+          </div>
+        </div>
       )}
 
       {/* Comments */}

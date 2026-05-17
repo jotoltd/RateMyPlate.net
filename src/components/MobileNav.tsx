@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Trophy, Upload, User } from "lucide-react";
+import { Home, Search, Trophy, Upload, User, Flame } from "lucide-react";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -12,17 +12,16 @@ function isActive(pathname: string, href: string) {
 export default function MobileNav({ userId, unreadCount = 0 }: { userId?: string | null; unreadCount?: number }) {
   const pathname = usePathname();
 
-  const links = [
+  const baseLinks = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/search", icon: Search, label: "Search" },
-    { href: "/upload", icon: Upload, label: "Upload" },
     { href: "/leaderboard", icon: Trophy, label: "Top" },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-nav backdrop-blur-xl border-t border-nav safe-area-pb">
       <div className="flex items-center justify-around h-16 px-2">
-        {links.map(({ href, icon: Icon, label }) => {
+        {baseLinks.map(({ href, icon: Icon, label }) => {
           const active = isActive(pathname, href);
           return (
             <Link
@@ -37,7 +36,20 @@ export default function MobileNav({ userId, unreadCount = 0 }: { userId?: string
             </Link>
           );
         })}
-        {userId && (
+
+        {/* Upload — fire gradient pill, always centre-stage */}
+        <Link
+          href="/upload"
+          className="flex flex-col items-center gap-0.5 -mt-4"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center shadow-lg shadow-orange-500/40 active:scale-95 transition-transform">
+            <Upload className="w-6 h-6 text-white stroke-[2.5]" />
+          </div>
+          <span className="text-[10px] font-bold text-orange-400 mt-0.5">Upload</span>
+        </Link>
+
+        {/* Profile for logged-in, Join CTA for guests */}
+        {userId ? (
           <Link
             href={`/profile/${userId}`}
             className={`relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors ${
@@ -51,6 +63,16 @@ export default function MobileNav({ userId, unreadCount = 0 }: { userId?: string
               </span>
             )}
             <span className={`text-[10px] font-medium ${isActive(pathname, "/profile") ? "font-bold" : ""}`}>Profile</span>
+          </Link>
+        ) : (
+          <Link
+            href="/auth/signup"
+            className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500/20 to-rose-500/20 border border-orange-500/40 flex items-center justify-center">
+              <Flame className="w-4 h-4 text-orange-400" />
+            </div>
+            <span className="text-[10px] font-bold text-orange-400">Join</span>
           </Link>
         )}
       </div>
