@@ -24,6 +24,7 @@ import SaveButton from "@/components/SaveButton";
 import ViewCounter from "@/components/ViewCounter";
 import AddToCollectionButton from "@/components/AddToCollectionButton";
 import PlateCard from "@/components/PlateCard";
+import ReportButton from "@/components/ReportButton";
 
 export async function generateMetadata({
   params,
@@ -313,6 +314,9 @@ export default async function PlatePage({
               <AddToCollectionButton plateId={plate.id} collections={userCollections} />
             )}
             <ShareButton title={plate.title} />
+            {user && user.id !== plate.user_id && (
+              <ReportButton plateId={plate.id} />
+            )}
           </div>
 
           {!user && (

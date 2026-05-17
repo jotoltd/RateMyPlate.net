@@ -166,6 +166,21 @@ export async function sendPlateRatedEmail(opts: {
   });
 }
 
+export async function sendCustomBroadcastEmail(to: string, username: string, subject: string, bodyText: string) {
+  if (!resend) return;
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject,
+    html: base(`
+      ${h1("Hey @" + username + "!")}
+      ${p(bodyText.replace(/\n/g, "<br>"))}
+      ${btn("Visit Rate My Plate", SITE)}
+      <p style="color:#555;font-size:12px;margin-top:24px;">Sent by the Rate My Plate team. <a href="${SITE}/settings" style="color:#888;">Manage preferences</a></p>
+    `),
+  });
+}
+
 export async function sendLaunchEmail(to: string, name?: string) {
   if (!resend) return;
   const greeting = name ? `Hey ${name}` : "Hey there";

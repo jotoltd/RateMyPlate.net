@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin";
 import { formatDate } from "@/lib/utils";
 import AdminUserActions from "./AdminUserActions";
+import Link from "next/link";
 import { Shield, Ban } from "lucide-react";
 
 export default async function AdminUsersPage({
@@ -68,7 +69,12 @@ export default async function AdminUsersPage({
                   : <span className="text-xs font-bold text-emerald-400">Active</span>
                 }
               </div>
-              <AdminUserActions userId={user.id} isBanned={user.banned ?? false} isAdmin={user.is_admin ?? false} />
+              <div className="flex items-center gap-2">
+                <Link href={`/admin/users/${user.id}`} className="text-xs font-bold text-orange-400 hover:text-orange-300 px-2 py-1 rounded-lg hover:bg-orange-500/10 transition-colors">
+                  View
+                </Link>
+                <AdminUserActions userId={user.id} isBanned={user.banned ?? false} isAdmin={user.is_admin ?? false} />
+              </div>
             </div>
           ))}
           {(users ?? []).length === 0 && (

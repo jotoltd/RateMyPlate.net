@@ -17,6 +17,8 @@ export default async function AdminDashboard() {
     { data: appSettings },
     { data: recentUsers },
     { data: recentPlatesGrowth },
+    { data: topWeekPlates },
+    { count: openReports },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("plates").select("*", { count: "exact", head: true }),
@@ -27,6 +29,8 @@ export default async function AdminDashboard() {
     supabase.from("app_settings").select("maintenance_mode").eq("id", true).single(),
     supabase.from("profiles").select("created_at").gte("created_at", sevenDaysAgo),
     supabase.from("plates").select("created_at").eq("status", "approved").gte("created_at", sevenDaysAgo),
+    supabase.from("plates").select("id, title, like_count, rating_count, profiles(username)").eq("status", "approved").gte("created_at", sevenDaysAgo).order("like_count", { ascending: false }).limit(5),
+    supabase.from("reports").select("id", { count: "exact", head: true }).eq("resolved", false),
   ]);
 
   // Build 7-day buckets (index 0 = 6 days ago, 6 = today)
@@ -53,6 +57,7 @@ export default async function AdminDashboard() {
     { label: "Comments", value: commentCount ?? 0, icon: MessageSquare, color: "from-blue-500 to-cyan-500", shadow: "shadow-blue-500/20" },
     { label: "Ratings", value: ratingCount ?? 0, icon: Star, color: "from-amber-400 to-orange-500", shadow: "shadow-amber-500/20" },
     { label: "Banned Users", value: bannedCount ?? 0, icon: Users, color: "from-red-500 to-rose-600", shadow: "shadow-red-500/20" },
+    { label: "Open Reports", value: openReports ?? 0, icon: Eye, color: "from-red-400 to-rose-500", shadow: "shadow-red-500/20" },
   ];
 
   return (
@@ -127,28 +132,55 @@ export default async function AdminDashboard() {
         })}
       </div>
 
-      {/* Recent plates */}
-      <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-app-1 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-orange-400" />
-          <h2 className="font-bold text-app">Recent Plates</h2>
+      {/* Two-column: top plates + recent */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Top plates this week */}
+        <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-app-1 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-orange-400" />
+            <h2 className="font-bold text-app text-sm">Top Plates This Week</h2>
+          </div>
+          <div className="divide-y divide-app-1">
+            {(topWeekPlates ?? []).length === 0 ? (
+              <p className="px-5 py-6 text-xs text-faint text-center">No approved plates this week yet</p>
+            ) : (topWeekPlates ?? []).map((plate) => {
+              const prof = plate.profiles as unknown as { username: string } | null;
+              return (
+                <div key={plate.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-app truncate">{plate.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-faint flex-shrink-0">
+                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-rose-400" />{plate.like_count}</span>
+                    <span className="text-faint">@{prof?.username ?? "?"}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="divide-y divide-app-1">
-          {(recentPlates.data ?? []).map((plate) => {
-            const prof = plate.profiles as unknown as { username: string } | null;
-            return (
-              <div key={plate.id} className="px-6 py-3 flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="font-semibold text-sm text-app truncate">{plate.title}</p>
-                  <p className="text-xs text-faint">@{prof?.username ?? "unknown"}</p>
+
+        {/* Recently uploaded */}
+        <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-app-1 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-blue-400" />
+            <h2 className="font-bold text-app text-sm">Recently Uploaded</h2>
+          </div>
+          <div className="divide-y divide-app-1">
+            {(recentPlates.data ?? []).map((plate) => {
+              const prof = plate.profiles as unknown as { username: string } | null;
+              return (
+                <div key={plate.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm text-app truncate">{plate.title}</p>
+                    <p className="text-xs text-faint">@{prof?.username ?? "unknown"}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-faint flex-shrink-0">
+                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-rose-400" />{plate.like_count}</span>
+                    <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-400" />{plate.rating_count}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-faint flex-shrink-0">
-                  <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-rose-400" />{plate.like_count}</span>
-                  <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-400" />{plate.rating_count}</span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

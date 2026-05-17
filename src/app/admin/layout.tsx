@@ -1,20 +1,21 @@
 import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
-import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail, ClipboardCheck, Settings } from "lucide-react";
+import { Shield, Users, ImageIcon, MessageSquare, LayoutDashboard, Mail, ClipboardCheck, Settings, Flag } from "lucide-react";
 
 export const metadata = { title: "Admin – Rate My Plate" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { supabase } = await requireAdmin();
 
-  const { count: pendingCount } = await supabase
-    .from("plates")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "pending");
+  const [{ count: pendingCount }, { count: reportCount }] = await Promise.all([
+    supabase.from("plates").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("reports").select("id", { count: "exact", head: true }).eq("resolved", false),
+  ]);
 
   const nav = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard", badge: null },
     { href: "/admin/review", icon: ClipboardCheck, label: "Review", badge: pendingCount ?? 0 },
+    { href: "/admin/reports", icon: Flag, label: "Reports", badge: reportCount ?? 0 },
     { href: "/admin/users", icon: Users, label: "Users", badge: null },
     { href: "/admin/plates", icon: ImageIcon, label: "Plates", badge: null },
     { href: "/admin/comments", icon: MessageSquare, label: "Comments", badge: null },
