@@ -1,9 +1,11 @@
 import { requireAdmin } from "@/lib/admin";
-import { Users, ImageIcon, MessageSquare, Star, Heart, TrendingUp, Construction } from "lucide-react";
+import { Users, ImageIcon, MessageSquare, Star, Heart, TrendingUp, Construction, Eye } from "lucide-react";
 import { toggleMaintenanceMode } from "@/app/actions/settings";
 
 export default async function AdminDashboard() {
   const { supabase } = await requireAdmin();
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
     { count: userCount },
@@ -13,6 +15,8 @@ export default async function AdminDashboard() {
     { count: bannedCount },
     recentPlates,
     { data: appSettings },
+    { data: recentUsers },
+    { data: recentPlatesGrowth },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("plates").select("*", { count: "exact", head: true }),
@@ -21,7 +25,25 @@ export default async function AdminDashboard() {
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("banned", true),
     supabase.from("plates").select("id, title, like_count, rating_count, created_at, profiles(username)").order("created_at", { ascending: false }).limit(5),
     supabase.from("app_settings").select("maintenance_mode").eq("id", true).single(),
+    supabase.from("profiles").select("created_at").gte("created_at", sevenDaysAgo),
+    supabase.from("plates").select("created_at").eq("status", "approved").gte("created_at", sevenDaysAgo),
   ]);
+
+  // Build 7-day buckets (index 0 = 6 days ago, 6 = today)
+  function bucketByDay(rows: { created_at: string }[]) {
+    const counts = Array(7).fill(0);
+    for (const r of rows ?? []) {
+      const daysAgo = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86_400_000);
+      if (daysAgo < 7) counts[6 - daysAgo]++;
+    }
+    return counts;
+  }
+  const userBuckets = bucketByDay(recentUsers ?? []);
+  const plateBuckets = bucketByDay(recentPlatesGrowth ?? []);
+  const dayLabels = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() - (6 - i) * 86_400_000);
+    return d.toLocaleDateString("en", { weekday: "short" });
+  });
 
   const maintenanceOn = appSettings?.maintenance_mode === true;
 
@@ -74,6 +96,35 @@ export default async function AdminDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* 7-day growth charts */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[
+          { label: "New Users — 7 days", buckets: userBuckets, color: "bg-violet-500", total: userBuckets.reduce((a, b) => a + b, 0) },
+          { label: "New Plates — 7 days", buckets: plateBuckets, color: "bg-orange-500", total: plateBuckets.reduce((a, b) => a + b, 0) },
+        ].map(({ label, buckets, color, total }) => {
+          const maxVal = Math.max(...buckets, 1);
+          return (
+            <div key={label} className="bg-surface-1 border border-app-1 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-bold text-app">{label}</p>
+                <span className="text-xl font-black text-app">{total}</span>
+              </div>
+              <div className="flex items-end gap-1 h-14">
+                {buckets.map((val, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      className={`w-full rounded-sm ${color} opacity-80 transition-all`}
+                      style={{ height: `${Math.max(4, (val / maxVal) * 48)}px` }}
+                    />
+                    <span className="text-[9px] text-faint">{dayLabels[i]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Recent plates */}

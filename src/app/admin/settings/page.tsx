@@ -1,17 +1,18 @@
 import { requireAdmin } from "@/lib/admin";
 import { saveSettings } from "@/app/actions/settings";
-import { BarChart3, Megaphone, Save } from "lucide-react";
+import { BarChart3, Megaphone, Save, Mail, Send } from "lucide-react";
+import BroadcastButton from "../BroadcastButton";
+import { triggerWeeklyDigest } from "@/app/actions/broadcast";
 
 export const revalidate = 0;
 
 export default async function AdminSettingsPage() {
   const { supabase } = await requireAdmin();
 
-  const { data: settings } = await supabase
-    .from("app_settings")
-    .select("analytics_id, site_announcement")
-    .eq("id", true)
-    .single();
+  const [{ data: settings }, { count: userCount }] = await Promise.all([
+    supabase.from("app_settings").select("analytics_id, site_announcement").eq("id", true).single(),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+  ]);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -70,6 +71,36 @@ export default async function AdminSettingsPage() {
         </form>
       </div>
 
+      {/* Email — Weekly Digest */}
+      <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-app-1 flex items-center gap-2">
+          <Mail className="w-4 h-4 text-violet-400" />
+          <h2 className="font-bold text-app">Email</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-sm font-semibold text-app">Weekly Digest</p>
+              <p className="text-xs text-faint mt-0.5">
+                Send a &quot;your week on Rate My Plate&quot; email to all {userCount ?? 0} users now.
+              </p>
+            </div>
+            <BroadcastButton
+              action={triggerWeeklyDigest}
+              label="Send Digest Now"
+              confirmText="Send to all users"
+              colorClass="bg-violet-600 hover:bg-violet-500"
+              count={userCount ?? 0}
+            />
+          </div>
+          <p className="text-xs text-faint border-t border-app-1 pt-4">
+            <Send className="w-3 h-3 inline mr-1" />
+            For automated weekly sends, set up a cron job hitting{" "}
+            <code className="bg-surface-2 px-1.5 py-0.5 rounded text-orange-400">/api/cron/weekly-digest</code>{" "}
+            with header <code className="bg-surface-2 px-1.5 py-0.5 rounded text-orange-400">x-cron-secret</code> every Monday.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

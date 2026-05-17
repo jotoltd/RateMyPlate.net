@@ -166,6 +166,24 @@ export async function sendPlateRatedEmail(opts: {
   });
 }
 
+export async function sendLaunchEmail(to: string, name?: string) {
+  if (!resend) return;
+  const greeting = name ? `Hey ${name}` : "Hey there";
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Rate My Plate is LIVE 🍽🎉",
+    html: base(`
+      ${h1(greeting + " — we're live!")}
+      ${p("You signed up for the Rate My Plate waitlist and the wait is over. The doors are open!")}
+      ${p("Upload your first plate, get brutally honest AI ratings from our Gordon Ramsay-inspired critic, and see how the community rates your food.")}
+      ${p("<strong style='color:#fff;'>It's completely free.</strong> No catch.")}
+      ${btn("Claim Your Spot Now →", SITE + "/auth/signup")}
+      <p style="color:#666;font-size:12px;margin-top:24px;">You're receiving this because you signed up at ratemyplate.net. <a href="${SITE}" style="color:#888;">Unsubscribe</a></p>
+    `),
+  });
+}
+
 export async function sendWeeklyDigestEmail(opts: {
   to: string;
   username: string;

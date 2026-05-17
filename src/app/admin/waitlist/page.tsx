@@ -1,16 +1,22 @@
 import { requireAdmin } from "@/lib/admin";
 import { formatDate } from "@/lib/utils";
-import { Mail, Users, Download } from "lucide-react";
+import { Mail, Users, Download, TrendingUp } from "lucide-react";
+import BroadcastButton from "../BroadcastButton";
+import { broadcastLaunchEmail } from "@/app/actions/broadcast";
 
 export default async function AdminWaitlistPage() {
   const { supabase } = await requireAdmin();
 
-  const [{ data: entries, count }, { data: settings }] = await Promise.all([
+  const [{ data: entries, count }, { data: settings }, { count: userCount }] = await Promise.all([
     supabase.from("waitlist").select("*", { count: "exact" }).order("created_at", { ascending: false }),
     supabase.from("app_settings").select("maintenance_mode").eq("id", true).single(),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
   ]);
 
   const isMaintenance = settings?.maintenance_mode === true;
+  const totalWaitlist = count ?? 0;
+  const last24h = entries?.filter((e) => Date.now() - new Date(e.created_at).getTime() < 86_400_000).length ?? 0;
+  const conversionPct = totalWaitlist > 0 ? Math.round(((userCount ?? 0) / totalWaitlist) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -36,29 +42,47 @@ export default async function AdminWaitlistPage() {
       </div>
 
       {/* Waitlist stats */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="bg-surface-1 border border-app-1 rounded-2xl p-5">
           <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-orange-500/20">
             <Users className="w-4 h-4 text-white" />
           </div>
-          <p className="text-3xl font-black text-app">{count ?? 0}</p>
+          <p className="text-3xl font-black text-app">{totalWaitlist}</p>
           <p className="text-xs text-faint font-semibold mt-0.5">Total signups</p>
         </div>
         <div className="bg-surface-1 border border-app-1 rounded-2xl p-5">
           <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-violet-500/20">
             <Mail className="w-4 h-4 text-white" />
           </div>
-          <p className="text-3xl font-black text-app">
-            {entries?.filter((e) => {
-              const d = new Date(e.created_at);
-              return Date.now() - d.getTime() < 86_400_000;
-            }).length ?? 0}
-          </p>
+          <p className="text-3xl font-black text-app">{last24h}</p>
           <p className="text-xs text-faint font-semibold mt-0.5">Last 24 hours</p>
+        </div>
+        <div className="bg-surface-1 border border-app-1 rounded-2xl p-5">
+          <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-emerald-500/20">
+            <TrendingUp className="w-4 h-4 text-white" />
+          </div>
+          <p className="text-3xl font-black text-app">{conversionPct}%</p>
+          <p className="text-xs text-faint font-semibold mt-0.5">Waitlist → signup</p>
         </div>
       </div>
 
-      {/* CSV export hint */}
+      {/* Broadcast */}
+      {totalWaitlist > 0 && (
+        <div className="bg-surface-1 border border-app-1 rounded-2xl p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-bold text-app text-sm">Launch Email Broadcast</p>
+            <p className="text-xs text-faint mt-0.5">Send the &quot;We&apos;re live&quot; email to all {totalWaitlist} waitlist signups. One-click, fire-and-forget.</p>
+          </div>
+          <BroadcastButton
+            action={broadcastLaunchEmail}
+            label="Send Launch Email"
+            confirmText={`Send to ${totalWaitlist} people`}
+            count={totalWaitlist}
+          />
+        </div>
+      )}
+
+      {/* CSV export + list header */}
       {(entries?.length ?? 0) > 0 && (
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-app flex items-center gap-2">
