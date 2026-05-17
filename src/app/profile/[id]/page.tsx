@@ -177,17 +177,28 @@ export default async function ProfilePage({
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 text-faint">
-            <User className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-medium">No plates yet</p>
-            {isOwnProfile && (
-              <Link
-                href="/upload"
-                className="inline-flex items-center gap-2 mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
-              >
-                <Upload className="w-4 h-4" />
-                Upload Your First Plate
-              </Link>
+          <div className="text-center py-20">
+            <div className="w-24 h-24 bg-gradient-to-br from-orange-500/15 to-rose-500/10 border border-orange-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <Upload className="w-12 h-12 text-orange-400" />
+            </div>
+            {isOwnProfile ? (
+              <>
+                <p className="text-2xl font-black text-app mb-2">Share your first plate!</p>
+                <p className="text-muted mb-1">Upload a photo of your food and get instantly rated by our AI critic.</p>
+                <p className="text-sm text-faint mb-8">Ratings from the community follow once you&apos;re live.</p>
+                <Link
+                  href="/upload"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
+                >
+                  <Upload className="w-5 h-5" />
+                  Upload Your First Plate
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="text-xl font-black text-app mb-2">No plates yet</p>
+                <p className="text-muted text-sm">This chef hasn&apos;t shared anything yet. Check back soon!</p>
+              </>
             )}
           </div>
         )

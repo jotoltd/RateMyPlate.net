@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useTransition, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Upload, ImagePlus, Sparkles, X } from "lucide-react";
+import { Upload, ImagePlus, Sparkles, X, PartyPopper } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
 import { CATEGORIES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +18,8 @@ export default function UploadPage() {
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const searchParams = useSearchParams();
+  const isWelcome = searchParams.get("welcome") === "1";
 
   useEffect(() => {
     const supabase = createClient();
@@ -92,6 +95,15 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
+      {isWelcome && (
+        <div className="mb-6 flex items-start gap-3 bg-gradient-to-r from-orange-500/15 to-rose-500/10 border border-orange-500/30 rounded-2xl p-5">
+          <PartyPopper className="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-black text-app text-base">Welcome to Rate My Plate! 🎉</p>
+            <p className="text-muted text-sm mt-0.5">You're all set. Upload your first plate and let the AI judge it — it takes 30 seconds.</p>
+          </div>
+        </div>
+      )}
       <div className="mb-8 flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-black text-app mb-2">Upload Your Plate</h1>
@@ -142,24 +154,38 @@ export default function UploadPage() {
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              className={`w-full aspect-square max-w-sm mx-auto flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl transition-colors cursor-pointer ${isDragging ? "border-orange-500/60 bg-orange-500/10" : "border-app-1 bg-surface-1 hover:bg-orange-500/5 hover:border-orange-500/40"}`}
-            >
-              <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center">
-                <ImagePlus className="w-8 h-8 text-orange-400" />
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-muted">Click to upload or drag & drop</p>
-                <p className="text-sm text-faint mt-0.5">
-                  JPG, PNG, WEBP up to 10MB
-                </p>
-              </div>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`w-full aspect-square max-w-sm mx-auto hidden sm:flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl transition-colors cursor-pointer ${isDragging ? "border-orange-500/60 bg-orange-500/10" : "border-app-1 bg-surface-1 hover:bg-orange-500/5 hover:border-orange-500/40"}`}
+              >
+                <div className="w-16 h-16 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center">
+                  <ImagePlus className="w-8 h-8 text-orange-400" />
+                </div>
+                <div className="text-center">
+                  <p className="font-semibold text-muted">Click to upload or drag & drop</p>
+                  <p className="text-sm text-faint mt-0.5">JPG, PNG, WEBP up to 10MB</p>
+                </div>
+              </button>
+              {/* Mobile: large tap-friendly button */}
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="sm:hidden w-full flex flex-col items-center justify-center gap-4 py-12 border-2 border-dashed border-orange-500/40 bg-orange-500/5 rounded-2xl active:bg-orange-500/10 transition-colors cursor-pointer"
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-500 rounded-3xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+                  <ImagePlus className="w-10 h-10 text-white" />
+                </div>
+                <div className="text-center">
+                  <p className="font-black text-app text-lg">Tap to add your photo</p>
+                  <p className="text-sm text-faint mt-1">From camera or gallery</p>
+                </div>
+              </button>
+            </>
           )}
           <input
             ref={fileRef}

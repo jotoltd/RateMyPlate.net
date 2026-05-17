@@ -166,6 +166,67 @@ export async function sendPlateRatedEmail(opts: {
   });
 }
 
+export async function sendWeeklyDigestEmail(opts: {
+  to: string;
+  username: string;
+  newLikes: number;
+  newRatings: number;
+  newFollowers: number;
+  topPlate: { title: string; id: string; image_url: string } | null;
+  trendingPlates: { title: string; id: string; username: string }[];
+}) {
+  if (!resend) return;
+  const { to, username, newLikes, newRatings, newFollowers, topPlate, trendingPlates } = opts;
+  const hasActivity = newLikes > 0 || newRatings > 0 || newFollowers > 0;
+
+  const statsHtml = hasActivity ? `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
+      <tr>
+        ${newLikes > 0 ? `<td align="center" style="padding:12px;background:#1f1f1f;border-radius:12px;margin:4px;">
+          <div style="font-size:28px;font-weight:900;color:#f43f5e;">${newLikes}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">new likes</div>
+        </td>` : ""}
+        ${newRatings > 0 ? `<td width="12"></td><td align="center" style="padding:12px;background:#1f1f1f;border-radius:12px;">
+          <div style="font-size:28px;font-weight:900;color:#f59e0b;">${newRatings}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">new ratings</div>
+        </td>` : ""}
+        ${newFollowers > 0 ? `<td width="12"></td><td align="center" style="padding:12px;background:#1f1f1f;border-radius:12px;">
+          <div style="font-size:28px;font-weight:900;color:#60a5fa;">${newFollowers}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">new followers</div>
+        </td>` : ""}
+      </tr>
+    </table>
+  ` : `${p("It's been quiet this week — upload a new plate to get the ratings rolling!")}`;
+
+  const trendingHtml = trendingPlates.length > 0 ? `
+    <div style="margin-top:24px;">
+      <p style="color:#888;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">🔥 Trending this week</p>
+      ${trendingPlates.map(tp => `
+        <a href="${SITE}/plate/${tp.id}" style="display:block;padding:10px 14px;background:#1a1a1a;border-radius:10px;margin-bottom:6px;text-decoration:none;">
+          <span style="color:#fff;font-weight:700;font-size:14px;">${tp.title}</span>
+          <span style="color:#666;font-size:12px;"> by @${tp.username}</span>
+        </a>
+      `).join("")}
+    </div>
+  ` : "";
+
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: hasActivity
+      ? `Your week on Rate My Plate: ${[newLikes && `${newLikes} likes`, newRatings && `${newRatings} ratings`, newFollowers && `${newFollowers} followers`].filter(Boolean).join(", ")}`
+      : "What's trending on Rate My Plate this week 🍽",
+    html: base(`
+      ${h1("Hey @" + username + ", here's your week")}
+      ${statsHtml}
+      ${topPlate ? `${p(`Your top plate this week: <a href="${SITE}/plate/${topPlate.id}" style="color:#f97316;font-weight:700;">${topPlate.title}</a>`)}` : ""}
+      ${trendingHtml}
+      ${btn("See What's Trending", SITE + "/trending")}
+      <p style="color:#555;font-size:12px;margin-top:24px;">Weekly digest from Rate My Plate. <a href="${SITE}/settings" style="color:#888;">Unsubscribe</a></p>
+    `),
+  });
+}
+
 export async function sendPlateSubmittedEmail(opts: {
   adminEmail: string;
   uploaderUsername: string;

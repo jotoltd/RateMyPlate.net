@@ -97,7 +97,7 @@ export async function verifyEmail(formData: FormData) {
 
     sendWelcomeEmail(email, username).catch(() => {});
     revalidatePath("/", "layout");
-    redirect("/");
+    redirect("/upload?welcome=1");
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };

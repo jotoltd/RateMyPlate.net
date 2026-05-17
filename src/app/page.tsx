@@ -263,9 +263,11 @@ export default async function Home({
             />
           ) : (
             <div className="max-w-[680px] mx-auto py-10 text-center">
-              <Users className="w-14 h-14 mx-auto mb-4 text-faint opacity-40" />
-              <p className="text-lg font-bold text-app mb-1">No plates yet</p>
-              <p className="text-sm text-muted mb-8">Follow chefs to see their plates here</p>
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-violet-500/20 border border-blue-500/20 rounded-3xl flex items-center justify-center mx-auto mb-5">
+                <Users className="w-10 h-10 text-blue-400" />
+              </div>
+              <p className="text-xl font-black text-app mb-2">Your feed is empty</p>
+              <p className="text-sm text-muted mb-8">Follow some chefs to see their plates here. Start with our top creators:</p>
               {suggestedChefs.length > 0 && (
                 <div className="text-left">
                   <p className="text-xs font-bold text-muted uppercase tracking-widest mb-4">Suggested Chefs</p>
@@ -307,15 +309,25 @@ export default async function Home({
             currentUsername={currentUsername}
           />
         ) : (
-          <div className="max-w-[680px] mx-auto text-center py-24 text-faint">
-            <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-medium">No plates in this category yet!</p>
+          <div className="max-w-[680px] mx-auto text-center py-20">
+            <div className="w-24 h-24 bg-gradient-to-br from-orange-500/20 to-rose-500/20 border border-orange-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <ChefHat className="w-12 h-12 text-orange-400" />
+            </div>
+            <p className="text-2xl font-black text-app mb-2">
+              {activeCategory !== "all" ? `No ${activeCategory} plates yet` : "No plates yet"}
+            </p>
+            <p className="text-muted mb-2">
+              {activeCategory !== "all"
+                ? `Be the first to share a ${activeCategory} dish and get rated!`
+                : "Be the first to share your food and get an honest AI rating."}
+            </p>
+            <p className="text-sm text-faint mb-8">It only takes 30 seconds.</p>
             <Link
               href={user ? "/upload" : "/auth/signup"}
-              className="inline-flex items-center gap-2 mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
             >
-              <Upload className="w-4 h-4" />
-              Upload a Plate
+              <Upload className="w-5 h-5" />
+              {user ? "Upload a Plate" : "Join & Upload Free"}
             </Link>
           </div>
         )}
