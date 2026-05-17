@@ -174,14 +174,24 @@ Respond ONLY with valid JSON, no markdown, no code blocks:
   const models = ["gemini-2.0-flash", "gemini-1.5-flash"];
   let response: Response | null = null;
   for (const model of models) {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body }
-    );
-    if (r.ok || (r.status !== 404 && r.status !== 403)) {
-      response = r;
-      break;
+    let lastRes: Response | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body }
+      );
+      if (r.ok) { response = r; break; }
+      if (r.status === 429) {
+        lastRes = r;
+        if (attempt < 2) await new Promise((res) => setTimeout(res, (attempt + 1) * 2000));
+        continue;
+      }
+      // 404/403 = try next model, anything else = surface the error
+      if (r.status === 404 || r.status === 403) break;
+      response = r; break;
     }
+    if (response) break;
+    if (lastRes) { response = lastRes; break; }
   }
   if (!response) throw new Error("No Gemini model available");
 
