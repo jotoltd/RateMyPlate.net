@@ -84,6 +84,13 @@ export default async function RootLayout({
           `}</Script>
         </>
       )}
+      <Script id="clarity-init" strategy="afterInteractive">{`
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window,document,"clarity","script","wsqj6bru5l");
+      `}</Script>
       <body className="min-h-full flex flex-col bg-app text-app transition-colors">
         <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} isAdmin={isAdmin} />
         {announcement && (
