@@ -98,12 +98,21 @@ export async function proxy(request: NextRequest) {
   }
   // ────────────────────────────────────────────────────────────────
 
-  const publicRoutes = ["/auth/login", "/auth/signup", "/auth/confirm", "/auth/check-email", "/auth/verify-email", "/maintenance"];
-  const isPublic = publicRoutes.some((r) => pathname.startsWith(r));
+  // Routes that require login
+  const protectedRoutes = [
+    "/upload",
+    "/settings",
+    "/notifications",
+    "/collections",
+    "/profile/edit",
+    "/admin",
+  ];
+  const isProtected = protectedRoutes.some((r) => pathname.startsWith(r));
 
-  if (!user && !isPublic) {
+  if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

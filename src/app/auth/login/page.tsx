@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ChefHat, Mail, Lock, LogIn, Flame, Star, Users, Eye, EyeOff } from "lucide-react";
 import { signIn } from "@/app/actions/auth";
 
@@ -9,6 +10,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -76,6 +79,7 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="hidden" name="next" value={next} />
           <div>
             <label className="block text-xs font-bold text-muted uppercase tracking-widest mb-2">Email</label>
             <div className="relative">

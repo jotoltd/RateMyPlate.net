@@ -108,6 +108,7 @@ export async function signIn(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const next = (formData.get("next") as string) || "/";
 
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -117,7 +118,7 @@ export async function signIn(formData: FormData) {
     }
 
     revalidatePath("/", "layout");
-    redirect("/");
+    redirect(next.startsWith("/") ? next : "/");
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };
