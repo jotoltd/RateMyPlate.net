@@ -91,13 +91,14 @@ export default function VerifyEmailPage() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-app mb-2">Check your email</h1>
+          <h1 className="text-3xl font-black text-app mb-2">One last step 🔥</h1>
           <p className="text-muted text-sm leading-relaxed">
-            We sent a 6-digit code to
+            We emailed a 6-digit code to
           </p>
           {email && (
             <p className="font-bold text-orange-400 text-sm mt-1 break-all">{email}</p>
           )}
+          <p className="text-xs text-faintest mt-2">Check your spam folder if you don&apos;t see it.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
