@@ -52,9 +52,15 @@ export async function uploadPlate(formData: FormData) {
   try {
     aiResult = await getAIRating(publicUrl, title, description);
   } catch (err) {
-    console.error("getAIRating failed:", err);
-    // Don't block the upload — fall back to a default
-    aiResult = { rating: 5, comment: "I couldn't get a proper look at this. Could be stunning, could be a disaster — the jury's out." };
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[getAIRating] failed:", msg);
+    // Don't block the upload — use a real Ramsay-style fallback
+    const catchFallbacks = [
+      { rating: 5, comment: "Bloody hell, even my camera is refusing to look at this. Could be magnificent, could be a war crime — we'll never know." },
+      { rating: 5, comment: "My AI consultant has walked out. On appearances alone though, it looks like it needs help." },
+      { rating: 5, comment: "Something went wrong in my kitchen brain. Based on the title alone — I'd approach with caution." },
+    ];
+    aiResult = catchFallbacks[Math.floor(Math.random() * catchFallbacks.length)];
   }
 
   if (aiResult.notFood) {
@@ -160,28 +166,24 @@ Rules:
 Respond ONLY with valid JSON, no markdown, no code blocks:
 {"notFood": false, "rating": <integer 1-10>, "comment": "<Ramsay critique>"}`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { inlineData: { mimeType, data: base64 } },
-              { text: prompt },
-            ],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.9,
-          maxOutputTokens: 300,
-        },
-      }),
+  const body = JSON.stringify({
+    contents: [{ parts: [{ inlineData: { mimeType, data: base64 } }, { text: prompt }] }],
+    generationConfig: { responseMimeType: "application/json", temperature: 0.9, maxOutputTokens: 300 },
+  });
+
+  const models = ["gemini-2.0-flash", "gemini-1.5-flash"];
+  let response: Response | null = null;
+  for (const model of models) {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body }
+    );
+    if (r.ok || (r.status !== 404 && r.status !== 403)) {
+      response = r;
+      break;
     }
-  );
+  }
+  if (!response) throw new Error("No Gemini model available");
 
   if (!response.ok) {
     const errText = await response.text();
