@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid } from "lucide-react";
 import Link from "next/link";
@@ -7,6 +8,22 @@ import PlateCard from "@/components/PlateCard";
 import FollowButton from "@/components/FollowButton";
 import { Plate } from "@/lib/types";
 import { formatDate, scoreToStars } from "@/lib/utils";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: profile } = await supabase.from("profiles").select("username, bio").eq("id", id).single();
+  if (!profile) return { title: "Chef – Rate My Plate" };
+  const title = `@${profile.username} – Rate My Plate`;
+  const description = profile.bio || `Check out ${profile.username}'s plates on Rate My Plate.`;
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://ratemyplate.net"}/profile/${id}/opengraph-image`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, siteName: "Rate My Plate", type: "profile", images: [{ url: ogImageUrl, width: 1200, height: 630, alt: profile.username }] },
+    twitter: { card: "summary_large_image", site: "@ratemyplate", title, description, images: [ogImageUrl] },
+  };
+}
 
 export default async function ProfilePage({
   params,

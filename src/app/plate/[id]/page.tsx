@@ -47,20 +47,24 @@ export async function generateMetadata({
     ? plate.description
     : `Rated ${rating ? `${Number(rating).toFixed(1)}/10` : "on"} Rate My Plate by @${prof?.username ?? "a chef"}`;
 
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://ratemyplate.net"}/plate/${id}/opengraph-image`;
+
   return {
     title: `${plate.title} – Rate My Plate`,
     description,
     openGraph: {
       title: plate.title,
       description,
-      images: [{ url: plate.image_url, width: 1200, height: 630, alt: plate.title }],
-      type: "website",
+      siteName: "Rate My Plate",
+      type: "article",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: plate.title }],
     },
     twitter: {
       card: "summary_large_image",
+      site: "@ratemyplate",
       title: plate.title,
       description,
-      images: [plate.image_url],
+      images: [ogImageUrl],
     },
   };
 }
