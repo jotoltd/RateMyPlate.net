@@ -112,8 +112,10 @@ async function getAIRating(
   title: string,
   description: string
 ): Promise<{ rating: number; comment: string; notFood?: boolean }> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
+
+  if (!geminiKey && !groqKey) {
     const fallbacks = [
       { rating: 3, comment: "Bloody hell — I've seen better plating at a motorway service station. This is an absolute disgrace. Back to basics." },
       { rating: 5, comment: "It's edible. Just about. The presentation looks like it was plated by someone wearing oven gloves with their eyes closed." },
@@ -122,49 +124,69 @@ async function getAIRating(
     return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
 
-  // Fetch image and convert to base64 with correct MIME type
+  // Try Gemini first, fall back to Groq on quota exhaustion
+  if (geminiKey) {
+    try {
+      return await rateWithGemini(geminiKey, imageUrl, title, description);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("429") && groqKey) {
+        console.warn("[getAIRating] Gemini quota hit, falling back to Groq");
+      } else if (!groqKey) {
+        throw err;
+      } else {
+        console.warn("[getAIRating] Gemini failed, falling back to Groq:", msg);
+      }
+    }
+  }
+
+  return await rateWithGroq(groqKey!, imageUrl, title, description);
+
+}
+
+function buildRamsayPrompt(title: string, description: string): string {
+  return `You are Gordon Ramsay — the world's most brutally honest Michelin-star chef.
+
+STEP 1 — FOOD DETECTION:
+Does this image contain food, a prepared dish, a drink, raw ingredients, or anything edible?
+Count as NOT FOOD ONLY IF: person, selfie, pet, landscape, building, car, screenshot, meme, cartoon.
+If truly NOT food respond ONLY with: {"notFood": true, "rating": 1, "comment": "That's not food. Get out of my kitchen."}
+
+STEP 2 — CRITIQUE (only if IS food):
+Dish: "${title}"${description ? ` — "${description}"` : ""}.
+Judge: presentation, plating, colours, textures, portion, composition.
+Be BRUTALLY honest. Ramsay voice: "bloody hell", "donkey", "disgrace", "stunning", etc.
+Score: 1-3=disaster, 4-5=below average, 6-7=solid home cook, 8-9=impressive, 10=near perfection.
+2-3 sentences MAX.
+
+Respond ONLY with valid JSON, no markdown:
+{"notFood": false, "rating": <integer 1-10>, "comment": "<critique>"}`;
+}
+
+function parseRamsayJSON(text: string): { rating: number; comment: string; notFood?: boolean } {
+  const clean = text.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();
+  const parsed = JSON.parse(clean);
+  if (parsed.notFood) return { rating: 1, comment: "That's not food. Get out of my kitchen.", notFood: true };
+  const rating = Math.min(10, Math.max(1, Math.round(Number(parsed.rating))));
+  if (!parsed.comment) throw new Error("No comment in AI response");
+  return { rating, comment: String(parsed.comment) };
+}
+
+async function rateWithGemini(
+  apiKey: string,
+  imageUrl: string,
+  title: string,
+  description: string
+): Promise<{ rating: number; comment: string; notFood?: boolean }> {
   const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(15000) });
   if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`);
   const imgBuffer = await imgRes.arrayBuffer();
   const rawMime = imgRes.headers.get("content-type") ?? "image/jpeg";
   const detectedMime = rawMime.split(";")[0].trim();
-  // Gemini only supports jpeg, png, gif, webp — normalise anything else to jpeg
   const supportedMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
   const mimeType = supportedMimes.includes(detectedMime) ? detectedMime : "image/jpeg";
   const base64 = Buffer.from(imgBuffer).toString("base64");
-
-  const prompt = `You are Gordon Ramsay — the world's most brutally honest Michelin-star chef. You are also extremely good at identifying what you're actually looking at.
-
-STEP 1 — FOOD DETECTION:
-Look very carefully at the image. Ask yourself: does this image contain food, a prepared dish, a drink, raw ingredients, a snack, or anything edible?
-
-Count as FOOD: plated meals, takeaway, fast food, pizza, pasta, sandwiches, salads, desserts, cakes, drinks, cocktails, smoothies, raw meat/fish, fresh vegetables, fruit, eggs, packaged food products, street food, any edible item.
-
-Count as NOT FOOD ONLY IF: the image shows a person, selfie, pet, animal (not as food), landscape, building, car, text screenshot, meme, cartoon, or any clearly non-food subject with zero food visible.
-
-If there is ANY food visible in the image — even partially — treat it as food.
-
-If it is truly NOT food at all, respond ONLY with:
-{"notFood": true, "rating": 1, "comment": "That's not food. Get out of my kitchen."}
-
-STEP 2 — CRITIQUE (only if it IS food):
-You are judging a dish called "${title}"${description ? ` described as: "${description}"` : ""}.
-
-Judge ruthlessly on:
-- Presentation & plating — is this restaurant-worthy or a dog's dinner?
-- Colours, textures, visual appeal — does it make you want to eat it or run?
-- Portion, balance, and composition
-- Whether it looks properly executed or an absolute car crash
-
-Rules:
-- Be BRUTALLY honest. Savage bad food. Only give reluctant praise to genuinely good food.
-- Ramsay's voice: "bloody hell", "donkey", "disgrace", "stunning", "beautiful", "finally someone who can cook", etc.
-- DO NOT be generic or positive by default. The score must reflect what you actually see.
-- Score guide: 1-3 = disaster / inedible looking, 4-5 = below average, 6-7 = solid home cook, 8-9 = genuinely impressive, 10 = near perfection (almost never awarded).
-- 2-3 punchy sentences MAX.
-
-Respond ONLY with valid JSON, no markdown, no code blocks:
-{"notFood": false, "rating": <integer 1-10>, "comment": "<Ramsay critique>"}`;
+  const prompt = buildRamsayPrompt(title, description);
 
   const body = JSON.stringify({
     contents: [{ parts: [{ inlineData: { mimeType, data: base64 } }, { text: prompt }] }],
@@ -186,7 +208,6 @@ Respond ONLY with valid JSON, no markdown, no code blocks:
         if (attempt < 2) await new Promise((res) => setTimeout(res, (attempt + 1) * 2000));
         continue;
       }
-      // 404/403 = try next model, anything else = surface the error
       if (r.status === 404 || r.status === 403) break;
       response = r; break;
     }
@@ -194,26 +215,53 @@ Respond ONLY with valid JSON, no markdown, no code blocks:
     if (lastRes) { response = lastRes; break; }
   }
   if (!response) throw new Error("No Gemini model available");
-
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`Gemini API ${response.status}: ${errText}`);
   }
-
   const data = await response.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error(`No text in Gemini response: ${JSON.stringify(data)}`);
+  return parseRamsayJSON(text);
+}
 
-  const clean = text.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();
-  const parsed = JSON.parse(clean);
+async function rateWithGroq(
+  apiKey: string,
+  imageUrl: string,
+  title: string,
+  description: string
+): Promise<{ rating: number; comment: string; notFood?: boolean }> {
+  const prompt = buildRamsayPrompt(title, description);
+  const body = JSON.stringify({
+    model: "meta-llama/llama-4-scout-17b-16e-instruct",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image_url", image_url: { url: imageUrl } },
+          { type: "text", text: prompt },
+        ],
+      },
+    ],
+    temperature: 0.9,
+    max_tokens: 300,
+    response_format: { type: "json_object" },
+  });
 
-  if (parsed.notFood) {
-    return { rating: 1, comment: "That's not food. Get out of my kitchen.", notFood: true };
+  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body,
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!r.ok) {
+    const errText = await r.text();
+    throw new Error(`Groq API ${r.status}: ${errText}`);
   }
-
-  const rating = Math.min(10, Math.max(1, Math.round(Number(parsed.rating))));
-  if (!parsed.comment) throw new Error("No comment in Gemini response");
-  return { rating, comment: String(parsed.comment) };
+  const data = await r.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error(`No text in Groq response: ${JSON.stringify(data)}`);
+  return parseRamsayJSON(text);
 }
 
 export async function submitRating(
