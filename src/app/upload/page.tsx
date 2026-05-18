@@ -3,10 +3,11 @@
 import { useState, useRef, useTransition, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Upload, ImagePlus, Sparkles, X, PartyPopper } from "lucide-react";
+import { Upload, ImagePlus, Sparkles, X } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
 import { CATEGORIES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import OnboardingModal from "@/components/OnboardingModal";
 
 export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -95,15 +96,7 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      {isWelcome && (
-        <div className="mb-6 flex items-start gap-3 bg-gradient-to-r from-orange-500/15 to-rose-500/10 border border-orange-500/30 rounded-2xl p-5">
-          <PartyPopper className="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-black text-app text-base">Welcome to Rate My Plate! 🎉</p>
-            <p className="text-muted text-sm mt-0.5">You're all set. Upload your first plate and let the AI judge it — it takes 30 seconds.</p>
-          </div>
-        </div>
-      )}
+      {isWelcome && <OnboardingModal />}
       <div className="mb-8 flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-black text-app mb-2">Upload Your Plate</h1>
