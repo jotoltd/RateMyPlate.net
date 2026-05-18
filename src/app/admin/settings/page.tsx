@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin";
 import { saveSettings } from "@/app/actions/settings";
-import { BarChart3, Megaphone, Save, Mail, Send, Star, Pin } from "lucide-react";
+import { BarChart3, Megaphone, Save, Mail, Send, Star, Pin, LogIn, Bell, Zap } from "lucide-react";
+import SetupCopyButton from "./SetupCopyButton";
 import BroadcastButton from "../BroadcastButton";
 import { triggerWeeklyDigest } from "@/app/actions/broadcast";
 import { adminSendCustomEmail, adminSetFeaturedPlate } from "@/app/actions/admin";
@@ -142,6 +143,66 @@ export default async function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── Google Sign-In Setup ─────────────────────────────────────────── */}
+      <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-app-1 flex items-center gap-2">
+          <LogIn className="w-4 h-4 text-blue-400" />
+          <h2 className="font-bold text-app">Google Sign-In</h2>
+          <span className="ml-auto text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">NEEDS SETUP</span>
+        </div>
+        <div className="p-6 space-y-4 text-sm">
+          <ol className="space-y-3 text-muted list-decimal list-inside">
+            <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" className="text-blue-400 underline">Google Cloud Console → Credentials</a> and create an OAuth 2.0 Client ID (Web application).</li>
+            <li>Add this as an <strong className="text-app">Authorised redirect URI</strong>:</li>
+          </ol>
+          <SetupCopyButton value="https://uigyxxmaywwvazbvqrcx.supabase.co/auth/v1/callback" />
+          <ol start={3} className="space-y-3 text-muted list-decimal list-inside">
+            <li>Go to <a href="https://supabase.com/dashboard/project/uigyxxmaywwvazbvqrcx/auth/providers" target="_blank" rel="noreferrer" className="text-blue-400 underline">Supabase → Auth → Providers → Google</a>, enable it, and paste your Client ID + Secret.</li>
+            <li>That&apos;s it — the callback route and button component are already deployed. Enable Google Sign-In on the login/signup pages when ready.</li>
+          </ol>
+        </div>
+      </div>
+
+      {/* ─── iOS Push Notifications Setup ───────────────────────────────────── */}
+      <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-app-1 flex items-center gap-2">
+          <Bell className="w-4 h-4 text-rose-400" />
+          <h2 className="font-bold text-app">iOS Push Notifications</h2>
+          <span className="ml-auto text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">NEEDS SETUP</span>
+        </div>
+        <div className="p-6 space-y-4 text-sm">
+          <ol className="space-y-3 text-muted list-decimal list-inside">
+            <li>Run this SQL in <a href="https://supabase.com/dashboard/project/uigyxxmaywwvazbvqrcx/sql" target="_blank" rel="noreferrer" className="text-blue-400 underline">Supabase SQL Editor</a> to create the device token table:</li>
+          </ol>
+          <SetupCopyButton value="supabase-push-tokens.sql" label="Copy filename" />
+          <ol start={2} className="space-y-3 text-muted list-decimal list-inside">
+            <li>In Apple Developer → Certificates, Identifiers &amp; Profiles → Keys → create an <strong className="text-app">APNs key</strong>. Download the .p8 file.</li>
+            <li>Go to <a href="https://supabase.com/dashboard/project/uigyxxmaywwvazbvqrcx/settings/auth" target="_blank" rel="noreferrer" className="text-blue-400 underline">Supabase → Settings → Auth</a> — paste the APNs key, Key ID, and Team ID.</li>
+            <li>In Xcode, select the RateMyPlate target → Signing &amp; Capabilities → add <strong className="text-app">Push Notifications</strong> capability.</li>
+            <li>The <code className="bg-surface-2 px-1 rounded text-orange-400">PushNotificationService.swift</code> and <code className="bg-surface-2 px-1 rounded text-orange-400">/api/push/register</code> endpoint are already deployed.</li>
+          </ol>
+        </div>
+      </div>
+
+      {/* ─── Points System SQL ───────────────────────────────────────────────── */}
+      <div className="bg-surface-1 border border-app-1 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-app-1 flex items-center gap-2">
+          <Zap className="w-4 h-4 text-yellow-400" />
+          <h2 className="font-bold text-app">Points System</h2>
+          <span className="ml-auto text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">NEEDS SETUP</span>
+        </div>
+        <div className="p-6 space-y-4 text-sm">
+          <p className="text-muted">The points triggers and backfill are written but haven&apos;t been run yet. Until you run this, all profiles show 0 points.</p>
+          <ol className="space-y-3 text-muted list-decimal list-inside">
+            <li>Open <a href="https://supabase.com/dashboard/project/uigyxxmaywwvazbvqrcx/sql" target="_blank" rel="noreferrer" className="text-blue-400 underline">Supabase SQL Editor</a>.</li>
+            <li>Open and run the file <code className="bg-surface-2 px-1 rounded text-orange-400">supabase-points-migration.sql</code> from the project root.</li>
+            <li>It will add the <code className="bg-surface-2 px-1 rounded text-orange-400">points</code> column, create triggers, and backfill all existing data automatically.</li>
+          </ol>
+          <SetupCopyButton value="supabase-points-migration.sql" label="Copy filename" />
+        </div>
+      </div>
+
     </div>
   );
 }

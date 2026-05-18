@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChefHat, Mail, Lock, User, Flame, Eye, EyeOff, Star, Users, Sparkles } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
-import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 function formatCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
@@ -95,14 +94,6 @@ export default function SignupPage() {
             <span className="text-2xl mb-1">🔒</span>
             <span className="text-xs font-bold text-app">Sign up to get yours</span>
           </div>
-        </div>
-
-        {/* Google OAuth */}
-        <GoogleSignInButton label="Sign up with Google" />
-        <div className="flex items-center gap-3 my-2">
-          <div className="flex-1 h-px bg-app-1" />
-          <span className="text-xs text-faintest font-semibold">or sign up with email</span>
-          <div className="flex-1 h-px bg-app-1" />
         </div>
 
         {error && (

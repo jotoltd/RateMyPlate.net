@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChefHat, Mail, Lock, LogIn, Flame, Star, Users, Eye, EyeOff } from "lucide-react";
 import { signIn } from "@/app/actions/auth";
-import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -72,13 +71,6 @@ export default function LoginPage() {
           <div className="border border-app-1 bg-surface-1 rounded-3xl p-7 backdrop-blur-sm">
             <h2 className="text-lg font-black text-app mb-1">Sign in</h2>
             <p className="text-faint text-sm mb-6">Already have an account?</p>
-
-        <GoogleSignInButton />
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-app-1" />
-          <span className="text-xs text-faintest font-semibold">or sign in with email</span>
-          <div className="flex-1 h-px bg-app-1" />
-        </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-6">
