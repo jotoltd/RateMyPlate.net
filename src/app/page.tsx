@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Upload, Star, Users, Sparkles, ChefHat, Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import InfiniteFeed from "@/components/InfiniteFeed";
+import GuestSignupNudge from "@/components/GuestSignupNudge";
 import { Plate, CATEGORIES } from "@/lib/types";
 
 const PAGE_SIZE = 12;
@@ -248,6 +249,11 @@ export default async function Home({
 
       {/* Feed */}
       <div className="px-4 pb-12" id="feed">
+        {!user && (
+          <div className="max-w-[680px] mx-auto">
+            <GuestSignupNudge context="feed" />
+          </div>
+        )}
         {activeTab === "following" ? (
           followingPlates.length > 0 ? (
             <InfiniteFeed

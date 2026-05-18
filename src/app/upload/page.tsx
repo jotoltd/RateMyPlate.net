@@ -3,7 +3,7 @@
 import { useState, useRef, useTransition, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Upload, ImagePlus, Sparkles, X } from "lucide-react";
+import { Upload, ImagePlus, Sparkles, X, ChefHat, Star, Zap } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
 import { CATEGORIES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
@@ -22,9 +22,12 @@ export default function UploadPage() {
   const searchParams = useSearchParams();
   const isWelcome = searchParams.get("welcome") === "1";
 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }) => {
+      setIsLoggedIn(!!user);
       if (!user) return;
       const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const { count } = await supabase
@@ -92,6 +95,38 @@ export default function UploadPage() {
       const result = await uploadPlate(formData);
       if (result?.error) setError(result.error);
     });
+  }
+
+  if (isLoggedIn === false) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-app relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-orange-600/15 to-transparent blur-3xl pointer-events-none" />
+        <div className="relative w-full max-w-sm text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/25">
+            <ChefHat className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-black text-app mb-3">Join to Upload</h1>
+          <p className="text-muted mb-6 leading-relaxed">Create a free account to share your plates, get AI ratings from Gordon Ramsay&apos;s digital twin, and earn points.</p>
+          <div className="flex flex-col gap-3 mb-6">
+            {[
+              { icon: <Zap className="w-4 h-4 text-orange-400" />, text: "+10 points for every upload" },
+              { icon: <Star className="w-4 h-4 text-yellow-400" />, text: "Instant AI critique from Ramsay" },
+              { icon: <Upload className="w-4 h-4 text-rose-400" />, text: "Takes 30 seconds" },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-center gap-3 bg-surface-1 border border-app-1 rounded-xl px-4 py-3 text-sm text-muted">
+                {icon}<span>{text}</span>
+              </div>
+            ))}
+          </div>
+          <a href="/auth/signup?next=/upload" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20 mb-3">
+            <ChefHat className="w-5 h-5" /> Create Free Account
+          </a>
+          <a href="/auth/login?next=/upload" className="w-full flex items-center justify-center gap-2 bg-surface-1 border border-app-1 text-muted py-3.5 rounded-2xl font-semibold text-sm hover:bg-surface-2 transition-colors">
+            Already have an account? Sign in
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return (

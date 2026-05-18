@@ -17,6 +17,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import EditPlateModal from "@/components/EditPlateModal";
 import DeletePlateButton from "@/components/DeletePlateButton";
+import GuestSignupNudge from "@/components/GuestSignupNudge";
 import { formatDate, getStarLabel, scoreToStars } from "@/lib/utils";
 import { Comment, Plate } from "@/lib/types";
 import PlateImageWithLightbox from "@/components/PlateImageWithLightbox";
@@ -323,26 +324,7 @@ export default async function PlatePage({
             )}
           </div>
 
-          {!user && (
-            <div className="bg-gradient-to-br from-orange-500/10 to-rose-500/10 border border-orange-500/25 rounded-2xl p-5">
-              <p className="font-black text-app text-base mb-1">Think you can do better?</p>
-              <p className="text-sm text-muted mb-4">Join free and rate this plate, leave a comment, and upload your own masterpiece.</p>
-              <div className="flex gap-2 flex-wrap">
-                <Link
-                  href="/auth/signup"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-sm shadow-md shadow-orange-500/30 active:scale-95"
-                >
-                  🔥 Join Free
-                </Link>
-                <Link
-                  href="/auth/login"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border border-app-1 text-muted hover:text-app hover:border-orange-500/40 transition-colors"
-                >
-                  Sign In
-                </Link>
-              </div>
-            </div>
-          )}
+          {!user && <GuestSignupNudge context="plate" />}
         </div>
       </div>
 
