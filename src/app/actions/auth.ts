@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { createClient } from "@/lib/supabase/server";
-import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -30,26 +30,32 @@ export async function signUp(formData: FormData) {
       .single();
     if (existingEmail) return { error: "An account with that email already exists." };
 
-    // Generate 6-digit OTP
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-
-    // Store OTP + credentials via RPC (SECURITY DEFINER bypasses RLS)
-    await supabase.rpc("upsert_email_verification", {
-      p_email: email,
-      p_code: code,
-      p_username: username,
-      p_password_hash: password,
+    // Create auth user directly — no email verification
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } },
     });
+    if (error) return { error: error.message };
 
-    // Send via Resend — surface failures explicitly
-    const emailResult = await sendVerificationEmail(email, username, code).catch((err) => ({ error: err?.message ?? "Email failed" }));
-    if (emailResult && "error" in emailResult) {
-      console.error("[signUp] Resend error:", emailResult.error);
-      return { error: `Could not send verification email: ${emailResult.error}. Please try again or contact support.` };
+    const userId = data.user?.id ?? data.session?.user?.id;
+    if (!userId) return { error: "Could not create account. Please try again." };
+
+    // Create profile
+    await supabase.from("profiles").upsert({ id: userId, username, email, avatar_url: null, bio: null });
+
+    // Sign in immediately if no session (Supabase email confirm still enabled on their side)
+    if (!data.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) return { error: signInError.message };
     }
 
-    const nextParam = next && next.startsWith("/") ? `&next=${encodeURIComponent(next)}` : "";
-    redirect(`/auth/verify-email?email=${encodeURIComponent(email)}${nextParam}`);
+    // Send welcome email — fire and forget, never block signup
+    sendWelcomeEmail(email, username).catch(() => {});
+
+    revalidatePath("/", "layout");
+    const redirectTo = next && next.startsWith("/") ? next : "/upload?welcome=1";
+    redirect(redirectTo);
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };
@@ -139,23 +145,8 @@ export async function signOut() {
   redirect("/");
 }
 
-export async function resendConfirmation(email: string) {
-  const supabase = await createClient();
-  const code = String(Math.floor(100000 + Math.random() * 900000));
-
-  // Fetch pending verification row without consuming it
-  const { data: rows } = await supabase.rpc("get_pending_verification", { p_email: email });
-  const username = rows?.[0]?.username ?? email.split("@")[0];
-  const passwordHash = rows?.[0]?.password_hash ?? "";
-
-  await supabase.rpc("upsert_email_verification", {
-    p_email: email,
-    p_code: code,
-    p_username: username,
-    p_password_hash: passwordHash,
-  });
-
-  await sendVerificationEmail(email, username, code);
+export async function resendConfirmation(_email: string) {
+  // Email verification is currently disabled
   return { success: true };
 }
 
