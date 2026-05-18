@@ -142,8 +142,29 @@ export default async function PlatePage({
   const displayRating = plate.avg_user_rating ?? plate.ai_rating;
   const displayStars = displayRating ? scoreToStars(displayRating) : null;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    "name": plate.title,
+    "description": plate.description ?? `A plate rated on Rate My Plate by @${plate.profiles?.username ?? "a chef"}`,
+    "image": [plate.image_url],
+    "author": { "@type": "Person", "name": plate.profiles?.username ?? "Chef" },
+    "datePublished": plate.created_at,
+    ...(plate.category ? { "recipeCategory": plate.category } : {}),
+    ...(displayStars !== null && plate.rating_count > 0 ? {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": displayStars.toFixed(1),
+        "bestRating": "5",
+        "worstRating": "1",
+        "ratingCount": plate.rating_count,
+      }
+    } : {}),
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Link
         href="/"
         className="inline-flex items-center gap-2 text-faint hover:text-orange-400 transition-colors mb-6 text-sm font-medium"
