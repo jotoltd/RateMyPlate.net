@@ -8,6 +8,7 @@ import { PlateCardSkeleton } from "@/components/Skeleton";
 import { Plate, Comment } from "@/lib/types";
 import { loadMorePlates, loadFollowingFeed } from "@/app/actions/feed";
 import { createClient } from "@/lib/supabase/client";
+import GuestSignupNudge from "@/components/GuestSignupNudge";
 
 const PAGE_SIZE = 12;
 
@@ -120,19 +121,21 @@ export default function InfiniteFeed({
           {newPlateCount} new {newPlateCount === 1 ? "plate" : "plates"} — tap to refresh
         </button>
       )}
-      {plates.map((plate) => (
-      <FeedPost
-        key={plate.id}
-        plate={plate}
-        userId={userId}
-        initialLiked={likedIds.includes(plate.id)}
-        initialRating={ratingMap[plate.id] ?? null}
-        initialComments={commentMap[plate.id] ?? []}
-        initialFollowing={followingIds.includes(plate.user_id ?? "")}
-        currentUserAvatar={currentUserAvatar}
-        currentUsername={currentUsername}
-      />
-    ))}
+      {plates.map((plate, idx) => (
+        <div key={plate.id}>
+          <FeedPost
+            plate={plate}
+            userId={userId}
+            initialLiked={likedIds.includes(plate.id)}
+            initialRating={ratingMap[plate.id] ?? null}
+            initialComments={commentMap[plate.id] ?? []}
+            initialFollowing={followingIds.includes(plate.user_id ?? "")}
+            currentUserAvatar={currentUserAvatar}
+            currentUsername={currentUsername}
+          />
+          {idx === 2 && !userId && <GuestSignupNudge context="feed" />}
+        </div>
+      ))}
       {isPending && (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (

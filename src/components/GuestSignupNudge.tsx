@@ -1,50 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { Flame, Star, Zap } from "lucide-react";
+import { Flame, Star, ArrowRight } from "lucide-react";
 
 export default function GuestSignupNudge({ context = "feed" }: { context?: "feed" | "plate" }) {
+  const isFeed = context === "feed";
+
   return (
     <div className="relative overflow-hidden rounded-3xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-rose-500/5 to-transparent p-6 my-4">
-      <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/10 blur-3xl pointer-events-none" />
+      {/* Glow */}
+      <div className="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/15 blur-3xl pointer-events-none rounded-full" />
+
       <div className="relative">
+        {/* Icon row */}
         <div className="flex items-center gap-2 mb-3">
-          <Flame className="w-5 h-5 text-orange-400" />
+          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
+            <span className="text-base">👨‍🍳</span>
+          </div>
           <span className="text-xs font-bold text-orange-400 uppercase tracking-widest">
-            {context === "plate" ? "Rate this plate" : "Join the community"}
+            {isFeed ? "What would Ramsay say about yours?" : "Join to rate & get rated"}
           </span>
         </div>
-        <h3 className="text-xl font-black text-app mb-1">
-          {context === "plate"
-            ? "Sign up to rate & comment"
-            : "Want to upload your own plate?"}
+
+        <h3 className="text-xl font-black text-app mb-2 leading-tight">
+          {isFeed
+            ? "Is your cooking actually good?"
+            : "Sign up — find out how your food really scores"}
         </h3>
+
         <p className="text-sm text-muted mb-4 leading-relaxed">
-          {context === "plate"
-            ? "Create a free account to rate plates, leave comments, and get your own food brutally critiqued by AI."
-            : "Get instant AI ratings from Gordon Ramsay's digital twin. Free forever, takes 30 seconds."}
+          {isFeed
+            ? "Upload a photo, get a brutally honest AI critique, and let the community rate it. You might be surprised."
+            : "Get an instant AI critique on your own plates. Rate others. See your score on the leaderboard."}
         </p>
-        <div className="flex flex-wrap gap-3 mb-5">
-          {[
-            { icon: <Zap className="w-3.5 h-3.5 text-orange-400" />, text: "+10 pts per upload" },
-            { icon: <Star className="w-3.5 h-3.5 text-yellow-400" />, text: "AI Ramsay critique" },
-            { icon: <Flame className="w-3.5 h-3.5 text-rose-400" />, text: "Free forever" },
-          ].map(({ icon, text }) => (
-            <span key={text} className="flex items-center gap-1.5 text-xs text-muted bg-surface-1 border border-app-1 px-3 py-1.5 rounded-full">
-              {icon}{text}
-            </span>
+
+        {/* Mini proof strip */}
+        <div className="flex items-center gap-1.5 mb-5">
+          {["★","★","★","★","★"].map((s, i) => (
+            <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
           ))}
+          <span className="text-xs text-faint ml-1">Free forever · 30 seconds to join</span>
         </div>
+
         <div className="flex gap-3">
           <Link
             href="/auth/signup"
-            className="flex-1 text-center py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm rounded-xl hover:opacity-90 transition-opacity"
+            className="group flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm rounded-xl hover:from-orange-400 hover:to-rose-400 transition-all shadow-md shadow-orange-500/20 active:scale-[0.98]"
           >
-            Create Free Account
+            <Flame className="w-4 h-4" />
+            {isFeed ? "Find Out Now" : "Join Free"}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <Link
             href="/auth/login"
-            className="flex-1 text-center py-3 border border-app-1 text-muted font-semibold text-sm rounded-xl hover:bg-surface-1 transition-colors"
+            className="px-5 py-3.5 border border-app-1 text-muted font-semibold text-sm rounded-xl hover:bg-surface-1 hover:text-app transition-colors"
           >
             Sign In
           </Link>
