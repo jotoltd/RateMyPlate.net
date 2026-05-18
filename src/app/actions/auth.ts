@@ -11,6 +11,7 @@ export async function signUp(formData: FormData) {
   const email = (formData.get("email") as string).trim().toLowerCase();
   const password = formData.get("password") as string;
   const username = (formData.get("username") as string).trim();
+  const next = (formData.get("next") as string | null) ?? "";
 
   try {
     // Check username not already taken
@@ -43,7 +44,8 @@ export async function signUp(formData: FormData) {
     // Send via Resend
     await sendVerificationEmail(email, username, code);
 
-    redirect(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+    const nextParam = next && next.startsWith("/") ? `&next=${encodeURIComponent(next)}` : "";
+    redirect(`/auth/verify-email?email=${encodeURIComponent(email)}${nextParam}`);
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };
@@ -97,7 +99,8 @@ export async function verifyEmail(formData: FormData) {
 
     sendWelcomeEmail(email, username).catch(() => {});
     revalidatePath("/", "layout");
-    redirect("/upload?welcome=1");
+    const redirectTo = (formData.get("next") as string | null);
+    redirect(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/upload?welcome=1");
   } catch (e) {
     if (isRedirectError(e)) throw e;
     return { error: "Something went wrong. Please try again." };

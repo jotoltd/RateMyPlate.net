@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { TrendingUp, Star, Heart, Flame, Upload } from "lucide-react";
+import { TrendingUp, Star, Heart, Flame, Upload, ChefHat } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, scoreToStars } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/types";
@@ -23,6 +23,7 @@ export default async function TrendingPage({
   const activeCategory = category && CATEGORIES.includes(category as never) ? category : "all";
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const since =
     activePeriod === "24h"
@@ -171,6 +172,25 @@ export default async function TrendingPage({
               </Link>
             );
           })}
+        </div>
+      )}
+
+      {/* Guest CTA */}
+      {!user && (
+        <div className="mt-10 rounded-3xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-rose-500/5 to-transparent p-7 text-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/25">
+            <ChefHat className="w-6 h-6 text-white" />
+          </div>
+          <h3 className="text-xl font-black text-app mb-2">Want to appear on Trending?</h3>
+          <p className="text-sm text-muted mb-5">Upload your plate, get an AI critique, and let the community rate it. Free forever — takes 30 seconds.</p>
+          <div className="flex gap-3 justify-center">
+            <Link href="/auth/signup" className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-black text-sm hover:opacity-90 transition-opacity shadow-md shadow-orange-500/20">
+              <Flame className="w-4 h-4" /> Join Free
+            </Link>
+            <Link href="/auth/login" className="flex items-center gap-2 border border-app-1 text-muted px-6 py-3 rounded-xl font-semibold text-sm hover:bg-surface-1 transition-colors">
+              Sign In
+            </Link>
+          </div>
         </div>
       )}
     </div>

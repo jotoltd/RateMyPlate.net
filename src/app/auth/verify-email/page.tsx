@@ -3,12 +3,23 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ChefHat, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
+import { ChefHat, ArrowLeft, RefreshCw, Loader2, Clock } from "lucide-react";
 import { verifyEmail, resendConfirmation } from "@/app/actions/auth";
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const next = searchParams.get("next") ?? "";
+
+  const EXPIRE_SECS = 15 * 60;
+  const [secondsLeft, setSecondsLeft] = useState(EXPIRE_SECS);
+  useEffect(() => {
+    const t = setInterval(() => setSecondsLeft(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const expired = secondsLeft === 0;
 
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
@@ -58,6 +69,7 @@ export default function VerifyEmailPage() {
     const fd = new FormData();
     fd.set("email", email);
     fd.set("code", code);
+    if (next) fd.set("next", next);
     startTransition(async () => {
       const res = await verifyEmail(fd);
       if (res?.error) {
@@ -73,6 +85,7 @@ export default function VerifyEmailPage() {
     startResend(async () => {
       await resendConfirmation(email);
       setResent(true);
+      setSecondsLeft(EXPIRE_SECS);
       setDigits(["", "", "", "", "", ""]);
       refs.current[0]?.focus();
     });
@@ -99,6 +112,13 @@ export default function VerifyEmailPage() {
             <p className="font-bold text-orange-400 text-sm mt-1 break-all">{email}</p>
           )}
           <p className="text-xs text-faintest mt-2">Check your spam folder if you don&apos;t see it.</p>
+          {/* Countdown */}
+          <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full text-xs font-bold ${
+            expired ? "bg-red-500/10 text-red-400" : secondsLeft < 120 ? "bg-amber-500/10 text-amber-400" : "bg-surface-1 text-faint"
+          }`}>
+            <Clock className="w-3 h-3" />
+            {expired ? "Code expired — resend below" : `Code expires in ${mins}:${String(secs).padStart(2, "0")}`}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
