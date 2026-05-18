@@ -4,7 +4,6 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
-import ThemeToggle from "@/components/ThemeToggle";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastProvider from "@/components/ToastProvider";
 import { createClient } from "@/lib/supabase/server";
@@ -72,7 +71,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${geistSans.variable} h-full antialiased dark`} suppressHydrationWarning>
       {analyticsId && (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} strategy="afterInteractive" />
@@ -92,7 +91,7 @@ export default async function RootLayout({
         })(window,document,"clarity","script","wsqj6bru5l");
       `}</Script>
       <body className="min-h-full flex flex-col bg-app text-app transition-colors">
-        <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} themeToggle={<ThemeToggle />} isAdmin={isAdmin} />
+        <Navbar user={user} username={username} avatarUrl={avatarUrl} userId={user?.id} notifications={notifications as never} isAdmin={isAdmin} />
         {announcement && (
           <div className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white text-sm font-semibold text-center py-2.5 px-4">
             {announcement}

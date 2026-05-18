@@ -13,13 +13,12 @@ type NavbarProps = {
   user: { id: string; email?: string } | null;
   username?: string | null;
   notifications?: Notification[];
-  themeToggle?: React.ReactNode;
   avatarUrl?: string | null;
   userId?: string;
   isAdmin?: boolean;
 };
 
-export default function Navbar({ user, username, notifications = [], themeToggle, avatarUrl, userId, isAdmin }: NavbarProps) {
+export default function Navbar({ user, username, notifications = [], avatarUrl, userId, isAdmin }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -59,7 +58,6 @@ export default function Navbar({ user, username, notifications = [], themeToggle
 
         {/* Desktop right */}
         <div className="hidden md:flex items-center gap-1">
-          {!user && themeToggle}
           <Link href="/trending" className="p-2 text-muted hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-colors" title="Trending">
             <Flame className="w-4 h-4" />
           </Link>
@@ -84,7 +82,6 @@ export default function Navbar({ user, username, notifications = [], themeToggle
                 username={username ?? "chef"}
                 email={user.email}
                 avatarUrl={avatarUrl}
-                themeToggle={themeToggle}
                 isAdmin={isAdmin}
               />
             </>

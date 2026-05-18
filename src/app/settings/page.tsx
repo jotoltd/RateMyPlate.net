@@ -8,11 +8,9 @@ import {
   Bell,
   Trash2,
   Shield,
-  Palette,
 } from "lucide-react";
 import EditProfileForm from "@/app/profile/edit/EditProfileForm";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
-import ThemeToggle from "@/components/ThemeToggle";
 
 export const metadata = { title: "Settings – Rate My Plate" };
 
@@ -59,24 +57,6 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      {/* ── Appearance ── */}
-      <section className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center">
-            <Palette className="w-4 h-4 text-violet-400" />
-          </div>
-          <h2 className="font-bold text-app">Appearance</h2>
-        </div>
-        <div className="bg-surface-1 border border-app-1 rounded-3xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-app text-sm">Dark mode</p>
-              <p className="text-xs text-faint mt-0.5">Switch between light and dark theme</p>
-            </div>
-            <ThemeToggle />
-          </div>
-        </div>
-      </section>
 
       {/* ── Account & Security ── */}
       <section className="mb-6">

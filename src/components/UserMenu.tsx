@@ -23,11 +23,10 @@ type UserMenuProps = {
   username: string;
   email?: string;
   avatarUrl?: string | null;
-  themeToggle?: React.ReactNode;
   isAdmin?: boolean;
 };
 
-export default function UserMenu({ userId, username, email, avatarUrl, themeToggle, isAdmin }: UserMenuProps) {
+export default function UserMenu({ userId, username, email, avatarUrl, isAdmin }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -104,12 +103,6 @@ export default function UserMenu({ userId, username, email, avatarUrl, themeTogg
             )}
             <MenuItem href="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setOpen(false)} />
             <MenuItem href="/settings#privacy" icon={<Shield className="w-4 h-4" />} label="Privacy" onClick={() => setOpen(false)} />
-            {themeToggle && (
-              <div className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted">
-                <span className="flex-1 font-medium">Theme</span>
-                {themeToggle}
-              </div>
-            )}
           </div>
 
           <div className="border-t border-app-1 py-1.5">
