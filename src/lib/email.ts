@@ -320,7 +320,7 @@ export async function sendPlateStatusEmail(opts: {
 }
 
 export async function sendVerificationEmail(to: string, username: string, code: string) {
-  if (!resend) return;
+  if (!resend) throw new Error("RESEND_API_KEY is not configured");
   const digits = code.split("");
   const digitBoxes = digits
     .map((d) => `<span style="display:inline-block;width:44px;height:56px;line-height:56px;text-align:center;font-size:28px;font-weight:900;color:#fff;background:#1f1f1f;border:2px solid #333;border-radius:10px;margin:0 3px;">${d}</span>`)

@@ -41,8 +41,12 @@ export async function signUp(formData: FormData) {
       p_password_hash: password,
     });
 
-    // Send via Resend
-    await sendVerificationEmail(email, username, code);
+    // Send via Resend — surface failures explicitly
+    const emailResult = await sendVerificationEmail(email, username, code).catch((err) => ({ error: err?.message ?? "Email failed" }));
+    if (emailResult && "error" in emailResult) {
+      console.error("[signUp] Resend error:", emailResult.error);
+      return { error: `Could not send verification email: ${emailResult.error}. Please try again or contact support.` };
+    }
 
     const nextParam = next && next.startsWith("/") ? `&next=${encodeURIComponent(next)}` : "";
     redirect(`/auth/verify-email?email=${encodeURIComponent(email)}${nextParam}`);
