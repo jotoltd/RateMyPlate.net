@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid } from "lucide-react";
+import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
@@ -136,6 +136,12 @@ export default async function ProfilePage({
                   {profile.following_count ?? 0} following
                 </Link>
               </div>
+              {(profile.points ?? 0) > 0 && (
+                <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
+                  <Zap className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+                  <span className="text-orange-400 font-bold text-sm">{profile.points?.toLocaleString()} pts</span>
+                </div>
+              )}
             </div>
           </div>
           {!isOwnProfile && user && (

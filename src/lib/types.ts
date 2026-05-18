@@ -21,6 +21,7 @@ export type Profile = {
   created_at: string;
   follower_count?: number;
   following_count?: number;
+  points?: number;
 };
 
 export type Plate = {
