@@ -9,6 +9,7 @@ import { toggleCommentLike } from "@/app/actions/commentLikes";
 import { Comment } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import AuthGateModal from "@/components/AuthGateModal";
 
 type CommentSectionProps = {
   plateId: string;
@@ -243,6 +244,23 @@ function CommentItem({
   );
 }
 
+function GuestCommentBanner() {
+  const [showGate, setShowGate] = useState(false);
+  return (
+    <>
+      {showGate && <AuthGateModal action="comment" onClose={() => setShowGate(false)} />}
+      <button
+        onClick={() => setShowGate(true)}
+        className="w-full bg-surface-1 border border-app-1 rounded-2xl px-4 py-3 text-left text-sm text-faint hover:border-orange-500/30 hover:text-muted transition-all flex items-center gap-3"
+      >
+        <MessageSquare className="w-4 h-4 text-orange-400 flex-shrink-0" />
+        <span>Sign up free to join the conversation…</span>
+        <span className="ml-auto text-xs font-bold text-orange-400">Join Free →</span>
+      </button>
+    </>
+  );
+}
+
 export default function CommentSection({
   plateId,
   comments: initialComments,
@@ -310,12 +328,7 @@ export default function CommentSection({
       {currentUserId ? (
         <CommentInput plateId={plateId} placeholder="Write a comment… (Enter to post)" />
       ) : (
-        <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-4 text-center text-sm text-muted">
-          <Link href="/auth/login" className="font-semibold text-orange-400 hover:underline">
-            Sign in
-          </Link>{" "}
-          <span className="text-muted">to leave a comment</span>
-        </div>
+        <GuestCommentBanner />
       )}
 
       <div className="mt-4 divide-y divide-[var(--border-1)]">

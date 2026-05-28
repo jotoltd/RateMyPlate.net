@@ -312,7 +312,7 @@ export default async function PlatePage({
           )}
 
           {/* Rate it */}
-          {user && user.id !== plate.user_id && (
+          {user && user.id !== plate.user_id ? (
             <div className="bg-surface-1 border border-app-1 rounded-3xl p-5">
               <h3 className="font-bold text-app mb-1">
                 {existingRating ? "Update Your Rating" : "Rate This Plate"}
@@ -323,7 +323,16 @@ export default async function PlatePage({
                 existingRating={existingRating}
               />
             </div>
-          )}
+          ) : !user ? (
+            <div className="bg-surface-1 border border-app-1 rounded-3xl p-5 flex items-center gap-4">
+              <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">⭐</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-app text-sm">Rate this plate</p>
+                <p className="text-xs text-faint">Sign up free to star-rate and help rank the best food</p>
+              </div>
+              <Link href="/auth/signup" className="flex-shrink-0 bg-gradient-to-r from-orange-500 to-rose-500 text-white text-xs font-black px-4 py-2 rounded-xl hover:opacity-90 transition-opacity">Join Free</Link>
+            </div>
+          ) : null}
 
           {/* Like + Save + Share */}
           <div className="flex items-center gap-2 pt-1 flex-wrap">
@@ -332,10 +341,9 @@ export default async function PlatePage({
               ownerId={plate.user_id}
               initialCount={plate.like_count ?? 0}
               initialLiked={userLike?.data != null}
+              userId={user?.id ?? null}
             />
-            {user && (
-              <SaveButton plateId={plate.id} initialSaved={initialSaved} />
-            )}
+            <SaveButton plateId={plate.id} initialSaved={initialSaved} userId={user?.id ?? null} />
             {user && (
               <AddToCollectionButton plateId={plate.id} collections={userCollections} />
             )}
@@ -345,7 +353,6 @@ export default async function PlatePage({
             )}
           </div>
 
-          {!user && <GuestSignupNudge context="plate" />}
         </div>
       </div>
 

@@ -3,13 +3,11 @@
 import { useState, useRef, useTransition, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Upload, ImagePlus, Sparkles, X, ChefHat, Star, Zap, Share2, Check, ArrowRight, Flame } from "lucide-react";
+import { Upload, ImagePlus, Sparkles, X, ChefHat, Star, Zap } from "lucide-react";
 import { uploadPlate } from "@/app/actions/plates";
 import { CATEGORIES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import OnboardingModal from "@/components/OnboardingModal";
-
-type GuestResult = { rating: number; comment: string; notFood?: boolean; previewUrl: string; title: string };
 
 export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -25,10 +23,6 @@ export default function UploadPage() {
   const isWelcome = searchParams.get("welcome") === "1";
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [guestResult, setGuestResult] = useState<GuestResult | null>(null);
-  const [guestPending, setGuestPending] = useState(false);
-  const [titleValue, setTitleValue] = useState("");
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -44,32 +38,6 @@ export default function UploadPage() {
       setUploadCount(count ?? 0);
     });
   }, []);
-
-  async function handleGuestSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!compressedBlob) { setError("Please upload an image"); return; }
-    setError("");
-    setGuestPending(true);
-    const fd = new FormData(e.currentTarget);
-    fd.set("image", compressedBlob, compressedName);
-    try {
-      const res = await fetch("/api/rate-guest", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.error) { setError(data.error); return; }
-      setGuestResult({ ...data, previewUrl: preview!, title: titleValue || "Your Plate" });
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setGuestPending(false);
-    }
-  }
-
-  function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.origin + "/auth/signup?next=/upload").then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
 
   function compressImage(file: File): Promise<Blob> {
     return new Promise((resolve) => {
@@ -129,90 +97,33 @@ export default function UploadPage() {
     });
   }
 
-  // Guest result screen
-  if (guestResult) {
-    const stars = Math.round((guestResult.rating / 10) * 5 * 2) / 2;
-    const scoreLabel = stars >= 4.5 ? "Exceptional! 🌟" : stars >= 4 ? "Great! 🔥" : stars >= 3 ? "Good 👍" : stars >= 2 ? "Needs Work 😬" : "Disaster 💀";
-    const scoreColor = stars >= 4 ? "text-emerald-400" : stars >= 3 ? "text-amber-400" : "text-red-400";
+  if (isLoggedIn === false) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center px-4 py-10 bg-app relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-gradient-to-b from-orange-600/15 to-transparent blur-3xl pointer-events-none" />
-        <div className="relative w-full max-w-lg">
-          {/* Result card */}
-          <div className="bg-surface-1 border border-app-1 rounded-3xl overflow-hidden shadow-2xl shadow-orange-500/10 mb-6">
-            <div className="relative h-56 overflow-hidden">
-              <Image src={guestResult.previewUrl} alt={guestResult.title} fill className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                <p className="text-white font-black text-xl">{guestResult.title}</p>
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-2xl px-4 py-2 rounded-2xl shadow-lg flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-white" />{guestResult.rating}<span className="text-sm font-semibold opacity-70">/10</span>
-                </div>
-              </div>
-            </div>
-            <div className="p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm">👨‍🍳</span>
-                </div>
-                <div>
-                  <p className="text-xs font-black text-app">AI Food Critic</p>
-                  <p className={`text-xs font-bold ${scoreColor}`}>{scoreLabel}</p>
-                </div>
-                <div className="ml-auto flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 ${i < Math.floor(stars) ? "fill-amber-400 text-amber-400" : i < stars ? "fill-amber-400/50 text-amber-400" : "text-surface-2"}`} />
-                  ))}
-                </div>
-              </div>
-              <p className="text-sm text-muted leading-relaxed italic">&ldquo;{guestResult.comment}&rdquo;</p>
-            </div>
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-app relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-orange-600/15 to-transparent blur-3xl pointer-events-none" />
+        <div className="relative w-full max-w-sm text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/25">
+            <ChefHat className="w-8 h-8 text-white" />
           </div>
-
-          {/* Sign up gate */}
-          <div className="bg-gradient-to-br from-orange-500/10 to-rose-500/10 border border-orange-500/30 rounded-3xl p-6 mb-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-                <Flame className="w-5 h-5 text-white" />
+          <h1 className="text-3xl font-black text-app mb-3">Join to Upload</h1>
+          <p className="text-muted mb-6 leading-relaxed">Create a free account to share your plates, get AI ratings from Gordon Ramsay&apos;s digital twin, and earn points.</p>
+          <div className="flex flex-col gap-3 mb-6">
+            {[
+              { icon: <Zap className="w-4 h-4 text-orange-400" />, text: "+10 points for every upload" },
+              { icon: <Star className="w-4 h-4 text-yellow-400" />, text: "Instant AI critique from Ramsay" },
+              { icon: <Upload className="w-4 h-4 text-rose-400" />, text: "Takes 30 seconds" },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-center gap-3 bg-surface-1 border border-app-1 rounded-xl px-4 py-3 text-sm text-muted">
+                {icon}<span>{text}</span>
               </div>
-              <div>
-                <p className="font-black text-app">Save &amp; share your rating</p>
-                <p className="text-xs text-muted">Create a free account to post this publicly and collect community ratings</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2.5 mb-4">
-              {[
-                { icon: <Zap className="w-3.5 h-3.5 text-orange-400" />, text: "Your plate stays on your profile permanently" },
-                { icon: <Star className="w-3.5 h-3.5 text-amber-400" />, text: "Community members star-rate your dishes" },
-                { icon: <ChefHat className="w-3.5 h-3.5 text-violet-400" />, text: "Earn points and climb the leaderboard" },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-2.5 text-xs text-muted">{icon}{text}</div>
-              ))}
-            </div>
-            <a
-              href="/auth/signup?next=/upload"
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3.5 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
-            >
-              <ChefHat className="w-5 h-5" /> Save My Rating — Free
-              <ArrowRight className="w-4 h-4" />
-            </a>
+            ))}
           </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setGuestResult(null)}
-              className="flex-1 py-3 border border-app-1 text-muted rounded-2xl font-semibold text-sm hover:bg-surface-1 transition-colors"
-            >
-              Rate another plate
-            </button>
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-2 px-4 py-3 border border-app-1 text-muted rounded-2xl font-semibold text-sm hover:bg-surface-1 transition-colors"
-            >
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-              {copied ? "Copied!" : "Share"}
-            </button>
-          </div>
+          <a href="/auth/signup?next=/upload" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20 mb-3">
+            <ChefHat className="w-5 h-5" /> Create Free Account
+          </a>
+          <a href="/auth/login?next=/upload" className="w-full flex items-center justify-center gap-2 bg-surface-1 border border-app-1 text-muted py-3.5 rounded-2xl font-semibold text-sm hover:bg-surface-2 transition-colors">
+            Already have an account? Sign in
+          </a>
         </div>
       </div>
     );
@@ -246,7 +157,7 @@ export default function UploadPage() {
         </div>
       )}
 
-      <form ref={formRef} onSubmit={isLoggedIn ? handleSubmit : handleGuestSubmit} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
         {/* Image upload */}
         <div>
           <label className="block text-xs font-bold text-muted uppercase tracking-widest mb-3">Plate Photo *</label>
@@ -339,8 +250,6 @@ export default function UploadPage() {
             required
             maxLength={100}
             placeholder="e.g. Spaghetti Carbonara"
-            value={titleValue}
-            onChange={(e) => setTitleValue(e.target.value)}
             className="w-full px-4 py-3 bg-surface-1 border border-app-1 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-app placeholder-faint"
           />
         </div>
@@ -371,19 +280,13 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {!isLoggedIn && (
-          <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-3">
-            <Sparkles className="w-4 h-4 text-orange-400 flex-shrink-0" />
-            <p className="text-xs text-orange-300"><span className="font-bold">No account needed</span> — get your AI rating instantly. Sign up free to save it publicly.</p>
-          </div>
-        )}
         <button
           type="submit"
-          disabled={isPending || guestPending || !compressedBlob}
+          disabled={isPending || !compressedBlob}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg"
         >
           <Upload className="w-5 h-5" />
-          {isPending || guestPending ? "Analysing your plate..." : isLoggedIn ? "Upload & Get Rated" : "Get My AI Rating"}
+          {isPending ? "Uploading & rating..." : "Upload & Get Rated"}
         </button>
       </form>
     </div>
