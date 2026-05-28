@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Star, User, SlidersHorizontal } from "lucide-react";
+import { Search, Star, User, SlidersHorizontal, TrendingUp, Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, scoreToStars } from "@/lib/utils";
 
@@ -35,15 +35,19 @@ export default async function SearchPage({
     platesQuery = platesQuery.gte("avg_user_rating", minScore);
   }
 
-  const [platesRes, usersRes] = await Promise.all([
+  const [platesRes, usersRes, trendingRes] = await Promise.all([
     query || activeCategory !== "all" || minRatingNum > 0 ? platesQuery : Promise.resolve({ data: [] }),
     query
       ? supabase.from("profiles").select("id, username, bio, avatar_url").ilike("username", `%${query}%`).limit(10)
+      : Promise.resolve({ data: [] }),
+    !query && activeCategory === "all" && minRatingNum === 0
+      ? supabase.from("plates").select("id, title, image_url, avg_user_rating, ai_rating, like_count, profiles(username)").eq("status", "approved").order("like_count", { ascending: false }).limit(6)
       : Promise.resolve({ data: [] }),
   ]);
 
   const plates = (platesRes.data ?? []) as typeof platesRes.data;
   const users = usersRes.data ?? [];
+  const trending = (trendingRes.data ?? []) as typeof trendingRes.data;
   const hasFilters = query || activeCategory !== "all" || minRatingNum > 0;
 
   return (
@@ -189,9 +193,49 @@ export default async function SearchPage({
       )}
 
       {!hasFilters && (
-        <div className="text-center py-16 text-faint">
-          <Search className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Search plates or filter by category &amp; rating</p>
+        <div>
+          {trending && trending.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-sm font-bold text-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Flame className="w-4 h-4 text-orange-400" /> Trending Right Now
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {(trending ?? []).map((plate) => {
+                  const rating = plate.avg_user_rating ?? plate.ai_rating;
+                  const prof = plate.profiles as unknown as { username: string } | null;
+                  return (
+                    <Link
+                      key={plate.id}
+                      href={`/plate/${plate.id}`}
+                      className="group relative bg-surface-1 border border-app-1 rounded-2xl overflow-hidden hover:border-orange-500/30 transition-all"
+                    >
+                      <div className="relative h-28 overflow-hidden">
+                        <Image src={plate.image_url} alt={plate.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="200px" />
+                        {rating && (
+                          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-amber-400 text-xs font-black px-2 py-0.5 rounded-lg flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-amber-400" />{scoreToStars(Number(rating)).toFixed(1)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <p className="font-semibold text-app text-sm truncate">{plate.title}</p>
+                        <p className="text-xs text-faint">@{prof?.username ?? "chef"}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="mt-4 text-center">
+                <Link href="/trending" className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:underline font-semibold">
+                  <TrendingUp className="w-4 h-4" /> See all trending plates
+                </Link>
+              </div>
+            </section>
+          )}
+          <div className="text-center py-8 text-faint">
+            <Search className="w-8 h-8 mx-auto mb-3 opacity-30" />
+            <p className="font-medium text-sm">Search plates or chefs above, or filter by category &amp; rating</p>
+          </div>
         </div>
       )}
     </div>

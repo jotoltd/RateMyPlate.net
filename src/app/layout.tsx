@@ -15,9 +15,18 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ratemyplate.net"),
-  title: "Rate My Plate – Share & Rate Food",
+  title: {
+    default: "Rate My Plate – Is Your Food Actually Good?",
+    template: "%s – Rate My Plate",
+  },
   description:
-    "Upload your plates, get rated by AI and the community. The ultimate food rating platform.",
+    "Upload a photo of your plate and get an instant, brutally honest AI food critique scored out of 10. Then see how the community rates it. Free forever.",
+  keywords: [
+    "rate my food", "food rating", "AI food critic", "rate my plate", "food score",
+    "plate rating", "is my food good", "cooking feedback", "food community", "food critique"
+  ],
+  authors: [{ name: "Rate My Plate", url: "https://ratemyplate.net" }],
+  creator: "Rate My Plate",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -28,6 +37,16 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Rate My Plate",
     type: "website",
+    title: "Rate My Plate – Is Your Food Actually Good?",
+    description: "Upload a photo of your plate. Get brutally honest AI feedback + a score out of 10. Join thousands of home chefs already rated.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Rate My Plate" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@ratemyplate",
+    title: "Rate My Plate – Is Your Food Actually Good?",
+    description: "Upload a photo of your plate. Get brutally honest AI feedback + a score out of 10.",
+    images: ["/opengraph-image"],
   },
 };
 

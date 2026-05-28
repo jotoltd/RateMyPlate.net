@@ -3,13 +3,13 @@
 import { useState, useTransition, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, MessageSquare, CheckCircle2, Eye, Send, UserPlus, UserCheck } from "lucide-react";
+import { Star, Heart, MessageSquare, CheckCircle2, Eye, Send, UserPlus, UserCheck, Trash2, Share2, Check } from "lucide-react";
 import { Plate, Comment } from "@/lib/types";
 import { scoreToStars, starsToScore, formatDate } from "@/lib/utils";
 import { imgUrl } from "@/lib/imageUrl";
 import { toggleLike } from "@/app/actions/likes";
 import { submitRating } from "@/app/actions/plates";
-import { addComment } from "@/app/actions/comments";
+import { addComment, deleteComment } from "@/app/actions/comments";
 import { toggleFollow } from "@/app/actions/follows";
 import { useToast } from "@/components/ToastProvider";
 
@@ -45,6 +45,26 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
   const [commentPending, startCommentTransition] = useTransition();
   const [commentError, setCommentError] = useState("");
   const commentInputRef = useRef<HTMLInputElement>(null);
+  const [, startDeleteTransition] = useTransition();
+
+  // Share/copy state
+  const [copied, setCopied] = useState(false);
+
+  function handleDeleteComment(commentId: string) {
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
+    startDeleteTransition(async () => {
+      await deleteComment(commentId, plate.id);
+    });
+  }
+
+  function handleCopyLink() {
+    const url = `${window.location.origin}/plate/${plate.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast("Link copied!", "success");
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   function handleComment(e: React.FormEvent) {
     e.preventDefault();
@@ -270,6 +290,15 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
           <span className="hidden sm:inline">Comments</span>
         </Link>
 
+        {/* Share / copy link */}
+        <button
+          onClick={handleCopyLink}
+          className="flex items-center gap-1 text-xs text-faint hover:text-orange-400 transition-colors"
+          title="Copy link"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+        </button>
+
         {(plate.view_count ?? 0) > 0 && (
           <span className="flex items-center gap-1 text-xs text-faintest">
             <Eye className="w-3.5 h-3.5" />
@@ -305,8 +334,9 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
             )}
             {comments.slice(-2).map((c) => {
               const uname = c.profiles?.username ?? "user";
+              const isOwnComment = userId && c.user_id === userId;
               return (
-                <div key={c.id} className="flex items-start gap-2">
+                <div key={c.id} className="flex items-start gap-2 group/comment">
                   <div className="w-6 h-6 flex-shrink-0 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 overflow-hidden">
                     {c.profiles?.avatar_url ? (
                       <Image src={c.profiles.avatar_url} alt={uname} width={24} height={24} className="object-cover w-full h-full" />
@@ -320,6 +350,15 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
                     <span className="font-semibold text-app">{uname} </span>
                     <span className="text-muted break-words">{c.body}</span>
                   </div>
+                  {isOwnComment && (
+                    <button
+                      onClick={() => handleDeleteComment(c.id)}
+                      className="opacity-0 group-hover/comment:opacity-100 p-1 rounded-lg text-faint hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0"
+                      title="Delete comment"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               );
             })}

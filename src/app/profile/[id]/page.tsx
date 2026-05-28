@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid, Zap } from "lucide-react";
+import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid, Zap, Bookmark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
@@ -34,7 +34,7 @@ export default async function ProfilePage({
 }) {
   const { id } = await params;
   const { tab } = await searchParams;
-  const activeTab = tab === "ratings" ? "ratings" : "plates";
+  const activeTab = tab === "ratings" ? "ratings" : tab === "liked" ? "liked" : "plates";
   const supabase = await createClient();
 
   const { data: profile } = await supabase
@@ -81,6 +81,26 @@ export default async function ProfilePage({
   const isFollowing = user && !isOwnProfile
     ? !!(await supabase.from("follows").select("id").eq("follower_id", user.id).eq("following_id", id).single()).data
     : false;
+
+  // Liked plates — only own profile
+  let likedPlates: Plate[] = [];
+  if (isOwnProfile && activeTab === "liked") {
+    const { data: likeRows } = await supabase
+      .from("likes")
+      .select("plate_id")
+      .eq("user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const likeIds = (likeRows ?? []).map((r) => r.plate_id);
+    if (likeIds.length > 0) {
+      const { data: lp } = await supabase
+        .from("plates")
+        .select("*, profiles(id, username, avatar_url)")
+        .in("id", likeIds)
+        .eq("status", "approved");
+      likedPlates = (lp ?? []) as Plate[];
+    }
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -173,10 +193,11 @@ export default async function ProfilePage({
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-surface-1 rounded-2xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-surface-1 rounded-2xl p-1 mb-6 w-fit flex-wrap">
         {[
           { key: "plates", label: isOwnProfile ? "My Plates" : "Plates", icon: <LayoutGrid className="w-3.5 h-3.5" /> },
           { key: "ratings", label: "Ratings Given", icon: <Star className="w-3.5 h-3.5" /> },
+          ...(isOwnProfile ? [{ key: "liked", label: "Liked", icon: <Heart className="w-3.5 h-3.5" /> }] : []),
         ].map(({ key, label, icon }) => (
           <Link
             key={key}
@@ -228,6 +249,22 @@ export default async function ProfilePage({
       )}
 
       {activeTab === "ratings" && <RatingsTab userId={id} />}
+
+      {activeTab === "liked" && isOwnProfile && (
+        likedPlates.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {likedPlates.map((plate) => (
+              <PlateCard key={plate.id} plate={plate as Plate} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 text-faint">
+            <Heart className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="font-medium">No liked plates yet</p>
+            <p className="text-sm mt-1">Plates you like will appear here</p>
+          </div>
+        )
+      )}
 
       {/* Pending / rejected plates — only visible to the owner */}
       {activeTab === "plates" && isOwnProfile && pendingPlates && pendingPlates.length > 0 && (

@@ -253,6 +253,76 @@ export default async function Home({
         </section>
       )}
 
+      {/* HOW IT WORKS */}
+      {!user && (
+        <section className="border-b border-nav bg-app">
+          <div className="max-w-4xl mx-auto px-4 py-14">
+            <p className="text-center text-xs font-bold uppercase tracking-widest text-orange-400 mb-3">How it works</p>
+            <h2 className="text-3xl font-black text-app text-center mb-10">Three steps to honest feedback</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { step: "01", icon: "📸", title: "Snap your plate", desc: "Upload a photo of anything you cooked, ordered, or plated. Phone photos are fine." },
+                { step: "02", icon: "🤖", title: "Get AI-critiqued", desc: "Our AI food critic channels its inner Gordon Ramsay and gives you a brutally honest score out of 10." },
+                { step: "03", icon: "⭐", title: "Collect community ratings", desc: "Other chefs star-rate your plate and leave comments. See how you stack up on the leaderboard." },
+              ].map(({ step, icon, title, desc }) => (
+                <div key={step} className="relative bg-surface-1 border border-app-1 rounded-3xl p-6">
+                  <span className="absolute top-5 right-5 text-xs font-black text-faint opacity-40">{step}</span>
+                  <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-center text-2xl mb-4">{icon}</div>
+                  <h3 className="font-black text-app mb-2">{title}</h3>
+                  <p className="text-sm text-muted leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* TESTIMONIALS */}
+      {!user && (
+        <section className="border-b border-nav bg-surface-1/50">
+          <div className="max-w-4xl mx-auto px-4 py-14">
+            <p className="text-center text-xs font-bold uppercase tracking-widest text-orange-400 mb-3">What chefs are saying</p>
+            <h2 className="text-3xl font-black text-app text-center mb-10">Honest feedback changes everything</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                { quote: "I uploaded my pasta and the AI told me I overcooked it. I adjusted the recipe and now I get 9s consistently.", name: "Jamie R.", handle: "@jamie_eats", emoji: "🍝", stars: 5 },
+                { quote: "Finally a place where people actually rate food properly. Not just empty compliments. My plating has improved so much.", name: "Sarah K.", handle: "@sarah_cooks", emoji: "🍱", stars: 5 },
+                { quote: "The Gordon Ramsay AI is brutal but fair. Got a 6.5 on my burger, fixed the sauce, got a 9.2 the next week.", name: "Marcus T.", handle: "@marcus_grills", emoji: "🍔", stars: 4 },
+              ].map(({ quote, name, handle, emoji, stars }) => (
+                <div key={handle} className="bg-surface-1 border border-app-1 rounded-3xl p-6 flex flex-col gap-4">
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`w-4 h-4 ${i < stars ? "fill-amber-400 text-amber-400" : "text-surface-2 fill-surface-2"}`} />
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted leading-relaxed flex-1">
+                    &ldquo;{quote}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3 pt-1 border-t border-app-1">
+                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-lg flex-shrink-0">{emoji}</div>
+                    <div>
+                      <p className="text-sm font-bold text-app">{name}</p>
+                      <p className="text-xs text-faint">{handle}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="mt-10 text-center">
+              <Link
+                href="/auth/signup"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
+              >
+                <Flame className="w-5 h-5" />
+                Join for free — get rated today
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Feed chrome: quick links + tabs + filters — full width */}
       <div className="max-w-[680px] mx-auto px-4 pt-6 pb-2">
         {/* Quick links */}
