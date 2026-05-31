@@ -1,8 +1,10 @@
 import { ImageResponse } from "next/og";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+// No caching issues — always fresh for crawlers
+export const revalidate = 0;
 
 export default async function OgImage({
   params,
@@ -10,7 +12,11 @@ export default async function OgImage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
+  // Use anon client directly — no cookies needed, works for crawlers
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { data: plate } = await supabase
     .from("plates")
     .select("title, description, image_url, avg_user_rating, ai_rating, profiles(username)")
