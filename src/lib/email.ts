@@ -278,7 +278,7 @@ export async function sendPlateSubmittedEmail(opts: {
       ${h1("New plate in the queue")}
       ${p(`<strong style="color:#fff;">@${uploaderUsername}</strong> just uploaded a plate called <strong style="color:#f97316;">"${plateTitle}"</strong> and it's waiting for your approval.`)}
       <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:20px;margin:16px 0;">
-        <p style="color:#888;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Ramsay's verdict (${aiRating}/10)</p>
+        <p style="color:#888;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Ramsay's verdict (${aiRating ? (Math.round((Number(aiRating) / 10) * 5 * 2) / 2).toFixed(1) : "?"}/5 stars)</p>
         <p style="color:#c4b5fd;font-size:14px;font-style:italic;margin:0;">"${aiComment}"</p>
       </div>
       ${btn("Review Now", SITE + "/admin/review")}

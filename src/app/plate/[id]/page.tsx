@@ -45,9 +45,10 @@ export async function generateMetadata({
 
   const rating = plate.avg_user_rating ?? plate.ai_rating;
   const prof = plate.profiles as unknown as { username: string } | null;
+  const ratingStars = rating ? Math.round((Number(rating) / 10) * 5 * 2) / 2 : null;
   const description = plate.description
     ? plate.description
-    : `Rated ${rating ? `${Number(rating).toFixed(1)}/10` : "on"} Rate My Plate by @${prof?.username ?? "a chef"}`;
+    : `Rated ${ratingStars ? `${ratingStars.toFixed(1)}/5 stars` : "on"} Rate My Plate by @${prof?.username ?? "a chef"}`;
 
   const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://ratemyplate.net"}/plate/${id}/opengraph-image`;
 
