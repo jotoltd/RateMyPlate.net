@@ -28,10 +28,14 @@ const STAR_LABELS = ["", "Poor 😬", "Okay 😐", "Good 👍", "Great 🔥", "E
 
 export default function FeedPost({ plate, initialLiked = false, initialRating = null, userId, initialComments = [], currentUserAvatar, currentUsername, initialFollowing = false }: FeedPostProps) {
   const { toast } = useToast();
-  const rawRating = plate.avg_user_rating ?? plate.ai_rating ?? null;
-  const displayStars = rawRating !== null ? scoreToStars(rawRating) : null;
   const initial = (plate.profiles?.username ?? "C")[0].toUpperCase();
   const isOwn = userId === plate.user_id;
+
+  // Live-updating avg rating state
+  const [avgRating, setAvgRating] = useState<number | null>(plate.avg_user_rating ?? null);
+  const [ratingCount, setRatingCount] = useState<number>(plate.rating_count ?? 0);
+  const rawRating = avgRating ?? plate.ai_rating ?? null;
+  const displayStars = rawRating !== null ? scoreToStars(rawRating) : null;
 
   // Like state
   const [liked, setLiked] = useState(initialLiked);
@@ -144,18 +148,44 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
   }
 
   function submitStarRating(star: number) {
+    const prevRating = myRating;
+    const isUpdate = ratingDone && prevRating !== null;
     setMyRating(star);
     setRatingError("");
     setPendingStar(null);
+    // Optimistically update displayed average
+    const newScore = starsToScore(star);
+    const currentAvgScore = avgRating ?? 0;
+    const currentCount = ratingCount;
+    if (isUpdate && prevRating !== null) {
+      // Replace old rating in average
+      const oldScore = starsToScore(prevRating);
+      const newAvg = currentCount > 0
+        ? (currentAvgScore * currentCount - oldScore + newScore) / currentCount
+        : newScore;
+      setAvgRating(newAvg);
+    } else {
+      // New rating — add to average
+      const newCount = currentCount + 1;
+      const newAvg = currentCount > 0
+        ? (currentAvgScore * currentCount + newScore) / newCount
+        : newScore;
+      setAvgRating(newAvg);
+      setRatingCount(newCount);
+    }
     startRatingTransition(async () => {
-      const res = await submitRating(plate.id, starsToScore(star), "");
+      const res = await submitRating(plate.id, newScore, "");
       if (res?.error) {
         setRatingError(res.error);
         setRatingDone(false);
+        // Revert optimistic update
+        setAvgRating(plate.avg_user_rating ?? null);
+        setRatingCount(plate.rating_count ?? 0);
+        setMyRating(prevRating);
         toast(res.error, "error");
       } else {
         setRatingDone(true);
-        const action = initialRating !== null ? "updated" : "saved";
+        const action = isUpdate ? "updated" : "saved";
         toast(`Rating ${action}!`);
       }
     });
@@ -353,9 +383,9 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
       )}
 
       {/* Rating count summary */}
-      {(plate.rating_count ?? 0) > 0 && (
+      {ratingCount > 0 && (
         <p className="px-4 pb-2 text-xs text-faint">
-          {plate.rating_count} {plate.rating_count === 1 ? "rating" : "ratings"}
+          {ratingCount} {ratingCount === 1 ? "rating" : "ratings"}
           {displayStars !== null && <> · avg {displayStars.toFixed(1)}/5</>}
         </p>
       )}

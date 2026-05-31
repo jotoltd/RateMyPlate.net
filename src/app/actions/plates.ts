@@ -338,6 +338,7 @@ export async function submitRating(
   }
 
   revalidatePath(`/plate/${plateId}`);
+  revalidatePath("/");
   return { success: true };
 }
 
