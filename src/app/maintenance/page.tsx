@@ -153,7 +153,7 @@ export default function MaintenancePage({ initialCount = 0 }: { initialCount?: n
             <span className="shimmer-text">actually good?</span>
           </h1>
           <p className="rmp-text-muted text-white/45 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
-            Post your plate. Get rated by <span className="rmp-text-main text-white/70 font-semibold">real food lovers from around the world</span> — plus a brutally honest AI critique. Follow chefs, build your reputation, climb the leaderboard.
+            Post your plate. Get rated by <span className="rmp-text-main text-white/70 font-semibold">real food lovers from around the world</span> — plus a brutally honest Ramsay critique. Follow chefs, build your reputation, climb the leaderboard.
           </p>
         </div>
 

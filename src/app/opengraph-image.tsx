@@ -35,7 +35,7 @@ export default function OgImage() {
 
       {/* Pills */}
       <div style={{ display: "flex", gap: 16, marginTop: 40 }}>
-        {["🤖 AI Ratings", "🔥 Trending Feed", "👨‍🍳 Chef Community"].map((label) => (
+        {["👨‍🍳 Ramsay Ratings", "🔥 Trending Feed", "� Chef Community"].map((label) => (
           <div key={label} style={{ display: "flex", background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 999, padding: "10px 22px", color: "#fb923c", fontWeight: 700, fontSize: 18 }}>
             {label}
           </div>

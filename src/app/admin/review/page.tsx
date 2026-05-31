@@ -17,17 +17,21 @@ export default async function AdminReviewPage() {
     .order("created_at", { ascending: true })
     .limit(50);
 
+  /* eslint-disable react-hooks/purity */
+  const since24h = new Date(Date.now() - 86400000).toISOString();
+  /* eslint-enable react-hooks/purity */
+
   const { count: approvedToday } = await supabase
     .from("plates")
     .select("id", { count: "exact", head: true })
     .eq("status", "approved")
-    .gte("created_at", new Date(Date.now() - 86400000).toISOString());
+    .gte("created_at", since24h);
 
   const { count: rejectedToday } = await supabase
     .from("plates")
     .select("id", { count: "exact", head: true })
     .eq("status", "rejected")
-    .gte("created_at", new Date(Date.now() - 86400000).toISOString());
+    .gte("created_at", since24h);
 
   return (
     <div className="space-y-6">

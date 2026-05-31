@@ -1,0 +1,31 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["NW9RDF7KX2.com.ratemyplate.app"],
+        "components": [
+          {
+            "/": "/plate/*",
+            "comment": "Open plate detail screen"
+          },
+          {
+            "/": "/profile/*",
+            "comment": "Open profile screen"
+          },
+          {
+            "/": "/chef/*",
+            "comment": "Open chef profile screen"
+          },
+          {
+            "/": "/user/*",
+            "comment": "Open user profile screen"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["NW9RDF7KX2.com.ratemyplate.app"]
+  }
+}

@@ -68,8 +68,8 @@ async function LegalContent() {
           <p>You agree not to: (a) harass or abuse other users; (b) post spam or misleading content; (c) attempt to gain unauthorised access to any system; (d) use automated tools to scrape or abuse the Service; (e) impersonate any person or entity.</p>
         </Section>
 
-        <Section title="5. AI Ratings">
-          <p>AI-generated ratings are provided for entertainment and informational purposes only. They are not professional culinary assessments and should not be relied upon as such.</p>
+        <Section title="5. Ramsay Ratings">
+          <p>Ramsay ratings are provided for entertainment and informational purposes only. They are not professional culinary assessments and should not be relied upon as such.</p>
         </Section>
 
         <Section title="6. Termination">

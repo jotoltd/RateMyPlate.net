@@ -106,11 +106,11 @@ export default function UploadPage() {
             <ChefHat className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-app mb-3">Join to Upload</h1>
-          <p className="text-muted mb-6 leading-relaxed">Create a free account to share your plates, get AI ratings from Gordon Ramsay&apos;s digital twin, and earn points.</p>
+          <p className="text-muted mb-6 leading-relaxed">Create a free account to share your plates, get Ramsay ratings, and earn points.</p>
           <div className="flex flex-col gap-3 mb-6">
             {[
               { icon: <Zap className="w-4 h-4 text-orange-400" />, text: "+10 points for every upload" },
-              { icon: <Star className="w-4 h-4 text-yellow-400" />, text: "Instant AI critique from Ramsay" },
+              { icon: <Star className="w-4 h-4 text-yellow-400" />, text: "Instant critique from Ramsay" },
               { icon: <Upload className="w-4 h-4 text-rose-400" />, text: "Takes 30 seconds" },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3 bg-surface-1 border border-app-1 rounded-xl px-4 py-3 text-sm text-muted">
@@ -135,7 +135,7 @@ export default function UploadPage() {
       <div className="mb-8 flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-black text-app mb-2">Upload Your Plate</h1>
-          <p className="text-muted">Share your creation and get brutally honest AI ratings</p>
+          <p className="text-muted">Share your creation and get brutally honest Ramsay ratings</p>
         </div>
         {uploadCount !== null && (
           <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold ${
@@ -271,10 +271,10 @@ export default function UploadPage() {
           <Sparkles className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-orange-300">
-              AI Rating Included
+              Ramsay Rating Included
             </p>
             <p className="text-xs text-orange-400/70 mt-0.5">
-              Your plate will be instantly reviewed by our AI food critic. Get
+              Your plate will be instantly reviewed by Ramsay. Get
               a score out of 10 and a written critique!
             </p>
           </div>

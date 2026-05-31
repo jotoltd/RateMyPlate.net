@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { User, Calendar, Star, Upload, Heart, Pencil, Users, LayoutGrid, Zap, Bookmark } from "lucide-react";

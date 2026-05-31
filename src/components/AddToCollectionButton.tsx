@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { FolderPlus, Check, ChevronDown } from "lucide-react";
 import { addPlateToCollection } from "@/app/actions/collections-boards";
 
@@ -27,13 +28,13 @@ export default function AddToCollectionButton({
 
   if (collections.length === 0) {
     return (
-      <a
+      <Link
         href="/collections"
         className="flex items-center gap-2 px-4 py-2 rounded-xl border border-app-1 text-sm font-medium text-muted bg-surface-1 hover:border-violet-500/40 hover:text-violet-400 transition-all"
       >
         <FolderPlus className="w-4 h-4" />
         Collections
-      </a>
+      </Link>
     );
   }
 

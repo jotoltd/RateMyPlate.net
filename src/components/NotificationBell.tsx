@@ -144,7 +144,7 @@ export default function NotificationBell({
                       {messages[n.type]}
                       {n.plate && (
                         <span className="font-medium text-orange-400">
-                          {" "}"{n.plate.title}"
+                          {" "}&ldquo;{n.plate.title}&rdquo;
                         </span>
                       )}
                     </p>

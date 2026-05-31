@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     template: "%s – Rate My Plate",
   },
   description:
-    "Upload a photo of your plate and get an instant, brutally honest AI food critique scored out of 10. Then see how the community rates it. Free forever.",
+    "Upload a photo of your plate and get an instant, brutally honest Ramsay critique scored out of 10. Then see how the community rates it. Free forever.",
   keywords: [
-    "rate my food", "food rating", "AI food critic", "rate my plate", "food score",
+    "rate my food", "food rating", "Ramsay food critic", "rate my plate", "food score",
     "plate rating", "is my food good", "cooking feedback", "food community", "food critique"
   ],
   authors: [{ name: "Rate My Plate", url: "https://ratemyplate.net" }],
@@ -38,14 +38,14 @@ export const metadata: Metadata = {
     siteName: "Rate My Plate",
     type: "website",
     title: "Rate My Plate – Is Your Food Actually Good?",
-    description: "Upload a photo of your plate. Get brutally honest AI feedback + a score out of 10. Join thousands of home chefs already rated.",
+    description: "Upload a photo of your plate. Get brutally honest Ramsay feedback + a score out of 10. Join thousands of home chefs already rated.",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Rate My Plate" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@ratemyplate",
     title: "Rate My Plate – Is Your Food Actually Good?",
-    description: "Upload a photo of your plate. Get brutally honest AI feedback + a score out of 10.",
+    description: "Upload a photo of your plate. Get brutally honest Ramsay feedback + a score out of 10.",
     images: ["/opengraph-image"],
   },
 };

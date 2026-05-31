@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-8">
             <Flame className="w-3.5 h-3.5" />
-            AI-Powered Food Critic
+            Ramsay Powered Food Critic
           </div>
           <h1 className="text-6xl md:text-8xl font-black text-app leading-[0.9] tracking-tight mb-5">
             Dare to be
@@ -44,7 +44,7 @@ export default function LoginPage() {
             <span className="text-fire">Rated?</span>
           </h1>
           <p className="text-muted text-lg max-w-md mx-auto mb-8">
-            Upload your plate. Get brutally honest AI critiques. Find out if your cooking is actually good.
+            Upload your plate. Get brutally honest Ramsay critiques. Find out if your cooking is actually good.
           </p>
           <Link
             href="/auth/signup"
@@ -55,7 +55,7 @@ export default function LoginPage() {
           </Link>
           <div className="mt-10 flex flex-wrap justify-center gap-8">
             {[
-              { icon: <Star className="w-4 h-4 text-amber-400 fill-amber-400" />, label: "AI Ratings" },
+              { icon: <Star className="w-4 h-4 text-amber-400 fill-amber-400" />, label: "Ramsay Ratings" },
               { icon: <Flame className="w-4 h-4 text-orange-400" />, label: "Trending Feed" },
               { icon: <Users className="w-4 h-4 text-rose-400" />, label: "Chef Community" },
             ].map(({ icon, label }) => (

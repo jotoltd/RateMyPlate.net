@@ -30,8 +30,8 @@ export default function GuestSignupNudge({ context = "feed" }: { context?: "feed
 
         <p className="text-sm text-muted mb-4 leading-relaxed">
           {isFeed
-            ? "Upload a photo, get a brutally honest AI critique, and let the community rate it. You might be surprised."
-            : "Get an instant AI critique on your own plates. Rate others. See your score on the leaderboard."}
+            ? "Upload a photo, get a brutally honest Ramsay critique, and let the community rate it. You might be surprised."
+            : "Get an instant Ramsay critique on your own plates. Rate others. See your score on the leaderboard."}
         </p>
 
         {/* Mini proof strip */}

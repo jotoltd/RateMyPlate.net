@@ -10,7 +10,7 @@ const COPY: Record<string, { emoji: string; headline: string; sub: string }> = {
   rate:    { emoji: "⭐", headline: "Rate this plate", sub: "Sign up free to star-rate dishes and help rank the best food." },
   save:    { emoji: "🔖", headline: "Save this plate", sub: "Sign up free to bookmark plates to your collections." },
   follow:  { emoji: "👨‍🍳", headline: "Follow this chef", sub: "Sign up free to follow chefs and get their latest plates in your feed." },
-  upload:  { emoji: "📸", headline: "Share your plate", sub: "Sign up free to upload your dishes and get a brutal AI critique." },
+  upload:  { emoji: "📸", headline: "Share your plate", sub: "Sign up free to upload your dishes and get a brutal Ramsay critique." },
   default: { emoji: "🍽️", headline: "Join Rate My Plate", sub: "Sign up free to like, rate, comment and share your own plates." },
 };
 

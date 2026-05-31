@@ -104,6 +104,7 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
   const [ratingDone, setRatingDone] = useState(initialRating !== null);
   const [ratingPending, startRatingTransition] = useTransition();
   const [ratingError, setRatingError] = useState("");
+  const [pendingStar, setPendingStar] = useState<number | null>(null); // For confirmation
 
   // Follow state
   const isOwner = userId === plate.user_id;
@@ -131,8 +132,21 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
 
   function handleRate(star: number) {
     if (!userId || isOwn) return;
+    // If same rating, do nothing
+    if (star === myRating && ratingDone) return;
+    // Show confirmation for changing existing rating
+    if (ratingDone && myRating !== null) {
+      setPendingStar(star);
+      return;
+    }
+    // First time rating - submit immediately
+    submitStarRating(star);
+  }
+
+  function submitStarRating(star: number) {
     setMyRating(star);
     setRatingError("");
+    setPendingStar(null);
     startRatingTransition(async () => {
       const res = await submitRating(plate.id, starsToScore(star), "");
       if (res?.error) {
@@ -141,9 +155,15 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
         toast(res.error, "error");
       } else {
         setRatingDone(true);
-        toast("Rating saved!");
+        const action = initialRating !== null ? "updated" : "saved";
+        toast(`Rating ${action}!`);
       }
     });
+  }
+
+  function cancelRatingChange() {
+    setPendingStar(null);
+    setHoverStar(0);
   }
 
   const activeStar = hoverStar || myRating || 0;
@@ -225,15 +245,15 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
           <button
             onClick={handleLike}
             disabled={likePending}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
-              liked ? "bg-rose-500/15 text-rose-400" : "bg-surface-2 text-muted hover:text-rose-400 hover:bg-rose-500/10"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-all press-scale ${
+              liked ? "bg-rose-500/15 text-rose-400 shadow-lg shadow-rose-500/10" : "bg-surface-2 text-muted hover:text-rose-400 hover:bg-rose-500/10"
             }`}
           >
-            <Heart className={`w-4 h-4 transition-all ${liked ? "fill-rose-500 text-rose-500 scale-110" : ""}`} />
+            <Heart className={`w-4 h-4 transition-all ${liked ? "fill-rose-500 text-rose-500 scale-110 animate-heart" : ""}`} />
             <span>{likeCount > 0 ? likeCount : ""}</span>
           </button>
         ) : (
-          <Link href="/auth/login" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-surface-2 text-muted hover:text-rose-400 hover:bg-rose-500/10 transition-all">
+          <Link href="/auth/login" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-surface-2 text-muted hover:text-rose-400 hover:bg-rose-500/10 transition-all press-scale">
             <Heart className="w-4 h-4" />
             <span>{likeCount > 0 ? likeCount : ""}</span>
           </Link>
@@ -242,11 +262,27 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
         {/* Inline rating stars */}
         {!isOwn && (
           <div className="flex items-center gap-1 ml-1">
-            {ratingDone && !ratingPending ? (
-              <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold px-2 py-1 bg-emerald-500/10 rounded-full">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                {myRating}/5
-              </span>
+            {pendingStar !== null ? (
+              // Confirmation UI for changing rating
+              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
+                <span className="text-xs text-amber-400 font-semibold whitespace-nowrap">
+                  Change to {pendingStar}/5?
+                </span>
+                <button
+                  onClick={() => submitStarRating(pendingStar)}
+                  disabled={ratingPending}
+                  className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full hover:bg-emerald-500/30 transition-colors"
+                >
+                  {ratingPending ? "..." : "Confirm"}
+                </button>
+                <button
+                  onClick={cancelRatingChange}
+                  disabled={ratingPending}
+                  className="px-2 py-0.5 bg-surface-2 text-faint text-[10px] font-bold rounded-full hover:bg-surface-1 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             ) : (
               <>
                 {[1, 2, 3, 4, 5].map((s) => (
@@ -264,13 +300,18 @@ export default function FeedPost({ plate, initialLiked = false, initialRating = 
                         s <= activeStar
                           ? "fill-amber-400 text-amber-400"
                           : "text-muted fill-none"
-                      }`}
+                      } ${ratingDone && myRating === s ? "drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" : ""}`}
                     />
                   </button>
                 ))}
-                {hoverStar > 0 && (
+                {hoverStar > 0 ? (
                   <span className="text-xs text-amber-400 font-semibold ml-1 whitespace-nowrap">{STAR_LABELS[hoverStar]}</span>
-                )}
+                ) : ratingDone && myRating !== null ? (
+                  <span className="flex items-center gap-1 text-xs text-emerald-400 font-semibold ml-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    {myRating}/5
+                  </span>
+                ) : null}
                 {!userId && (
                   <Link href="/auth/login" className="text-xs text-faint ml-1 hover:text-orange-400 transition-colors whitespace-nowrap">
                     Sign in to rate

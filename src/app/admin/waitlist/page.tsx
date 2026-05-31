@@ -15,7 +15,10 @@ export default async function AdminWaitlistPage() {
 
   const isMaintenance = settings?.maintenance_mode === true;
   const totalWaitlist = count ?? 0;
-  const last24h = entries?.filter((e) => Date.now() - new Date(e.created_at).getTime() < 86_400_000).length ?? 0;
+  /* eslint-disable react-hooks/purity */
+  const now = Date.now();
+  const last24h = entries?.filter((e) => now - new Date(e.created_at).getTime() < 86_400_000).length ?? 0;
+  /* eslint-enable react-hooks/purity */
   const conversionPct = totalWaitlist > 0 ? Math.round(((userCount ?? 0) / totalWaitlist) * 100) : 0;
 
   return (

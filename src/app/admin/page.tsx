@@ -5,6 +5,7 @@ import { toggleMaintenanceMode } from "@/app/actions/settings";
 export default async function AdminDashboard() {
   const { supabase } = await requireAdmin();
 
+  // eslint-disable-next-line react-hooks/purity
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
@@ -34,10 +35,12 @@ export default async function AdminDashboard() {
   ]);
 
   // Build 7-day buckets (index 0 = 6 days ago, 6 = today)
+  /* eslint-disable react-hooks/purity */
+  const now = Date.now();
   function bucketByDay(rows: { created_at: string }[]) {
     const counts = Array(7).fill(0);
     for (const r of rows ?? []) {
-      const daysAgo = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86_400_000);
+      const daysAgo = Math.floor((now - new Date(r.created_at).getTime()) / 86_400_000);
       if (daysAgo < 7) counts[6 - daysAgo]++;
     }
     return counts;
@@ -45,9 +48,10 @@ export default async function AdminDashboard() {
   const userBuckets = bucketByDay(recentUsers ?? []);
   const plateBuckets = bucketByDay(recentPlatesGrowth ?? []);
   const dayLabels = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(Date.now() - (6 - i) * 86_400_000);
+    const d = new Date(now - (6 - i) * 86_400_000);
     return d.toLocaleDateString("en", { weekday: "short" });
   });
+  /* eslint-enable react-hooks/purity */
 
   const maintenanceOn = appSettings?.maintenance_mode === true;
 

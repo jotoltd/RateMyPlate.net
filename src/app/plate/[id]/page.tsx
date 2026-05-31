@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -256,7 +257,7 @@ export default async function PlatePage({
             <ViewCounter plateId={plate.id} initialCount={plate.view_count ?? 0} />
           </div>
 
-          {/* AI Rating */}
+          {/* Ramsay Rating */}
           {plate.ai_rating !== null && (
             <div className="bg-violet-500/5 border border-violet-500/20 rounded-3xl p-5">
               <div className="flex items-center gap-2 mb-3">
@@ -265,7 +266,7 @@ export default async function PlatePage({
                 </div>
                 <div>
                   <p className="font-bold text-violet-300 text-sm">Ramsay</p>
-                  <p className="text-xs text-violet-500">AI Food Critic</p>
+                  <p className="text-xs text-violet-500">Ramsay Food Critic</p>
                 </div>
                 <div className="ml-auto flex items-baseline gap-0.5">
                   <span className="text-3xl font-black text-violet-300">{scoreToStars(plate.ai_rating).toFixed(1)}</span>

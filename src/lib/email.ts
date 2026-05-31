@@ -66,7 +66,7 @@ export async function sendWelcomeEmail(to: string, username: string) {
     subject: "Welcome to Rate My Plate 🍽",
     html: base(`
       ${h1("Welcome, @" + username + "!")}
-      ${p("You're now part of the best food-rating community on the internet. Share your plates, get rated by AI, and discover amazing food from chefs around the world.")}
+      ${p("You're now part of the best food-rating community on the internet. Share your plates, get rated by Ramsay, and discover amazing food from chefs around the world.")}
       ${p("Get started by uploading your first plate — it takes less than a minute.")}
       ${btn("Upload Your First Plate", SITE + "/upload")}
     `),
@@ -191,7 +191,7 @@ export async function sendLaunchEmail(to: string, name?: string) {
     html: base(`
       ${h1(greeting + " — we're live!")}
       ${p("You signed up for the Rate My Plate waitlist and the wait is over. The doors are open!")}
-      ${p("Upload your first plate, get brutally honest AI ratings from our Gordon Ramsay-inspired critic, and see how the community rates your food.")}
+      ${p("Upload your first plate, get brutally honest Ramsay ratings, and see how the community rates your food.")}
       ${p("<strong style='color:#fff;'>It's completely free.</strong> No catch.")}
       ${btn("Claim Your Spot Now →", SITE + "/auth/signup")}
       <p style="color:#666;font-size:12px;margin-top:24px;">You're receiving this because you signed up at ratemyplate.net. <a href="${SITE}" style="color:#888;">Unsubscribe</a></p>

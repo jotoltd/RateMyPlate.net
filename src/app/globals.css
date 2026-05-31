@@ -131,3 +131,134 @@ body {
   0% { background-position: 0% center; }
   100% { background-position: 200% center; }
 }
+
+/* ── Glassmorphism utilities ─────────────────── */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.glass-dark {
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.glass-light {
+  background: rgba(245,240,235,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* ── Shadow system ───────────────────────────── */
+.shadow-card {
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+}
+
+.shadow-card-hover {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+}
+
+.shadow-float {
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(249,115,22,0.3), 0 0 40px rgba(244,63,94,0.15);
+}
+
+/* ── Micro-interactions ─────────────────────── */
+.press-scale {
+  transition: transform 0.15s ease-out;
+}
+
+.press-scale:active {
+  transform: scale(0.95);
+}
+
+.press-scale-sm:active {
+  transform: scale(0.92);
+}
+
+/* Star rating glow */
+.star-glow {
+  filter: drop-shadow(0 0 4px rgba(251,191,36,0.6));
+  transition: filter 0.2s ease;
+}
+
+.star-glow:hover {
+  filter: drop-shadow(0 0 8px rgba(251,191,36,0.9));
+}
+
+/* Heart burst animation */
+@keyframes heart-burst {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.animate-heart {
+  animation: heart-burst 0.4s ease-out;
+}
+
+/* Toast slide-in */
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-top 0.3s ease-out;
+}
+
+/* Pulse ring for notifications */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* ── Typography improvements ─────────────────── */
+.tracking-tighter {
+  letter-spacing: -0.04em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ── Progress bar ───────────────────────────── */
+.progress-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #f97316, #f43f5e);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ── Safe area padding for mobile ────────────── */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -10,14 +10,14 @@ const STEPS = [
     gradient: "from-orange-500 to-rose-500",
     title: "Welcome to Rate My Plate! 🎉",
     subtitle: "The world's most honest food critic lives here.",
-    body: "Share your plates, get brutally honest AI ratings from Gordon Ramsay's digital twin, and see how you stack up against other home chefs.",
+    body: "Share your plates, get brutally honest ratings from Gordon Ramsay, and see how you stack up against other home chefs.",
   },
   {
     icon: <Upload className="w-10 h-10 text-white" />,
     gradient: "from-rose-500 to-pink-600",
     title: "Upload a Plate",
     subtitle: "Takes 30 seconds.",
-    body: "Snap or pick a photo of your food. Give it a title, pick a category, and submit — our AI critiques it instantly. You earn 10 points just for uploading.",
+    body: "Snap or pick a photo of your food. Give it a title, pick a category, and submit — Ramsay critiques it instantly. You earn 10 points just for uploading.",
     pill: "+10 pts for every upload",
   },
   {
@@ -41,7 +41,7 @@ const STEPS = [
     gradient: "from-orange-500 to-rose-500",
     title: "You're ready. Let's go!",
     subtitle: "Upload your first plate now.",
-    body: "Your AI rating will appear within seconds. Don't worry — even Ramsay started somewhere.",
+    body: "Your Ramsay rating will appear within seconds. Don't worry — even he started somewhere.",
     cta: "Upload My First Plate",
   },
 ];

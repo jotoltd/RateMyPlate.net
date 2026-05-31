@@ -49,10 +49,10 @@ export default function StarRating({
             <Star
               className={cn(
                 sizeClasses[size],
-                "transition-all duration-150",
+                "transition-all duration-200",
                 star <= active
-                  ? "text-amber-400 fill-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]"
-                  : "text-white/10 fill-white/10"
+                  ? "text-amber-400 fill-amber-400 star-glow"
+                  : "text-surface-2 fill-surface-2 hover:text-amber-400/30"
               )}
             />
           </button>

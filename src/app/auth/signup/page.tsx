@@ -73,13 +73,13 @@ export default function SignupPage() {
           </div>
         )}
 
-        {/* Sample AI critique teaser */}
+        {/* Sample Ramsay critique teaser */}
         <div className="mb-6 rounded-2xl border border-app-1 bg-surface-1 p-4 relative overflow-hidden">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center flex-shrink-0">
               <Flame className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="text-xs font-bold text-orange-400 uppercase tracking-widest">AI Ramsay says…</span>
+            <span className="text-xs font-bold text-orange-400 uppercase tracking-widest">Ramsay says…</span>
           </div>
           <p className="text-sm text-muted italic leading-relaxed line-clamp-2 select-none">
             &ldquo;Finally, a pasta dish that doesn&apos;t make me want to throw it out the window — though the sauce is a tad watery. 7.4/10.&rdquo;

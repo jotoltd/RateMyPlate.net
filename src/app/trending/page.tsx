@@ -25,6 +25,7 @@ export default async function TrendingPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  /* eslint-disable react-hooks/purity */
   const since =
     activePeriod === "24h"
       ? new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -48,12 +49,14 @@ export default async function TrendingPage({
     .limit(25);
 
   // Client-side hot score: likes*3 + ratings*2 + views*0.1, decayed by age
+  const now = Date.now();
   const scored = (plates ?? []).map((p) => {
-    const ageHours = (Date.now() - new Date(p.created_at).getTime()) / 3_600_000;
+    const ageHours = (now - new Date(p.created_at).getTime()) / 3_600_000;
     const decay = 1 / (1 + ageHours / 48);
     const hot = ((p.like_count ?? 0) * 3 + (p.rating_count ?? 0) * 2) * decay;
     return { ...p, hot };
   }).sort((a, b) => b.hot - a.hot);
+  /* eslint-enable react-hooks/purity */
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -182,7 +185,7 @@ export default async function TrendingPage({
             <ChefHat className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-black text-app mb-2">Want to appear on Trending?</h3>
-          <p className="text-sm text-muted mb-5">Upload your plate, get an AI critique, and let the community rate it. Free forever — takes 30 seconds.</p>
+          <p className="text-sm text-muted mb-5">Upload your plate, get a Ramsay critique, and let the community rate it. Free forever — takes 30 seconds.</p>
           <div className="flex gap-3 justify-center">
             <Link href="/auth/signup" className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-black text-sm hover:opacity-90 transition-opacity shadow-md shadow-orange-500/20">
               <Flame className="w-4 h-4" /> Join Free

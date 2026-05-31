@@ -36,8 +36,8 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
-          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-200/60 group-hover:scale-105 transition-transform">
+        <Link href="/" className="flex items-center gap-2 group flex-shrink-0 press-scale">
+          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform">
             <ChefHat className="w-4 h-4 text-white" />
           </div>
           <span className="font-black text-base text-fire hidden sm:block">
@@ -72,7 +72,7 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
               <NotificationBell notifications={notifications} userId={userId} />
               <Link
                 href="/upload"
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-orange-200/50 ml-1"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 press-scale transition-all shadow-lg shadow-orange-500/30 ml-1"
               >
                 <Upload className="w-3.5 h-3.5" />
                 Upload
@@ -90,7 +90,7 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
               <Link href="/auth/login" className="text-sm font-semibold text-muted hover:text-app px-3 py-1.5 rounded-xl hover:bg-surface-1 transition-colors ml-1">
                 Sign in
               </Link>
-              <Link href="/auth/signup" className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md shadow-orange-200/50">
+              <Link href="/auth/signup" className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-3.5 py-1.5 rounded-xl text-sm font-bold hover:opacity-90 press-scale transition-all shadow-lg shadow-orange-500/30">
                 Get Started
               </Link>
             </>
@@ -132,7 +132,7 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
           )}
 
           {user && (
-            <Link href="/upload" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold mb-2">
+            <Link href="/upload" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold mb-2 press-scale shadow-lg shadow-orange-500/30">
               <Upload className="w-4 h-4" /> Upload Plate
             </Link>
           )}
@@ -164,7 +164,7 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
                 <Link href="/auth/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted hover:text-app hover:bg-surface-1 text-sm font-medium">
                   <LogIn className="w-4 h-4" /> Sign in
                 </Link>
-                <Link href="/auth/signup" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold">
+                <Link href="/auth/signup" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-3 rounded-2xl font-semibold press-scale shadow-lg shadow-orange-500/30">
                   Get Started
                 </Link>
               </div>

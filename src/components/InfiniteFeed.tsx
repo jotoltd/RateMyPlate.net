@@ -5,6 +5,7 @@ import { ArrowUp } from "lucide-react";
 import PlateCard from "@/components/PlateCard";
 import FeedPost from "@/components/FeedPost";
 import { PlateCardSkeleton } from "@/components/Skeleton";
+import { EmptyState, LoadingState } from "@/components/EmptyState";
 import { Plate, Comment } from "@/lib/types";
 import { loadMorePlates, loadFollowingFeed } from "@/app/actions/feed";
 import { createClient } from "@/lib/supabase/client";
@@ -108,6 +109,19 @@ export default function InfiniteFeed({
     setNewPlateCount(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
     window.location.reload();
+  }
+
+  if (plates.length === 0 && !isPending) {
+    return (
+      <EmptyState
+        type={mode === "following" ? "following" : "plates"}
+        action={mode !== "following" ? { href: "/upload", label: "Upload your first plate" } : undefined}
+      />
+    );
+  }
+
+  if (plates.length === 0 && isPending) {
+    return <LoadingState count={3} />;
   }
 
   return (

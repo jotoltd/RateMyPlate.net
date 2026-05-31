@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import Image from "next/image";
 import { Upload, Star, Users, Sparkles, ChefHat, Flame, TrendingUp, MessageSquare, ArrowRight } from "lucide-react";
@@ -70,7 +71,7 @@ export default async function Home({
 
   let initialLikedIds: string[] = [];
   let initialRatingMap: Record<string, number> = {};
-  let initialCommentMap: Record<string, import("@/lib/types").Comment[]> = {};
+  const initialCommentMap: Record<string, import("@/lib/types").Comment[]> = {};
   let initialFollowingIds: string[] = [];
   let currentUserAvatar: string | null = null;
   let currentUsername: string | null = null;
@@ -135,22 +136,22 @@ export default async function Home({
               {/* LEFT — copy */}
               <div className="flex-1 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                  <Sparkles className="w-3 h-3" /> AI Food Critic — Free
+                  <Sparkles className="w-3 h-3" /> Ramsay Food Critic — Free
                 </div>
 
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-app leading-[0.92] tracking-tight mb-5">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-app leading-[0.9] tracking-tighter text-balance mb-5">
                   Is your food<br />
                   <span className="text-fire">actually good?</span>
                 </h1>
 
                 <p className="text-base md:text-lg text-muted mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
-                  Upload a photo of your plate. Get a brutally honest critique from our AI food critic. See how the community scores it. Takes 30 seconds.
+                  Upload a photo of your plate. Get a brutally honest critique from Ramsay. See how the community scores it. Takes 30 seconds.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                   <Link
                     href="/auth/signup"
-                    className="group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-7 py-4 rounded-2xl font-black text-base hover:from-orange-400 hover:to-rose-400 transition-all shadow-lg shadow-orange-500/25 active:scale-95"
+                    className="group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-7 py-4 rounded-2xl font-black text-base hover:from-orange-400 hover:to-rose-400 transition-all shadow-xl shadow-orange-500/30 press-scale"
                   >
                     <Flame className="w-5 h-5" />
                     Find Out — It&apos;s Free
@@ -158,7 +159,7 @@ export default async function Home({
                   </Link>
                   <Link
                     href="/auth/login"
-                    className="flex items-center justify-center gap-2 border border-app-2 text-muted hover:border-orange-500/40 hover:text-orange-400 px-7 py-4 rounded-2xl font-semibold text-base transition-all"
+                    className="flex items-center justify-center gap-2 border border-app-2 text-muted hover:border-orange-500/40 hover:text-orange-400 hover:bg-orange-500/5 px-7 py-4 rounded-2xl font-semibold text-base transition-all press-scale"
                   >
                     Sign In
                   </Link>
@@ -182,7 +183,7 @@ export default async function Home({
                 )}
               </div>
 
-              {/* RIGHT — AI critique demo card */}
+              {/* RIGHT — Ramsay critique demo card */}
               <div className="flex-shrink-0 w-full max-w-[320px] lg:max-w-[340px]">
                 <div className="relative rounded-3xl border border-orange-500/20 bg-surface-1 overflow-hidden shadow-2xl shadow-orange-500/10">
                   {/* Plate image placeholder with gradient */}
@@ -203,14 +204,14 @@ export default async function Home({
                     </div>
                   </div>
 
-                  {/* AI critique */}
+                  {/* Ramsay critique */}
                   <div className="p-4">
                     <div className="flex items-center gap-2 mb-2.5">
                       <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center flex-shrink-0">
                         <span className="text-sm">👨‍🍳</span>
                       </div>
                       <div>
-                        <p className="text-xs font-black text-app">AI Food Critic</p>
+                        <p className="text-xs font-black text-app">Ramsay Food Critic</p>
                         <p className="text-[10px] text-faint">Gordon Ramsay mode</p>
                       </div>
                       <div className="ml-auto flex items-center gap-0.5">
@@ -262,7 +263,7 @@ export default async function Home({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 { step: "01", icon: "📸", title: "Snap your plate", desc: "Upload a photo of anything you cooked, ordered, or plated. Phone photos are fine." },
-                { step: "02", icon: "🤖", title: "Get AI-critiqued", desc: "Our AI food critic channels its inner Gordon Ramsay and gives you a brutally honest score out of 10." },
+                { step: "02", icon: "🤖", title: "Get AI-critiqued", desc: "Ramsay gives you a brutally honest score out of 10 based on your food." },
                 { step: "03", icon: "⭐", title: "Collect community ratings", desc: "Other chefs star-rate your plate and leave comments. See how you stack up on the leaderboard." },
               ].map(({ step, icon, title, desc }) => (
                 <div key={step} className="relative bg-surface-1 border border-app-1 rounded-3xl p-6">
@@ -285,9 +286,9 @@ export default async function Home({
             <h2 className="text-3xl font-black text-app text-center mb-10">Honest feedback changes everything</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
-                { quote: "I uploaded my pasta and the AI told me I overcooked it. I adjusted the recipe and now I get 9s consistently.", name: "Jamie R.", handle: "@jamie_eats", emoji: "🍝", stars: 5 },
+                { quote: "I uploaded my pasta and Ramsay told me I overcooked it. I adjusted the recipe and now I get 9s consistently.", name: "Jamie R.", handle: "@jamie_eats", emoji: "🍝", stars: 5 },
                 { quote: "Finally a place where people actually rate food properly. Not just empty compliments. My plating has improved so much.", name: "Sarah K.", handle: "@sarah_cooks", emoji: "🍱", stars: 5 },
-                { quote: "The Gordon Ramsay AI is brutal but fair. Got a 6.5 on my burger, fixed the sauce, got a 9.2 the next week.", name: "Marcus T.", handle: "@marcus_grills", emoji: "🍔", stars: 4 },
+                { quote: "Ramsay is brutal but fair. Got a 6.5 on my burger, fixed the sauce, got a 9.2 the next week.", name: "Marcus T.", handle: "@marcus_grills", emoji: "🍔", stars: 4 },
               ].map(({ quote, name, handle, emoji, stars }) => (
                 <div key={handle} className="bg-surface-1 border border-app-1 rounded-3xl p-6 flex flex-col gap-4">
                   <div className="flex items-center gap-0.5">
@@ -468,7 +469,7 @@ export default async function Home({
             <p className="text-muted mb-2">
               {activeCategory !== "all"
                 ? `Be the first to share a ${activeCategory} dish and get rated!`
-                : "Be the first to share your food and get an honest AI rating."}
+                : "Be the first to share your food and get an honest Ramsay rating."}
             </p>
             <p className="text-sm text-faint mb-8">It only takes 30 seconds.</p>
             <Link
@@ -486,7 +487,7 @@ export default async function Home({
       {!user && (
         <div className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-nav/95 backdrop-blur-xl border-t border-nav safe-area-pb">
           <div className="px-4 pt-2.5 pb-3">
-            <p className="text-center text-[11px] text-faint mb-2">👨‍🍳 What would the AI say about your cooking?</p>
+            <p className="text-center text-[11px] text-faint mb-2">👨‍🍳 What would Ramsay say about your cooking?</p>
             <div className="flex gap-2">
               <Link
                 href="/auth/signup"
