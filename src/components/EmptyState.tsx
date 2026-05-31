@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ImageIcon, Users, Heart, Search, Bell, UtensilsCrossed } from "lucide-react";
 
 interface EmptyStateProps {
   type: "plates" | "following" | "liked" | "saved" | "notifications" | "search" | "collections";
@@ -8,43 +7,36 @@ interface EmptyStateProps {
 
 const config = {
   plates: {
-    icon: ImageIcon,
     title: "No plates yet",
     description: "Be the first to share your culinary creations!",
     emoji: "🍽️",
   },
   following: {
-    icon: Users,
     title: "No plates from chefs you follow",
     description: "Follow more chefs to see their latest plates here.",
     emoji: "👨‍🍳",
   },
   liked: {
-    icon: Heart,
     title: "No liked plates yet",
     description: "Double-tap plates you love to save them here.",
     emoji: "❤️",
   },
   saved: {
-    icon: ImageIcon,
     title: "No saved plates",
     description: "Save plates to your collections for quick access.",
     emoji: "🔖",
   },
   notifications: {
-    icon: Bell,
     title: "No notifications",
     description: "When someone interacts with your plates, you'll see it here.",
     emoji: "🔔",
   },
   search: {
-    icon: Search,
     title: "No results",
     description: "Try different keywords or check your spelling.",
     emoji: "🔍",
   },
   collections: {
-    icon: UtensilsCrossed,
     title: "No collections yet",
     description: "Create collections to organize your favorite plates.",
     emoji: "📁",
@@ -52,7 +44,7 @@ const config = {
 };
 
 export function EmptyState({ type, action }: EmptyStateProps) {
-  const { icon: Icon, title, description, emoji } = config[type];
+  const { title, description, emoji } = config[type];
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
