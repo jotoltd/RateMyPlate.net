@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s – Rate My Plate",
   },
   description:
-    "Upload a photo of your plate and get an instant, brutally honest Ramsay critique scored out of 10. Then see how the community rates it. Free forever.",
+    "Share your plates. Get rated by chefs from around the world and Ramsay himself. Rate theirs back. The global food rating community.",
   keywords: [
     "rate my food", "food rating", "Ramsay food critic", "rate my plate", "food score",
     "plate rating", "is my food good", "cooking feedback", "food community", "food critique"

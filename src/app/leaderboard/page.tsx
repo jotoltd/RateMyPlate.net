@@ -214,10 +214,10 @@ export default async function LeaderboardPage({
             <Flame className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-black text-app mb-2">Think your plate can top the leaderboard?</h3>
-          <p className="text-sm text-muted mb-5">Upload your food, get an instant Ramsay rating, and compete with chefs from around the world. Free forever.</p>
+          <p className="text-sm text-muted mb-5">Upload your food. Get rated by chefs worldwide and Ramsay. Compete on the global leaderboard.</p>
           <div className="flex gap-3 justify-center">
             <Link href="/auth/signup" className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-6 py-3 rounded-xl font-black text-sm hover:opacity-90 transition-opacity shadow-md shadow-orange-500/20">
-              <Flame className="w-4 h-4" /> Join Free
+              <Flame className="w-4 h-4" /> Join
             </Link>
             <Link href="/auth/login" className="flex items-center gap-2 border border-app-1 text-muted px-6 py-3 rounded-xl font-semibold text-sm hover:bg-surface-1 transition-colors">
               Sign In

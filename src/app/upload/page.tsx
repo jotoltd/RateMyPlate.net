@@ -106,7 +106,7 @@ export default function UploadPage() {
             <ChefHat className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-app mb-3">Join to Upload</h1>
-          <p className="text-muted mb-6 leading-relaxed">Create a free account to share your plates, get Ramsay ratings, and earn points.</p>
+          <p className="text-muted mb-6 leading-relaxed">Join the community to share your plates and get rated by chefs worldwide — plus Ramsay.</p>
           <div className="flex flex-col gap-3 mb-6">
             {[
               { icon: <Zap className="w-4 h-4 text-orange-400" />, text: "+10 points for every upload" },
@@ -119,7 +119,7 @@ export default function UploadPage() {
             ))}
           </div>
           <a href="/auth/signup?next=/upload" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20 mb-3">
-            <ChefHat className="w-5 h-5" /> Create Free Account
+            <ChefHat className="w-5 h-5" /> Create Account
           </a>
           <a href="/auth/login?next=/upload" className="w-full flex items-center justify-center gap-2 bg-surface-1 border border-app-1 text-muted py-3.5 rounded-2xl font-semibold text-sm hover:bg-surface-2 transition-colors">
             Already have an account? Sign in

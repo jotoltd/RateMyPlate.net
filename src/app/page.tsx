@@ -136,7 +136,7 @@ export default async function Home({
               {/* LEFT — copy */}
               <div className="flex-1 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                  <Sparkles className="w-3 h-3" /> Ramsay Food Critic — Free
+                  <Sparkles className="w-3 h-3" /> Rated by chefs worldwide — and Ramsay
                 </div>
 
                 <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-app leading-[0.9] tracking-tighter text-balance mb-5">
@@ -145,7 +145,7 @@ export default async function Home({
                 </h1>
 
                 <p className="text-base md:text-lg text-muted mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
-                  Upload a photo of your plate. Get a brutally honest critique from Ramsay. See how the community scores it. Takes 30 seconds.
+                  Share your plate. Chefs from around the world rate it — and Ramsay gives his brutal verdict. Then rate theirs back.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
@@ -154,7 +154,7 @@ export default async function Home({
                     className="group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-7 py-4 rounded-2xl font-black text-base hover:from-orange-400 hover:to-rose-400 transition-all shadow-xl shadow-orange-500/30 press-scale"
                   >
                     <Flame className="w-5 h-5" />
-                    Find Out — It&apos;s Free
+                    Get Rated
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                   <Link
@@ -317,7 +317,7 @@ export default async function Home({
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
               >
                 <Flame className="w-5 h-5" />
-                Join for free — get rated today
+                Start sharing your plates
               </Link>
             </div>
           </div>
@@ -477,7 +477,7 @@ export default async function Home({
               className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-4 rounded-2xl font-black text-base hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/20"
             >
               <Upload className="w-5 h-5" />
-              {user ? "Upload a Plate" : "Join & Upload Free"}
+              {user ? "Upload a Plate" : "Join the community"}
             </Link>
           </div>
         )}
@@ -493,7 +493,7 @@ export default async function Home({
                 href="/auth/signup"
                 className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm rounded-xl shadow-md shadow-orange-500/20"
               >
-                <Flame className="w-4 h-4" /> Find Out Free
+                <Flame className="w-4 h-4" /> Get Rated
               </Link>
               <Link
                 href="/auth/login"
