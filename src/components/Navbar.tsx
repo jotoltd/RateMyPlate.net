@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChefHat, Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked, Settings, ShieldCheck } from "lucide-react";
+import { Upload, User, LogOut, LogIn, Menu, X, Search, Flame, Bookmark, Bell, BookMarked, Settings, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import UserMenu from "@/components/UserMenu";
@@ -37,9 +37,7 @@ export default function Navbar({ user, username, notifications = [], avatarUrl, 
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group flex-shrink-0 press-scale">
-          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform">
-            <ChefHat className="w-4 h-4 text-white" />
-          </div>
+          <img src="/logo.jpeg" alt="Rate My Plate" className="h-8 w-auto rounded-xl group-hover:scale-105 transition-transform" />
           <span className="font-black text-base text-fire hidden sm:block">
             Rate My Plate
           </span>
